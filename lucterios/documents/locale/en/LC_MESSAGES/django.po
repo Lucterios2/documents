@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-05-21 15:49+0000\n"
+"POT-Creation-Date: 2015-05-22 16:21+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,4 +19,140 @@ msgstr ""
 
 #: __init__.py:39
 msgid "Lucterios documents"
+msgstr ""
+
+#: models.py:32 models.py:57
+msgid "name"
+msgstr ""
+
+#: models.py:33 models.py:58
+msgid "description"
+msgstr ""
+
+#: models.py:34
+msgid "parent"
+msgstr ""
+
+#: models.py:35
+msgid "viewer"
+msgstr ""
+
+#: models.py:36 models.py:59
+msgid "modifier"
+msgstr ""
+
+#: models.py:38
+msgid "Available group viewers"
+msgstr ""
+
+#: models.py:38
+msgid "Chosen group viewers"
+msgstr ""
+
+#: models.py:39
+msgid "Available group modifiers"
+msgstr ""
+
+#: models.py:39
+msgid "Chosen group modifiers"
+msgstr ""
+
+#: models.py:41 models.py:42
+msgid "001@Info"
+msgstr ""
+
+#: models.py:41 models.py:42
+msgid "001@Permission"
+msgstr ""
+
+#: models.py:51 models.py:56
+msgid "category"
+msgstr ""
+
+#: models.py:52
+msgid "categories"
+msgstr ""
+
+#: models.py:60
+msgid "date modification"
+msgstr ""
+
+#: models.py:61
+msgid "creator"
+msgstr ""
+
+#: models.py:62
+msgid "date creation"
+msgstr ""
+
+#: models.py:81 models.py:82
+msgid "document"
+msgstr ""
+
+#: views.py:33
+msgid "Document"
+msgstr ""
+
+#: views.py:35
+msgid "Management of document's categories"
+msgstr ""
+
+#: views.py:37
+msgid "Categories"
+msgstr ""
+
+#: views.py:48
+msgid "Add category"
+msgstr ""
+
+#: views.py:49
+msgid "Modify category"
+msgstr ""
+
+#: views.py:54
+msgid "Delete category"
+msgstr ""
+
+#: views.py:59
+msgid "Office"
+msgstr ""
+
+#: views.py:59
+msgid "Office tools"
+msgstr ""
+
+#: views.py:61 views.py:65
+msgid "Documents"
+msgstr ""
+
+#: views.py:61
+msgid "Documents storage tools"
+msgstr ""
+
+#: views.py:63
+msgid "Management of documents"
+msgstr ""
+
+#: views.py:70
+msgid "To find a document following a set of criteria."
+msgstr ""
+
+#: views.py:72
+msgid "Document search"
+msgstr ""
+
+#: views.py:83
+msgid "Add document"
+msgstr ""
+
+#: views.py:84
+msgid "Modify document"
+msgstr ""
+
+#: views.py:89
+msgid "Show document"
+msgstr ""
+
+#: views.py:97
+msgid "Delete document"
 msgstr ""

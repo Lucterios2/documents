@@ -27,7 +27,6 @@ from django.utils.translation import ugettext_lazy as _
 from django.db import models
 from lucterios.framework.models import LucteriosModel
 from lucterios.CORE.models import LucteriosGroup, LucteriosUser
-from django.core.exceptions import ObjectDoesNotExist
 
 class Category(LucteriosModel):
     name = models.CharField(_('name'), max_length=25, blank=False)
@@ -61,7 +60,7 @@ class Document(LucteriosModel):
     date_modification = models.DateTimeField(verbose_name=_('date modification'), null=False, auto_now_add=True)
     creator = models.ForeignKey(LucteriosUser, related_name="document_creator", verbose_name=_('creator'), null=True, on_delete=models.CASCADE)
     date_creation = models.DateTimeField(verbose_name=_('date creation'), null=False, auto_now_add=True)
-    
+
     document__showfields = ["category", "name", "description", ("modifier", "date_modification"), ("creator", "date_creation")]
     document__editfields = ["category", "name", "description"]
     document__searchfields = ["name", "description", "category.name", "date_modification", "date_creation"]
@@ -69,9 +68,9 @@ class Document(LucteriosModel):
 
     def before_save(self, xfer):
         if (self.creator is None) and xfer.request.user.is_authenticated():
-            self.creator = LucteriosUser.objects.get(pk=xfer.request.user.id)
+            self.creator = LucteriosUser.objects.get(pk=xfer.request.user.id) # pylint: disable=no-member
         if (self.modifier is None) and xfer.request.user.is_authenticated():
-            self.modifier = LucteriosUser.objects.get(pk=xfer.request.user.id)
+            self.modifier = LucteriosUser.objects.get(pk=xfer.request.user.id) # pylint: disable=no-member
         return
 
     def __str__(self):
