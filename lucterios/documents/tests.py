@@ -23,3 +23,30 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
+from lucterios.framework.test import LucteriosTest
+from lucterios.framework.xfergraphic import XferContainerAcknowledge
+from unittest.suite import TestSuite
+from unittest.loader import TestLoader
+
+class CategoryTest(LucteriosTest):
+    # pylint: disable=too-many-public-methods,too-many-statements
+
+    def setUp(self):
+        self.xfer_class = XferContainerAcknowledge
+        LucteriosTest.setUp(self)
+
+class DocumentTest(LucteriosTest):
+    # pylint: disable=too-many-public-methods,too-many-statements
+
+    def setUp(self):
+        self.xfer_class = XferContainerAcknowledge
+        LucteriosTest.setUp(self)
+
+
+def suite():
+    # pylint: disable=redefined-outer-name
+    suite = TestSuite()
+    loader = TestLoader()
+    suite.addTest(loader.loadTestsFromTestCase(CategoryTest))
+    suite.addTest(loader.loadTestsFromTestCase(DocumentTest))
+    return suite
