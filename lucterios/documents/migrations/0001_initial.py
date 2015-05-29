@@ -36,18 +36,18 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Category',
+            name='Folder',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, primary_key=True, auto_created=True)),
                 ('name', models.CharField(verbose_name='name', max_length=25)),
                 ('description', models.TextField(verbose_name='description')),
-                ('modifier', models.ManyToManyField(verbose_name='modifier', blank=True, related_name='category_modifier', to='CORE.LucteriosGroup')),
-                ('parent', models.ForeignKey(verbose_name='parent', null=True, to='documents.Category')),
-                ('viewer', models.ManyToManyField(verbose_name='viewer', blank=True, related_name='category_viewer', to='CORE.LucteriosGroup')),
+                ('modifier', models.ManyToManyField(verbose_name='modifier', blank=True, related_name='folder_modifier', to='CORE.LucteriosGroup')),
+                ('parent', models.ForeignKey(verbose_name='parent', null=True, to='documents.Folder')),
+                ('viewer', models.ManyToManyField(verbose_name='viewer', blank=True, related_name='folder_viewer', to='CORE.LucteriosGroup')),
             ],
             options={
-                'verbose_name': 'category',
-                'verbose_name_plural': 'categories',
+                'verbose_name': 'folder',
+                'verbose_name_plural': 'folders',
                 'ordering': ['parent__name', 'name'],
             },
             bases=(models.Model,),
@@ -60,14 +60,14 @@ class Migration(migrations.Migration):
                 ('description', models.TextField(verbose_name='description')),
                 ('date_modification', models.DateTimeField(verbose_name='date modification', auto_now_add=True)),
                 ('date_creation', models.DateTimeField(verbose_name='date creation', auto_now_add=True)),
-                ('category', models.ForeignKey(verbose_name='category', to='documents.Category')),
+                ('folder', models.ForeignKey(verbose_name='folder', null=True, to='documents.Folder')),
                 ('creator', models.ForeignKey(verbose_name='creator', null=True, to='CORE.LucteriosUser', related_name='document_creator')),
                 ('modifier', models.ForeignKey(verbose_name='modifier', null=True, to='CORE.LucteriosUser', related_name='document_modifier')),
             ],
             options={
-                'verbose_name_plural': 'document',
+                'verbose_name_plural': 'documents',
                 'verbose_name': 'document',
-                'ordering': ['category__name', 'name'],
+                'ordering': ['folder__name', 'name'],
             },
             bases=(models.Model,),
         ),

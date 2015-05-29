@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-05-22 16:21+0000\n"
+"POT-Creation-Date: 2015-05-28 13:41+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,140 +19,167 @@ msgstr ""
 
 #: __init__.py:39
 msgid "Lucterios documents"
-msgstr ""
+msgstr "Lucterios documents"
 
 #: models.py:32 models.py:57
 msgid "name"
-msgstr ""
+msgstr "name"
 
 #: models.py:33 models.py:58
 msgid "description"
-msgstr ""
+msgstr "description"
 
 #: models.py:34
 msgid "parent"
-msgstr ""
+msgstr "parent"
 
 #: models.py:35
 msgid "viewer"
-msgstr ""
+msgstr "viewer"
 
 #: models.py:36 models.py:59
 msgid "modifier"
-msgstr ""
+msgstr "modifier"
 
 #: models.py:38
 msgid "Available group viewers"
-msgstr ""
+msgstr "Available group viewers"
 
 #: models.py:38
 msgid "Chosen group viewers"
-msgstr ""
+msgstr "Chosen group viewers"
 
 #: models.py:39
 msgid "Available group modifiers"
-msgstr ""
+msgstr "Available group modifiers"
 
 #: models.py:39
 msgid "Chosen group modifiers"
-msgstr ""
+msgstr "Chosen group modifiers"
 
 #: models.py:41 models.py:42
 msgid "001@Info"
-msgstr ""
+msgstr "001@Info"
 
 #: models.py:41 models.py:42
 msgid "001@Permission"
-msgstr ""
+msgstr "001@Permission"
 
 #: models.py:51 models.py:56
-msgid "category"
+msgid "folder"
 msgstr ""
 
 #: models.py:52
-msgid "categories"
+msgid "folders"
 msgstr ""
 
 #: models.py:60
 msgid "date modification"
-msgstr ""
+msgstr "date modification"
 
 #: models.py:61
 msgid "creator"
-msgstr ""
+msgstr "creator"
 
 #: models.py:62
 msgid "date creation"
-msgstr ""
+msgstr "date creation"
 
-#: models.py:81 models.py:82
+#: models.py:81
 msgid "document"
-msgstr ""
+msgstr "document"
+
+#: models.py:82
+#, fuzzy
+#| msgid "document"
+msgid "documents"
+msgstr "document"
 
 #: views.py:33
 msgid "Document"
-msgstr ""
+msgstr "Document"
 
 #: views.py:35
-msgid "Management of document's categories"
-msgstr ""
+#, fuzzy
+#| msgid "Management of documents"
+msgid "Management of document's folders"
+msgstr "Management of documents"
 
 #: views.py:37
-msgid "Categories"
+msgid "Folders"
 msgstr ""
 
 #: views.py:48
-msgid "Add category"
+msgid "Add folder"
 msgstr ""
 
 #: views.py:49
-msgid "Modify category"
-msgstr ""
+#, fuzzy
+#| msgid "Modify category"
+msgid "Modify folder"
+msgstr "Modify category"
 
 #: views.py:54
-msgid "Delete category"
-msgstr ""
+#, fuzzy
+#| msgid "Delete category"
+msgid "Delete folder"
+msgstr "Delete category"
 
 #: views.py:59
 msgid "Office"
-msgstr ""
+msgstr "Office"
 
 #: views.py:59
 msgid "Office tools"
-msgstr ""
+msgstr "Office tools"
 
 #: views.py:61 views.py:65
 msgid "Documents"
-msgstr ""
+msgstr "Documents"
 
 #: views.py:61
 msgid "Documents storage tools"
-msgstr ""
+msgstr "Documents storage tools"
 
 #: views.py:63
 msgid "Management of documents"
-msgstr ""
+msgstr "Management of documents"
 
 #: views.py:70
 msgid "To find a document following a set of criteria."
-msgstr ""
+msgstr "To find a document following a set of criteria."
 
 #: views.py:72
 msgid "Document search"
-msgstr ""
+msgstr "Document search"
 
 #: views.py:83
 msgid "Add document"
-msgstr ""
+msgstr "Add document"
 
 #: views.py:84
 msgid "Modify document"
-msgstr ""
+msgstr "Modify document"
 
 #: views.py:89
 msgid "Show document"
-msgstr ""
+msgstr "Show document"
 
 #: views.py:97
 msgid "Delete document"
-msgstr ""
+msgstr "Delete document"
+
+#~ msgid "category"
+#~ msgstr "category"
+
+#~ msgid "categories"
+#~ msgstr "categories"
+
+#~ msgid "Management of document's categories"
+#~ msgstr "Management of document's categories"
+
+#~ msgid "Categories"
+#~ msgstr "Categories"
+
+#~ msgid "Add category"
+#~ msgstr "Add category"

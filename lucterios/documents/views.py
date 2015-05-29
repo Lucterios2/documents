@@ -25,36 +25,40 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
 
-from lucterios.documents.models import Category, Document
+from lucterios.documents.models import Folder, Document
 from lucterios.framework.xferadvance import XferListEditor, XferDelete, XferAddEditor, XferShowEditor
 from lucterios.framework.xfersearch import XferSearchEditor
-from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, ActionsManage
+from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, ActionsManage, \
+    FORMTYPE_MODAL, CLOSE_NO, FORMTYPE_REFRESH
+from lucterios.framework.xfercomponents import XferCompButton, XferCompLabelForm, \
+    XferCompCheckList
+from django.utils import six
 
 MenuManage.add_sub("documents.conf", "core.extensions", "", _("Document"), "", 10)
 
-@MenuManage.describ('documents.change_category', FORMTYPE_NOMODAL, 'documents.conf', _("Management of document's categories"))
-class CategoryList(XferListEditor):
-    caption = _("Categories")
+@MenuManage.describ('documents.change_folder', FORMTYPE_NOMODAL, 'documents.conf', _("Management of document's folders"))
+class FolderList(XferListEditor):
+    caption = _("Folders")
     icon = "documentConf.png"
-    model = Category
-    field_id = 'category'
+    model = Folder
+    field_id = 'folder'
 
-@ActionsManage.affect('Category', 'add', 'edit')
-@MenuManage.describ('documents.add_category')
-class CategoryAddModify(XferAddEditor):
+@ActionsManage.affect('Folder', 'add', 'edit')
+@MenuManage.describ('documents.add_folder')
+class FolderAddModify(XferAddEditor):
     icon = "documentConf.png"
-    model = Category
-    field_id = 'category'
-    caption_add = _("Add category")
-    caption_modify = _("Modify category")
+    model = Folder
+    field_id = 'folder'
+    caption_add = _("Add folder")
+    caption_modify = _("Modify folder")
 
-@ActionsManage.affect('Category', 'del')
-@MenuManage.describ('documents.delete_category')
-class CategoryDel(XferDelete):
-    caption = _("Delete category")
+@ActionsManage.affect('Folder', 'del')
+@MenuManage.describ('documents.delete_folder')
+class FolderDel(XferDelete):
+    caption = _("Delete folder")
     icon = "documentConf.png"
-    model = Category
-    field_id = 'category'
+    model = Folder
+    field_id = 'folder'
 
 MenuManage.add_sub("office", None, "lucterios.documents/images/office.png", _("Office"), _("Office tools"), 70)
 
@@ -67,12 +71,95 @@ class DocumentList(XferListEditor):
     model = Document
     field_id = 'document'
 
-@MenuManage.describ('documents.change_document', FORMTYPE_NOMODAL, 'documents.actions', _('To find a document following a set of criteria.'))
-class LegalEntitySearch(XferSearchEditor):
-    caption = _("Document search")
-    icon = "documentFind.png"
-    model = Document
-    field_id = 'document'
+    def __init__(self, **kwargs):
+        XferListEditor.__init__(self, **kwargs)
+        self.current_folder = 0
+
+    def fillresponse_header(self):
+        self.current_folder = self.getparam('current_folder')
+        if self.current_folder is None:
+            self.current_folder = 0
+        else:
+            self.current_folder = int(self.current_folder)
+        if self.current_folder > 0:
+            self.filter = {'folder':self.current_folder}
+        else:
+            self.filter = {'folder':None}
+
+
+    def fill_current_folder(self, new_col, new_row):
+        lbl = XferCompLabelForm('lblcat')
+        lbl.set_value_as_name(_("current folder:"))
+        lbl.set_location(new_col, new_row)
+        self.add_component(lbl)
+        lbl = XferCompLabelForm('lbltitlecat')
+        if self.current_folder > 0:
+            folder_obj = Folder.objects.get(id=self.current_folder)  # pylint: disable=no-member
+            lbl.set_value(folder_obj.get_title())
+            folder_description = folder_obj.description
+        else:
+            lbl.set_value('>')
+            folder_obj = None
+            folder_description = ""
+        lbl.set_location(new_col + 1, new_row)
+        self.add_component(lbl)
+        lbl = XferCompLabelForm('lbldesc')
+        lbl.set_value_as_header(folder_description)
+        lbl.set_location(new_col + 2, new_row, 2)
+        self.add_component(lbl)
+        return folder_obj
+
+
+    def add_folder_buttons(self, new_col, new_row):
+        btn = XferCompButton('btnFolder')
+        btn.set_location(new_col, new_row + 2)
+        btn.set_action(self.request, ActionsManage.get_act_changed('Folder', 'add', _('add'), "images/add.png"), \
+                       {'modal':FORMTYPE_MODAL, 'close':CLOSE_NO})
+        self.add_component(btn)
+        if self.current_folder > 0:
+            btn = XferCompButton('btnEditFolder')
+            btn.set_location(new_col + 1, new_row + 2, 1)
+            btn.set_action(self.request, ActionsManage.get_act_changed('Folder', 'edit', _('edit'), "images/edit.png"), \
+                           {'modal':FORMTYPE_MODAL, 'close':CLOSE_NO, 'params':{'folder':six.text_type(self.current_folder)}})
+            self.add_component(btn)
+
+    def fillresponse(self):
+        XferListEditor.fillresponse(self)
+        obj_doc = self.get_components('document')
+        self.remove_component('document')
+        self.tab = obj_doc.tab
+        new_col = obj_doc.col
+        new_row = obj_doc.row
+        obj_doc.set_location(new_col + 2, new_row + 1, 2, 2)
+        self.add_component(obj_doc)
+        obj_lbl_doc = self.get_components('nb')
+        self.remove_component('nb')
+        obj_lbl_doc.set_location(new_col + 2, new_row + 3, 2, 1)
+        self.add_component(obj_lbl_doc)
+
+        folder_obj = self.fill_current_folder(new_col, new_row)
+
+        list_folders = []
+        if self.current_folder > 0:
+            folder_list = Folder.objects.filter(parent__id=self.current_folder)  # pylint: disable=no-member
+        else:
+            folder_list = Folder.objects.filter(parent=None)  # pylint: disable=no-member
+        for folder_item in folder_list:
+            list_folders.append((folder_item.id, folder_item.name))
+        if folder_obj is not None:
+            if folder_obj.parent is None:
+                parent_id = 0
+            else:
+                parent_id = folder_obj.parent.id
+            list_folders.insert(0, (parent_id, '..'))
+        select = XferCompCheckList('current_folder')
+        select.simple = True
+        select.set_select(list_folders)
+        select.set_location(new_col, new_row + 1, 2)
+        select.set_action(self.request, self, {'modal':FORMTYPE_REFRESH, 'close':CLOSE_NO})
+        self.add_component(select)
+
+        self.add_folder_buttons(new_col, new_row)
 
 @ActionsManage.affect('Document', 'add', 'modify')
 @MenuManage.describ('documents.add_document')
@@ -83,9 +170,18 @@ class DocumentAddModify(XferAddEditor):
     caption_add = _("Add document")
     caption_modify = _("Modify document")
 
+    def fill_simple_fields(self):
+        XferAddEditor.fill_simple_fields(self)
+        if self.item.id is None:
+            current_folder = self.getparam('current_folder')
+            if current_folder is not None:
+                self.item.folder = Folder.objects.get(id=current_folder)  # pylint: disable=no-member
+                self.has_changed = True
+        return self.has_changed
+
 @ActionsManage.affect('Document', 'show')
 @MenuManage.describ('documents.change_document')
-class LegalEntityShow(XferShowEditor):
+class DocumentShow(XferShowEditor):
     caption = _("Show document")
     icon = "document.png"
     model = Document
@@ -96,5 +192,12 @@ class LegalEntityShow(XferShowEditor):
 class DocumentDel(XferDelete):
     caption = _("Delete document")
     icon = "document.png"
+    model = Document
+    field_id = 'document'
+
+@MenuManage.describ('documents.change_document', FORMTYPE_NOMODAL, 'documents.actions', _('To find a document following a set of criteria.'))
+class DocumentSearch(XferSearchEditor):
+    caption = _("Document search")
+    icon = "documentFind.png"
     model = Document
     field_id = 'document'
