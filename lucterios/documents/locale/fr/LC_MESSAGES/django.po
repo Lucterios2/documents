@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-05-28 13:41+0000\n"
+"POT-Creation-Date: 2015-05-29 16:08+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,142 +22,158 @@ msgstr ""
 msgid "Lucterios documents"
 msgstr "Lucterios documents"
 
-#: models.py:32 models.py:57
+#: models.py:38 models.py:69
 msgid "name"
 msgstr "nom"
 
-#: models.py:33 models.py:58
+#: models.py:39 models.py:70
 msgid "description"
 msgstr "description"
 
-#: models.py:34
+#: models.py:40
 msgid "parent"
 msgstr "parent"
 
-#: models.py:35
+#: models.py:41
 msgid "viewer"
 msgstr "visionneur"
 
-#: models.py:36 models.py:59
+#: models.py:42 models.py:71
 msgid "modifier"
 msgstr "modificateur"
 
-#: models.py:38
+#: models.py:44
 msgid "Available group viewers"
 msgstr "groupes de visionneurs disponibles"
 
-#: models.py:38
+#: models.py:44
 msgid "Chosen group viewers"
 msgstr "groupes de visionneurs choisis"
 
-#: models.py:39
+#: models.py:45
 msgid "Available group modifiers"
 msgstr "groupes de modificateurs disponibles"
 
-#: models.py:39
+#: models.py:45
 msgid "Chosen group modifiers"
 msgstr "groupes de modificateurs choisis"
 
-#: models.py:41 models.py:42
+#: models.py:47 models.py:48
 msgid "001@Info"
 msgstr "001@Info"
 
-#: models.py:41 models.py:42
+#: models.py:47 models.py:48
 msgid "001@Permission"
 msgstr "001@Permission"
 
-#: models.py:51 models.py:56
+#: models.py:63 models.py:68
 msgid "folder"
 msgstr "dossier"
 
-#: models.py:52
+#: models.py:64
 msgid "folders"
 msgstr "dossiers"
 
-#: models.py:60
+#: models.py:72
 msgid "date modification"
 msgstr "date de modification"
 
-#: models.py:61
+#: models.py:73
 msgid "creator"
 msgstr "créateur"
 
-#: models.py:62
+#: models.py:74
 msgid "date creation"
 msgstr "date de création"
 
-#: models.py:81
+#: models.py:125
+msgid "File not found!"
+msgstr "Ficher non trouvé!"
+
+#: models.py:133 views.py:121
+msgid "edit"
+msgstr "editer"
+
+#: models.py:145
 msgid "document"
 msgstr "document"
 
-#: models.py:82
+#: models.py:146
 msgid "documents"
 msgstr "documents"
 
-#: views.py:33
+#: views.py:37
 msgid "Document"
 msgstr "Document"
 
-#: views.py:35
+#: views.py:39
 msgid "Management of document's folders"
 msgstr "Gestion des dossiers de documents"
 
-#: views.py:37
+#: views.py:41
 msgid "Folders"
 msgstr "Dossiers"
 
-#: views.py:48
+#: views.py:52
 msgid "Add folder"
 msgstr "Ajouter un dossier"
 
-#: views.py:49
+#: views.py:53
 msgid "Modify folder"
 msgstr "Modifier un dossier"
 
-#: views.py:54
+#: views.py:58
 msgid "Delete folder"
 msgstr "Supprimer un dossier"
 
-#: views.py:59
+#: views.py:63
 msgid "Office"
 msgstr "Bureautique"
 
-#: views.py:59
+#: views.py:63
 msgid "Office tools"
 msgstr "Outils bureautiques"
 
-#: views.py:61 views.py:65
+#: views.py:65 views.py:69
 msgid "Documents"
 msgstr "Documents"
 
-#: views.py:61
+#: views.py:65
 msgid "Documents storage tools"
 msgstr "Outils de stockage de documents"
 
-#: views.py:63
+#: views.py:67
 msgid "Management of documents"
 msgstr "Gestion de documents"
 
-#: views.py:70
-msgid "To find a document following a set of criteria."
-msgstr "Pour trouver un document suivant un ensemble de critères."
+#: views.py:92
+msgid "current folder:"
+msgstr "dossier courant"
 
-#: views.py:72
-msgid "Document search"
-msgstr "Recherche de document"
+#: views.py:115
+msgid "add"
+msgstr "ajouter"
 
-#: views.py:83
+#: views.py:169
 msgid "Add document"
 msgstr "Ajouter un document"
 
-#: views.py:84
+#: views.py:170
 msgid "Modify document"
 msgstr "Modifier un document"
 
-#: views.py:89
+#: views.py:184
 msgid "Show document"
 msgstr "Voir un document"
 
-#: views.py:97
+#: views.py:192
 msgid "Delete document"
 msgstr "Supprimer un document"
+
+#: views.py:197
+msgid "To find a document following a set of criteria."
+msgstr "Pour trouver un document suivant un ensemble de critères."
+
+#: views.py:199
+msgid "Document search"
+msgstr "Recherche de document"
