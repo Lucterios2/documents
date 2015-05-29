@@ -109,7 +109,6 @@ class DocumentList(XferListEditor):
         self.add_component(lbl)
         return folder_obj
 
-
     def add_folder_buttons(self, new_col, new_row):
         btn = XferCompButton('btnFolder')
         btn.set_location(new_col, new_row + 2)

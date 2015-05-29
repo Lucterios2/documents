@@ -29,7 +29,7 @@ from lucterios.framework.models import LucteriosModel
 from lucterios.CORE.models import LucteriosGroup, LucteriosUser
 from lucterios.framework.filetools import get_user_path, get_user_dir
 from posix import unlink
-from django.utils import six
+from django.utils import six, timezone
 from os.path import isfile, join
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.tools import ActionsManage, CLOSE_NO, FORMTYPE_MODAL
@@ -52,7 +52,7 @@ class Folder(LucteriosModel):
     def get_title(self):
         title = ">" + self.name
         if self.parent != None:
-            title = self.parent.get_title() + title # pylint: disable=no-member
+            title = self.parent.get_title() + title  # pylint: disable=no-member
         return title
 
     def __str__(self):
@@ -69,9 +69,9 @@ class Document(LucteriosModel):
     name = models.CharField(_('name'), max_length=25, blank=False)
     description = models.TextField(_('description'), blank=False)
     modifier = models.ForeignKey(LucteriosUser, related_name="document_modifier", verbose_name=_('modifier'), null=True, on_delete=models.CASCADE)
-    date_modification = models.DateTimeField(verbose_name=_('date modification'), null=False, auto_now_add=True)
+    date_modification = models.DateTimeField(verbose_name=_('date modification'), null=False)
     creator = models.ForeignKey(LucteriosUser, related_name="document_creator", verbose_name=_('creator'), null=True, on_delete=models.CASCADE)
-    date_creation = models.DateTimeField(verbose_name=_('date creation'), null=False, auto_now_add=True)
+    date_creation = models.DateTimeField(verbose_name=_('date creation'), null=False)
 
     document__showfields = ["folder", "name", "description", ("modifier", "date_modification"), ("creator", "date_creation")]
     document__editfields = ["folder", "name", "description"]
@@ -81,16 +81,19 @@ class Document(LucteriosModel):
     def before_save(self, xfer):
         current_folder = xfer.getparam('current_folder')
         if current_folder is not None:
-            self.folder = Folder.objects.get(id=current_folder) # pylint: disable=no-member
-        else:
-            self.folder = None
+            if current_folder != 0:
+                self.folder = Folder.objects.get(id=current_folder)  # pylint: disable=no-member
+            else:
+                self.folder = None
         if xfer.getparam('filename_FILENAME') is not None:
-
             self.name = xfer.getparam('filename_FILENAME')
         if (self.creator is None) and xfer.request.user.is_authenticated():
             self.creator = LucteriosUser.objects.get(pk=xfer.request.user.id)  # pylint: disable=no-member
         if (self.modifier is None) and xfer.request.user.is_authenticated():
             self.modifier = LucteriosUser.objects.get(pk=xfer.request.user.id)  # pylint: disable=no-member
+        self.date_modification = timezone.now()
+        if self.id is None: # pylint: disable=no-member
+            self.date_creation = self.date_modification
         return
 
     def saving(self, xfer):
