@@ -29,10 +29,12 @@ from lucterios.documents.models import Folder, Document
 from lucterios.framework.xferadvance import XferListEditor, XferDelete, XferAddEditor, XferShowEditor
 from lucterios.framework.xfersearch import XferSearchEditor
 from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, ActionsManage, \
-    FORMTYPE_MODAL, CLOSE_NO, FORMTYPE_REFRESH
+    FORMTYPE_MODAL, CLOSE_NO, FORMTYPE_REFRESH, SELECT_SINGLE, CLOSE_YES
 from lucterios.framework.xfercomponents import XferCompButton, XferCompLabelForm, \
     XferCompCheckList
 from django.utils import six
+from lucterios.CORE.parameters import notfree_mode_connect
+from lucterios.framework.error import LucteriosException, IMPORTANT
 
 MenuManage.add_sub("documents.conf", "core.extensions", "", _("Document"), "", 10)
 
@@ -86,7 +88,6 @@ class DocumentList(XferListEditor):
         else:
             self.filter = {'folder':None}
 
-
     def fill_current_folder(self, new_col, new_row):
         lbl = XferCompLabelForm('lblcat')
         lbl.set_value_as_name(_("current folder:"))
@@ -137,12 +138,20 @@ class DocumentList(XferListEditor):
         self.add_component(obj_lbl_doc)
 
         folder_obj = self.fill_current_folder(new_col, new_row)
-
+        if folder_obj is not None and  notfree_mode_connect():
+            if folder_obj.cannot_view(self.request.user):
+                raise LucteriosException(IMPORTANT, _("No allow to view!"))
+            if folder_obj.is_readonly(self.request.user):
+                obj_doc.actions = []
+                obj_doc.add_actions(self, action_list=[('show', _("Edit"), "images/edit.png", SELECT_SINGLE)])
         list_folders = []
         if self.current_folder > 0:
-            folder_list = Folder.objects.filter(parent__id=self.current_folder)  # pylint: disable=no-member
+            folder_filter = {'parent__id':self.current_folder}
         else:
-            folder_list = Folder.objects.filter(parent=None)  # pylint: disable=no-member
+            folder_filter = {'parent':None}
+        if notfree_mode_connect():
+            folder_filter['viewer__in'] = self.request.user.groups.all()
+        folder_list = Folder.objects.filter(**folder_filter)  # pylint: disable=no-member
         for folder_item in folder_list:
             list_folders.append((folder_item.id, folder_item.name))
         if folder_obj is not None:
@@ -178,6 +187,14 @@ class DocumentAddModify(XferAddEditor):
                 self.has_changed = True
         return self.has_changed
 
+    def fillresponse(self):
+        if self.item.folder is not None and notfree_mode_connect():
+            if self.item.folder.cannot_view(self.request.user):
+                raise LucteriosException(IMPORTANT, _("No allow to view!"))
+            if self.item.folder.is_readonly(self.request.user):
+                raise LucteriosException(IMPORTANT, _("No allow to write!"))
+        XferAddEditor.fillresponse(self)
+
 @ActionsManage.affect('Document', 'show')
 @MenuManage.describ('documents.change_document')
 class DocumentShow(XferShowEditor):
@@ -185,6 +202,21 @@ class DocumentShow(XferShowEditor):
     icon = "document.png"
     model = Document
     field_id = 'document'
+
+    def __init__(self, **kwargs):
+        XferShowEditor.__init__(self, **kwargs)
+        self.is_readonly = False
+
+    def fillresponse(self):
+        self.is_readonly = False
+        action_list = [('modify', _("Modify"), "images/edit.png", CLOSE_YES), ('print', _("Print"), "images/print.png", CLOSE_NO)]
+        if self.item.folder is not None and notfree_mode_connect():
+            if self.item.folder.cannot_view(self.request.user):
+                raise LucteriosException(IMPORTANT, _("No allow to view!"))
+            if self.item.folder.is_readonly(self.request.user):
+                self.is_readonly = True
+                del action_list[0]
+        XferShowEditor.fillresponse(self, action_list)
 
 @ActionsManage.affect('Document', 'del')
 @MenuManage.describ('documents.delete_document')
@@ -194,9 +226,31 @@ class DocumentDel(XferDelete):
     model = Document
     field_id = 'document'
 
+    def fillresponse(self):
+        folder = None
+        if len(self.items) > 0:
+            folder = self.items[0].folder
+        if folder is not None and notfree_mode_connect():
+            if folder.cannot_view(self.request.user):
+                raise LucteriosException(IMPORTANT, _("No allow to view!"))
+            if folder.is_readonly(self.request.user):
+                raise LucteriosException(IMPORTANT, _("No allow to write!"))
+        XferDelete.fillresponse(self)
+
 @MenuManage.describ('documents.change_document', FORMTYPE_NOMODAL, 'documents.actions', _('To find a document following a set of criteria.'))
 class DocumentSearch(XferSearchEditor):
     caption = _("Document search")
     icon = "documentFind.png"
     model = Document
     field_id = 'document'
+
+    def get_text_search(self):
+        from django.db.models import Q
+        criteria_desc = XferSearchEditor.get_text_search(self)
+        if notfree_mode_connect():
+            filter_result = Q()
+            if self.filter is not None and (len(self.filter) > 0):
+                filter_result = self.filter[0]
+            filter_result = filter_result & (Q(folder=None) | Q(folder__viewer__in=self.request.user.groups.all()))
+            self.filter = [filter_result]
+        return criteria_desc

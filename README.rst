@@ -18,5 +18,6 @@ To contribute to Lucterios:
 Featuring of Documents modules
 ------------------------------
 
-* 
-* Configuration
+* Add, modify and delete folders with tree organisation
+* Add, modify and delete documentations
+* Show and search documentation with group permission using of each folder

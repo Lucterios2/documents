@@ -28,7 +28,7 @@ from lucterios.framework.xfergraphic import XferContainerAcknowledge
 from unittest.suite import TestSuite
 from unittest.loader import TestLoader
 from lucterios.documents.views import FolderList, FolderAddModify, FolderDel, \
-    DocumentList, DocumentAddModify, DocumentShow, DocumentDel
+    DocumentList, DocumentAddModify, DocumentShow, DocumentDel, DocumentSearch
 from lucterios.CORE.models import LucteriosGroup, LucteriosUser
 from lucterios.documents.models import Folder, Document
 from os.path import join, dirname, exists
@@ -133,18 +133,22 @@ class DocumentTest(LucteriosTest):
     def setUp(self):
         self.xfer_class = XferContainerAcknowledge
         LucteriosTest.setUp(self)
+
         rmtree(get_user_dir(), True)
         current_user = add_empty_user()
         current_user.is_superuser = True
         current_user.save()
-
         group = LucteriosGroup.objects.create(name="my_group")  # pylint: disable=no-member
         group.save()
         group = LucteriosGroup.objects.create(name="other_group")  # pylint: disable=no-member
         group.save()
+        self.factory.user = LucteriosUser.objects.get(username='empty')  # pylint: disable=no-member
+        self.factory.user.groups = LucteriosGroup.objects.filter(id__in=[2])  # pylint: disable=no-member
+        self.factory.user.save()
+
         folder1 = Folder.objects.create(name='truc1', description='blabla')  # pylint: disable=no-member
         folder1.viewer = LucteriosGroup.objects.filter(id__in=[1, 2])  # pylint: disable=no-member
-        folder1.modifier = LucteriosGroup.objects.filter(id__in=[2])  # pylint: disable=no-member
+        folder1.modifier = LucteriosGroup.objects.filter(id__in=[1])  # pylint: disable=no-member
         folder1.save()
         folder2 = Folder.objects.create(name='truc2', description='bouuuuu!')  # pylint: disable=no-member
         folder2.viewer = LucteriosGroup.objects.filter(id__in=[2])  # pylint: disable=no-member
@@ -152,21 +156,32 @@ class DocumentTest(LucteriosTest):
         folder2.save()
         folder3 = Folder.objects.create(name='truc3', description='----')  # pylint: disable=no-member
         folder3.parent = folder2
+        folder3.viewer = LucteriosGroup.objects.filter(id__in=[2])  # pylint: disable=no-member
         folder3.save()
+        folder4 = Folder.objects.create(name='truc4', description='no')  # pylint: disable=no-member
+        folder4.parent = folder2
+        folder4.save()
 
     def create_doc(self):
-        self.factory.user = LucteriosUser.objects.get(username='empty')  # pylint: disable=no-member
         file_path = join(dirname(__file__), 'images', 'documentFind.png')
         copyfile(file_path, get_user_path('documents', 'document_1'))
+        copyfile(file_path, get_user_path('documents', 'document_2'))
+        copyfile(file_path, get_user_path('documents', 'document_3'))
         current_date = timezone.now()
-        new_doc = Document.objects.create(name='doc.png', description="new doc", creator=self.factory.user, date_creation=current_date, date_modification=current_date) # pylint: disable=no-member
-        new_doc.folder = Folder.objects.get(id=2) # pylint: disable=no-member
-        new_doc.save()
+        new_doc1 = Document.objects.create(name='doc1.png', description="doc 1", creator=self.factory.user, date_creation=current_date, date_modification=current_date)  # pylint: disable=no-member
+        new_doc1.folder = Folder.objects.get(id=2)  # pylint: disable=no-member
+        new_doc1.save()
+        new_doc2 = Document.objects.create(name='doc2.png', description="doc 2", creator=self.factory.user, date_creation=current_date, date_modification=current_date)  # pylint: disable=no-member
+        new_doc2.folder = Folder.objects.get(id=1)  # pylint: disable=no-member
+        new_doc2.save()
+        new_doc3 = Document.objects.create(name='doc3.png', description="doc 3", creator=self.factory.user, date_creation=current_date, date_modification=current_date)  # pylint: disable=no-member
+        new_doc3.folder = Folder.objects.get(id=4)  # pylint: disable=no-member
+        new_doc3.save()
         return current_date
 
     def test_list(self):
         folder = Folder.objects.all()  # pylint: disable=no-member
-        self.assertEqual(len(folder), 3)
+        self.assertEqual(len(folder), 4)
 
         self.factory.xfer = DocumentList()
         self.call('/lucterios.documents/documentList', {}, False)
@@ -183,6 +198,7 @@ class DocumentTest(LucteriosTest):
         self.assert_xml_equal('COMPONENTS/GRID[@name="document"]/HEADER[@name="date_modification"]', "date de modification")
         self.assert_xml_equal('COMPONENTS/GRID[@name="document"]/HEADER[@name="modifier"]', "modificateur")
         self.assert_count_equal('COMPONENTS/GRID[@name="document"]/RECORD', 0)
+        self.assert_count_equal('COMPONENTS/GRID[@name="document"]/ACTIONS/ACTION', 3)
 
         self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="current_folder"]', (0, 2, 2, 1))
         self.assert_count_equal('COMPONENTS/CHECKLIST[@name="current_folder"]/CASE', 2)
@@ -195,6 +211,7 @@ class DocumentTest(LucteriosTest):
         self.call('/lucterios.documents/documentList', {"current_folder":"1"}, False)
         self.assert_observer('Core.Custom', 'lucterios.documents', 'documentList')
         self.assert_count_equal('COMPONENTS/GRID[@name="document"]/RECORD', 0)
+        self.assert_count_equal('COMPONENTS/GRID[@name="document"]/ACTIONS/ACTION', 1)
         self.assert_count_equal('COMPONENTS/CHECKLIST[@name="current_folder"]/CASE', 1)
         self.assert_xml_equal('COMPONENTS/CHECKLIST[@name="current_folder"]/CASE[@id="0"]', "..")
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="lbltitlecat"]', ">truc1")
@@ -204,6 +221,7 @@ class DocumentTest(LucteriosTest):
         self.call('/lucterios.documents/documentList', {"current_folder":"2"}, False)
         self.assert_observer('Core.Custom', 'lucterios.documents', 'documentList')
         self.assert_count_equal('COMPONENTS/GRID[@name="document"]/RECORD', 0)
+        self.assert_count_equal('COMPONENTS/GRID[@name="document"]/ACTIONS/ACTION', 3)
         self.assert_count_equal('COMPONENTS/CHECKLIST[@name="current_folder"]/CASE', 2)
         self.assert_xml_equal('COMPONENTS/CHECKLIST[@name="current_folder"]/CASE[@id="0"]', "..")
         self.assert_xml_equal('COMPONENTS/CHECKLIST[@name="current_folder"]/CASE[@id="3"]', "truc3")
@@ -214,6 +232,7 @@ class DocumentTest(LucteriosTest):
         self.call('/lucterios.documents/documentList', {"current_folder":"3"}, False)
         self.assert_observer('Core.Custom', 'lucterios.documents', 'documentList')
         self.assert_count_equal('COMPONENTS/GRID[@name="document"]/RECORD', 0)
+        self.assert_count_equal('COMPONENTS/GRID[@name="document"]/ACTIONS/ACTION', 1)
         self.assert_count_equal('COMPONENTS/CHECKLIST[@name="current_folder"]/CASE', 1)
         self.assert_xml_equal('COMPONENTS/CHECKLIST[@name="current_folder"]/CASE[@id="2"]', "..")
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="lbltitlecat"]', ">truc2>truc3")
@@ -264,19 +283,20 @@ class DocumentTest(LucteriosTest):
         self.assert_xml_equal('TITLE', 'Voir un document')
         self.assert_count_equal('COMPONENTS/*', 16)
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="folder"]', ">truc2", (2, 0, 3, 1))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="name"]', "doc.png", (2, 1, 3, 1))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="description"]', "new doc", (2, 2, 3, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="name"]', "doc1.png", (2, 1, 3, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="description"]', "doc 1", (2, 2, 3, 1))
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="modifier"]', '---', (2, 3, 1, 1))
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="date_modification"]', formats.date_format(current_date, "DATETIME_FORMAT"), (4, 3, 1, 1))
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="creator"]', "empty", (2, 4, 1, 1))
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="date_creation"]', formats.date_format(current_date, "DATETIME_FORMAT"), (4, 4, 1, 1))
+        self.assert_count_equal('ACTIONS/ACTION', 2)
 
         self.factory.xfer = DocumentAddModify()
         self.call('/lucterios.documents/documentAddModify', {'SAVE':'YES', "document":"1", 'description':'old doc'}, False)
-        docs = Document.objects.all()  # pylint: disable=no-member
-        self.assertEqual(len(docs), 1)
+        docs = Document.objects.all().order_by('id')  # pylint: disable=no-member
+        self.assertEqual(len(docs), 3)
         self.assertEqual(docs[0].folder.id, 2)
-        self.assertEqual(docs[0].name, 'doc.png')
+        self.assertEqual(docs[0].name, 'doc1.png')
         self.assertEqual(docs[0].description, "old doc")
         self.assertEqual(docs[0].creator.username, "empty")
         self.assertEqual(docs[0].modifier.username, "empty")
@@ -289,8 +309,8 @@ class DocumentTest(LucteriosTest):
         self.call('/lucterios.documents/documentList', {"current_folder":"2"}, False)
         self.assert_observer('Core.Custom', 'lucterios.documents', 'documentList')
         self.assert_count_equal('COMPONENTS/GRID[@name="document"]/RECORD', 1)
-        self.assert_xml_equal('COMPONENTS/GRID[@name="document"]/RECORD[@id="1"]/VALUE[@name="name"]', "doc.png")
-        self.assert_xml_equal('COMPONENTS/GRID[@name="document"]/RECORD[@id="1"]/VALUE[@name="description"]', "new doc")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="document"]/RECORD[@id="1"]/VALUE[@name="name"]', "doc1.png")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="document"]/RECORD[@id="1"]/VALUE[@name="description"]', "doc 1")
         self.assert_xml_equal('COMPONENTS/GRID[@name="document"]/RECORD[@id="1"]/VALUE[@name="date_modification"]', formats.date_format(current_date, "DATETIME_FORMAT"))
         self.assert_xml_equal('COMPONENTS/GRID[@name="document"]/RECORD[@id="1"]/VALUE[@name="modifier"]', "---")
         self.assertTrue(exists(get_user_path('documents', 'document_1')))
@@ -303,6 +323,62 @@ class DocumentTest(LucteriosTest):
         self.call('/lucterios.documents/documentList', {"current_folder":"2"}, False)
         self.assert_count_equal('COMPONENTS/GRID[@name="document"]/RECORD', 0)
         self.assertFalse(exists(get_user_path('documents', 'document_1')))
+
+    def test_readonly(self):
+        current_date = self.create_doc()
+
+        self.factory.xfer = DocumentShow()
+        self.call('/lucterios.documents/documentShow', {"document":"2"}, False)
+        self.assert_observer('Core.Custom', 'lucterios.documents', 'documentShow')
+        self.assert_xml_equal('TITLE', 'Voir un document')
+        self.assert_count_equal('COMPONENTS/*', 16)
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="folder"]', ">truc1", (2, 0, 3, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="name"]', "doc2.png", (2, 1, 3, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="description"]', "doc 2", (2, 2, 3, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="modifier"]', '---', (2, 3, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="date_modification"]', formats.date_format(current_date, "DATETIME_FORMAT"), (4, 3, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="creator"]', "empty", (2, 4, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="date_creation"]', formats.date_format(current_date, "DATETIME_FORMAT"), (4, 4, 1, 1))
+        self.assert_count_equal('ACTIONS/ACTION', 1)
+
+        self.factory.xfer = DocumentAddModify()
+        self.call('/lucterios.documents/documentAddModify', {"document":"2"}, False)
+        self.assert_observer('CORE.Exception', 'lucterios.documents', 'documentAddModify')
+        self.assert_xml_equal('EXCEPTION/MESSAGE', "Non authorisé à écrire !")
+
+        self.factory.xfer = DocumentDel()
+        self.call('/lucterios.documents/documentDel', {"document":"2"}, False)
+        self.assert_observer('CORE.Exception', 'lucterios.documents', 'documentDel')
+        self.assert_xml_equal('EXCEPTION/MESSAGE', "Non authorisé à écrire !")
+
+    def test_cannot_view(self):
+        self.create_doc()
+
+        self.factory.xfer = DocumentShow()
+        self.call('/lucterios.documents/documentShow', {"document":"3"}, False)
+        self.assert_observer('CORE.Exception', 'lucterios.documents', 'documentShow')
+        self.assert_xml_equal('EXCEPTION/MESSAGE', "Non authorisé à voir !")
+
+        self.factory.xfer = DocumentAddModify()
+        self.call('/lucterios.documents/documentAddModify', {"document":"3"}, False)
+        self.assert_observer('CORE.Exception', 'lucterios.documents', 'documentAddModify')
+        self.assert_xml_equal('EXCEPTION/MESSAGE', "Non authorisé à voir !")
+
+        self.factory.xfer = DocumentDel()
+        self.call('/lucterios.documents/documentDel', {"document":"3"}, False)
+        self.assert_observer('CORE.Exception', 'lucterios.documents', 'documentDel')
+        self.assert_xml_equal('EXCEPTION/MESSAGE', "Non authorisé à voir !")
+
+    def test_search(self):
+        self.create_doc()
+
+        docs = Document.objects.filter(name__endswith='.png')  # pylint: disable=no-member
+        self.assertEqual(len(docs), 3)
+
+        self.factory.xfer = DocumentSearch()
+        self.call('/lucterios.documents/documentSearch', {'CRITERIA':'name||7||.png'}, False)
+        self.assert_observer('Core.Custom', 'lucterios.documents', 'documentSearch')
+        self.assert_count_equal('COMPONENTS/GRID[@name="document"]/RECORD', 2)
 
 def suite():
     # pylint: disable=redefined-outer-name

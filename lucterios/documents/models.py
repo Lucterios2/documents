@@ -58,6 +58,20 @@ class Folder(LucteriosModel):
     def __str__(self):
         return self.get_title()
 
+    def is_readonly(self, user):
+        readonly = True
+        for modifier_item in self.modifier.all(): # pylint: disable=no-member
+            if modifier_item in user.groups.all():
+                readonly = False
+        return readonly
+
+    def cannot_view(self, user):
+        cannotview = True
+        for viewer_item in self.viewer.all(): # pylint: disable=no-member
+            if viewer_item in user.groups.all():
+                cannotview = False
+        return cannotview
+
     class Meta(object):
         # pylint: disable=no-init
         verbose_name = _('folder')
@@ -89,10 +103,12 @@ class Document(LucteriosModel):
             self.name = xfer.getparam('filename_FILENAME')
         if (self.creator is None) and xfer.request.user.is_authenticated():
             self.creator = LucteriosUser.objects.get(pk=xfer.request.user.id)  # pylint: disable=no-member
-        if (self.modifier is None) and xfer.request.user.is_authenticated():
+        if xfer.request.user.is_authenticated():
             self.modifier = LucteriosUser.objects.get(pk=xfer.request.user.id)  # pylint: disable=no-member
+        else:
+            self.modifier = None
         self.date_modification = timezone.now()
-        if self.id is None: # pylint: disable=no-member
+        if self.id is None:  # pylint: disable=no-member
             self.date_creation = self.date_modification
         return
 
@@ -130,7 +146,8 @@ class Document(LucteriosModel):
         down.maxsize = 0
         down.set_value(self.name)
         down.set_filename("CORE/download?filename=" + destination_file)
-        down.set_action(xfer.request, ActionsManage.get_act_changed('Document', 'modify', _('edit'), "images/edit.png"), {'modal':FORMTYPE_MODAL, 'close':CLOSE_NO})
+        if not xfer.is_readonly:
+            down.set_action(xfer.request, ActionsManage.get_act_changed('Document', 'modify', _('edit'), "images/edit.png"), {'modal':FORMTYPE_MODAL, 'close':CLOSE_NO})
         down.set_location(obj_cmt.col - 1, obj_cmt.row + 1, 4)
         xfer.add_component(down)
 
