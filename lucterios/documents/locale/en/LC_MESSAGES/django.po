@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-06-01 13:48+0000\n"
+"POT-Creation-Date: 2015-06-02 12:56+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,6 +20,70 @@ msgstr ""
 #: __init__.py:39
 msgid "Lucterios documents"
 msgstr "Lucterios documents"
+
+#: help/01_shared_document.html:2
+msgid "01_shared_document.html"
+msgstr "Shared documents"
+
+#: help/01_shared_document.html:4
+msgid "help-shared_document_list"
+msgstr "List of documents"
+
+#: help/01_shared_document.html:6
+msgid "help-shared_document_list-detail1"
+msgstr ""
+"<p>The menu <i>Office/Document management/Documents</i> allows you to view "
+"the list of files you have already registered. To help you find your "
+"documents, the list is classified by a set of folders and subfolders and "
+"description gives you a quick summary.</p><p>You also can add a subfolder or "
+"change the properties of the current folder.</p>"
+
+#: help/01_shared_document.html:9
+msgid "help-shared_document_list-detail2"
+msgstr ""
+"<p>Depending on your permissions, you can retrieve your consultation file, "
+"modify it and possibly re-inject your corrections.</p><p>In addition, the "
+"tool will store the user and the creation date of the document and the "
+"information about the last change.</p>"
+
+#: help/01_shared_document.html:12
+msgid "help-shared_document_search"
+msgstr "Document search"
+
+#: help/01_shared_document.html:14
+msgid "help-shared_document_search-detail"
+msgstr ""
+"<p>The menu <i>Office/Document management/Document search</i> allows you to "
+"define a search criteria on a document.</p><p>Once validated, the tool will "
+"search the database all relevant files to these criteria.</p>"
+
+#: help/02_configuration.html:2
+msgid "02_configuration.html"
+msgstr "Configuration"
+
+#: help/02_configuration.html:4
+msgid "help-config_intro"
+msgstr ""
+"<p>The menu <i>Management/Modules (conf.) /Folders</i> you have at your "
+"disposal a set of tools to configure document management. </p>"
+
+#: help/02_configuration.html:6
+msgid "help-configuration_folder"
+msgstr "Folders"
+
+#: help/02_configuration.html:8
+msgid "help-configuration_folder-detail1"
+msgstr ""
+"<p>In this screen, you can create or edit folders to sort your documents.</p>"
+
+#: help/02_configuration.html:11
+msgid "help-configuration_folder-detail2"
+msgstr ""
+"<p>In combining some folders with other sub-folders, you can define you in a "
+"ranking tree.</p><p>For each folder, you associate some permission groups to "
+"the visualization and modification of files. Only users belonging to group "
+"viewers can consult the documents of this category. Only users belonging to "
+"group modifiers can change the documents of this category. </p>"
 
 #: models.py:38 models.py:83
 msgid "name"
@@ -89,7 +153,7 @@ msgstr "date creation"
 msgid "File not found!"
 msgstr "File not found!"
 
-#: models.py:150 views.py:123
+#: models.py:150 views.py:122
 msgid "edit"
 msgstr "edit"
 
@@ -103,7 +167,7 @@ msgstr "documents"
 
 #: views.py:39
 msgid "Document"
-msgstr "Document"
+msgstr "Document management"
 
 #: views.py:41
 msgid "Management of document's folders"
@@ -135,7 +199,7 @@ msgstr "Office tools"
 
 #: views.py:67 views.py:71
 msgid "Documents"
-msgstr "Documents"
+msgstr "Document management"
 
 #: views.py:67
 msgid "Documents storage tools"
@@ -145,54 +209,54 @@ msgstr "Documents storage tools"
 msgid "Management of documents"
 msgstr "Management of documents"
 
-#: views.py:94
+#: views.py:93
 msgid "current folder:"
 msgstr "current folder:"
 
-#: views.py:117
+#: views.py:116
 msgid "add"
 msgstr "add"
 
-#: views.py:144 views.py:191 views.py:209 views.py:229
+#: views.py:143 views.py:193 views.py:215 views.py:235
 msgid "No allow to view!"
 msgstr "No allow to view!"
 
-#: views.py:147
+#: views.py:146
 msgid "Edit"
 msgstr "Edit"
 
-#: views.py:179
+#: views.py:178
 msgid "Add document"
 msgstr "Add document"
 
-#: views.py:180
+#: views.py:179
 msgid "Modify document"
 msgstr "Modify document"
 
-#: views.py:193 views.py:231
+#: views.py:195 views.py:237
 msgid "No allow to write!"
 msgstr "No allow to write!"
 
-#: views.py:199
+#: views.py:201
 msgid "Show document"
 msgstr "Show document"
 
-#: views.py:206
+#: views.py:212
 msgid "Modify"
 msgstr "Modify"
 
-#: views.py:206
+#: views.py:212
 msgid "Print"
 msgstr "Print"
 
-#: views.py:218
+#: views.py:224
 msgid "Delete document"
 msgstr "Delete document"
 
-#: views.py:234
+#: views.py:240
 msgid "To find a document following a set of criteria."
 msgstr "To find a document following a set of criteria."
 
-#: views.py:236
+#: views.py:242
 msgid "Document search"
 msgstr "Document search"
