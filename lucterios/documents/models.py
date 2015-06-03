@@ -60,17 +60,27 @@ class Folder(LucteriosModel):
 
     def is_readonly(self, user):
         readonly = True
-        for modifier_item in self.modifier.all(): # pylint: disable=no-member
+        for modifier_item in self.modifier.all():  # pylint: disable=no-member
             if modifier_item in user.groups.all():
                 readonly = False
         return readonly
 
     def cannot_view(self, user):
         cannotview = True
-        for viewer_item in self.viewer.all(): # pylint: disable=no-member
+        for viewer_item in self.viewer.all():  # pylint: disable=no-member
             if viewer_item in user.groups.all():
                 cannotview = False
         return cannotview
+
+    def delete(self):
+        file_paths = []
+        docs = self.document_set.all()  # pylint: disable=no-member
+        for doc in docs:
+            file_paths.append(get_user_path("documents", "document_%s" % six.text_type(doc.id)))
+        LucteriosModel.delete(self)
+        for file_path in file_paths:
+            if isfile(file_path):
+                unlink(file_path)
 
     class Meta(object):
         # pylint: disable=no-init
