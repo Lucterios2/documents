@@ -74,7 +74,7 @@ msgstr "Folders"
 #: help/02_configuration.html:8
 msgid "help-configuration_folder-detail1"
 msgstr ""
-"<p>In this screen, you can create or edit folders to sort your documents.</p>"
+"<p>On this screen, you can create or edit folders to sort your documents.</p>"
 
 #: help/02_configuration.html:11
 msgid "help-configuration_folder-detail2"
@@ -107,19 +107,19 @@ msgstr "modifier"
 
 #: models.py:44
 msgid "Available group viewers"
-msgstr "Available group viewers"
+msgstr "Available viewers group"
 
 #: models.py:44
 msgid "Chosen group viewers"
-msgstr "Chosen group viewers"
+msgstr "Chosen viewers group"
 
 #: models.py:45
 msgid "Available group modifiers"
-msgstr "Available group modifiers"
+msgstr "Available modifiers group"
 
 #: models.py:45
 msgid "Chosen group modifiers"
-msgstr "Chosen group modifiers"
+msgstr "Chosen modifiers group"
 
 #: models.py:47 models.py:48
 msgid "001@Info"
@@ -139,7 +139,7 @@ msgstr "folders"
 
 #: models.py:96
 msgid "date modification"
-msgstr "date modification"
+msgstr "date of modification"
 
 #: models.py:97
 msgid "creator"
@@ -147,7 +147,7 @@ msgstr "creator"
 
 #: models.py:98
 msgid "date creation"
-msgstr "date creation"
+msgstr "date of creation"
 
 #: models.py:151
 msgid "File not found!"
@@ -199,7 +199,7 @@ msgstr "Office tools"
 
 #: views.py:67 views.py:71
 msgid "Documents"
-msgstr "Document management"
+msgstr "Documents management"
 
 #: views.py:67
 msgid "Documents storage tools"
@@ -219,7 +219,7 @@ msgstr "add"
 
 #: views.py:143 views.py:193 views.py:215 views.py:235
 msgid "No allow to view!"
-msgstr "No allow to view!"
+msgstr "Not allowed to display !"
 
 #: views.py:146
 msgid "Edit"
@@ -235,7 +235,7 @@ msgstr "Modify document"
 
 #: views.py:195 views.py:237
 msgid "No allow to write!"
-msgstr "No allow to write!"
+msgstr "Not allowed to write !"
 
 #: views.py:201
 msgid "Show document"
