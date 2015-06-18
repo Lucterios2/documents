@@ -164,7 +164,7 @@ class DocumentList(XferListEditor):
         select.simple = True
         select.set_select(list_folders)
         select.set_location(new_col, new_row + 1, 2)
-        select.set_action(self.request, self, {'modal':FORMTYPE_REFRESH, 'close':CLOSE_NO})
+        select.set_action(self.request, self.get_action(), {'modal':FORMTYPE_REFRESH, 'close':CLOSE_NO})
         self.add_component(select)
 
         self.add_folder_buttons(new_col, new_row)
