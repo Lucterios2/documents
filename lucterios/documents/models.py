@@ -44,10 +44,21 @@ class Folder(LucteriosModel):
     viewer__titles = [_("Available group viewers"), _("Chosen group viewers")]
     modifier__titles = [_("Available group modifiers"), _("Chosen group modifiers")]
 
-    folder__showfields = {_('001@Info'):["name", "description", "parent"], _('001@Permission'):["viewer", "modifier"]}
-    folder__editfields = {_('001@Info'):["name", "description", "parent"], _('001@Permission'):["viewer", "modifier"]}
-    folder__searchfields = ["name", "description", "parent.name"]
-    default_fields = ["name", "description", "parent"]
+    @classmethod
+    def get_show_fields(cls):
+        return {_('001@Info'):["name", "description", "parent"], _('001@Permission'):["viewer", "modifier"]}
+
+    @classmethod
+    def get_edit_fields(cls):
+        return {_('001@Info'):["name", "description", "parent"], _('001@Permission'):["viewer", "modifier"]}
+
+    @classmethod
+    def get_search_fields(cls):
+        return ["name", "description", "parent.name"]
+
+    @classmethod
+    def get_default_fields(cls):
+        return ["name", "description", "parent"]
 
     def get_title(self):
         title = ">" + self.name
@@ -97,10 +108,21 @@ class Document(LucteriosModel):
     creator = models.ForeignKey(LucteriosUser, related_name="document_creator", verbose_name=_('creator'), null=True, on_delete=models.CASCADE)
     date_creation = models.DateTimeField(verbose_name=_('date creation'), null=False)
 
-    document__showfields = ["folder", "name", "description", ("modifier", "date_modification"), ("creator", "date_creation")]
-    document__editfields = ["folder", "name", "description"]
-    document__searchfields = ["name", "description", "folder.name", "date_modification", "date_creation"]
-    default_fields = ["name", "description", "date_modification", "modifier"]
+    @classmethod
+    def get_show_fields(cls):
+        return ["folder", "name", "description", ("modifier", "date_modification"), ("creator", "date_creation")]
+
+    @classmethod
+    def get_edit_fields(cls):
+        return ["folder", "name", "description"]
+
+    @classmethod
+    def get_search_fields(cls):
+        return ["name", "description", "folder.name", "date_modification", "date_creation"]
+
+    @classmethod
+    def get_default_fields(cls):
+        return ["name", "description", "date_modification", "modifier"]
 
     def before_save(self, xfer):
         current_folder = xfer.getparam('current_folder')
