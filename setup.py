@@ -57,5 +57,5 @@ setup(
        "lucterios.documents.migrations":['*'],
        "lucterios.documents":['build', 'images/*', 'locale/*/*/*', 'help/*'],
     },
-    install_requires=["lucterios >=2.0b0,<2.0b99999999", "Pillow ==2.8"],
+    install_requires=["lucterios >=2.0b0,<2.0b999999999999999", "Pillow ==2.8"],
 )
