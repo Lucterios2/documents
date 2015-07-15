@@ -35,6 +35,7 @@ from lucterios.framework.xfercomponents import XferCompButton, XferCompLabelForm
 from django.utils import six
 from lucterios.CORE.parameters import notfree_mode_connect
 from lucterios.framework.error import LucteriosException, IMPORTANT
+from lucterios.framework import signal_and_lock
 
 MenuManage.add_sub("documents.conf", "core.extensions", "", _("Document"), "", 10)
 
@@ -254,3 +255,29 @@ class DocumentSearch(XferSearchEditor):
             filter_result = filter_result & (Q(folder=None) | Q(folder__viewer__in=self.request.user.groups.all()))
             self.filter = [filter_result]
         return criteria_desc
+
+@signal_and_lock.Signal.decorate('summary')
+def summary_documents(xfer):
+    from django.db.models import Q
+    row = xfer.get_max_row() + 1
+    lab = XferCompLabelForm('documenttitle')
+    lab.set_value_as_infocenter(_('Document management'))
+    lab.set_location(0, row, 4)
+    xfer.add_component(lab)
+    filter_result = Q()
+    if notfree_mode_connect():
+        filter_result = filter_result & (Q(folder=None) | Q(folder__viewer__in=xfer.request.user.groups.all()))
+    nb_doc = len(Document.objects.filter(*[filter_result]))  # pylint: disable=no-member
+    lbl_doc = XferCompLabelForm('lbl_nbdocument')
+    lbl_doc.set_location(0, row + 1, 4)
+    if nb_doc == 0:
+        lbl_doc.set_value_center(_("no file currently available"))
+    elif nb_doc == 1:
+        lbl_doc.set_value_center(_("one file currently available"))
+    else:
+        lbl_doc.set_value_center(_("%d files currently available") % nb_doc)
+    xfer.add_component(lbl_doc)
+    lab = XferCompLabelForm('documentend')
+    lab.set_value_center('{[hr/]}')
+    lab.set_location(0, row + 2, 4)
+    xfer.add_component(lab)
