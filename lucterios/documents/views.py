@@ -55,7 +55,7 @@ class FolderAddModify(XferAddEditor):
     caption_add = _("Add folder")
     caption_modify = _("Modify folder")
 
-@ActionsManage.affect('Folder', 'del')
+@ActionsManage.affect('Folder', 'delete')
 @MenuManage.describ('documents.delete_folder')
 class FolderDel(XferDelete):
     caption = _("Delete folder")
@@ -219,7 +219,7 @@ class DocumentShow(XferShowEditor):
                 del action_list[0]
         XferShowEditor.fillresponse(self, action_list)
 
-@ActionsManage.affect('Document', 'del')
+@ActionsManage.affect('Document', 'delete')
 @MenuManage.describ('documents.delete_document')
 class DocumentDel(XferDelete):
     caption = _("Delete document")
