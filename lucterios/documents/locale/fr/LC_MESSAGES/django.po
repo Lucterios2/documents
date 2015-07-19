@@ -86,7 +86,7 @@ msgid "help-configuration_folder-detail2"
 msgstr ""
 "<p>En associant judicieusement un dossier comme sous-dossier d'un parent, "
 "vous pouvez vous définir une arborescence de classement.</p><p>A chaque "
-"dossier, vous lui associez un ensemble de groupe de droits pour la "
+"dossier, vous associez un ensemble de groupe de droits pour la "
 "visualisation et la modification des fichiers. Seuls les utilisateurs "
 "appartenant aux groupes de visualisation pourront consulter les documents de "
 "cette catégorie. Seuls les utilisateurs appartenant aux groupes de "
@@ -162,7 +162,7 @@ msgstr "Ficher non trouvé!"
 
 #: models.py:182 views.py:123
 msgid "edit"
-msgstr "editer"
+msgstr "éditer"
 
 #: models.py:194
 msgid "document"
@@ -226,7 +226,7 @@ msgstr "ajouter"
 
 #: views.py:144 views.py:194 views.py:216 views.py:236
 msgid "No allow to view!"
-msgstr "Non authorisé à voir !"
+msgstr "Visualisation non autorisée !"
 
 #: views.py:147
 msgid "Edit"
@@ -242,7 +242,7 @@ msgstr "Modifier un document"
 
 #: views.py:196 views.py:238
 msgid "No allow to write!"
-msgstr "Non authorisé à écrire !"
+msgstr "Ecriture non autorisée !"
 
 #: views.py:202
 msgid "Show document"
