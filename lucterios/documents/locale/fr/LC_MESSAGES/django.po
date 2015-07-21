@@ -24,7 +24,7 @@ msgstr "Lucterios documents"
 
 #: help/01_shared_document.html:2
 msgid "01_shared_document.html"
-msgstr "Les fichiers partagés"
+msgstr "Fichiers partagés"
 
 #: help/01_shared_document.html:4
 msgid "help-shared_document_list"
@@ -36,7 +36,7 @@ msgstr ""
 "<p>Le menu <i>Bureautique/Gestion documentaire/Documents</i> vous permet de "
 "consulter la liste des fichiers que vous avez déjà enregistrés. Pour vous "
 "aider à retrouver vos documents, la liste est classifiée par un ensemble de "
-"dossiers et sous-dossiers et une description vous donne un petit résumé.</"
+"dossiers et de sous-dossiers et une description vous donne un petit résumé.</"
 "p><p>Vous avez aussi la possibilité d'ajouter un sous-dossier ou de modifier "
 "les propriétés du dossier courant.</p>"
 
@@ -44,7 +44,7 @@ msgstr ""
 msgid "help-shared_document_list-detail2"
 msgstr ""
 "<p>Suivant vos permissions, vous pouvez extraire votre fichier pour "
-"consultation, le modifier et éventuellement ré-injecter vos corrections.</"
+"le consulter, le modifier et éventuellement ré-injecter vos corrections.</"
 "p><p>De plus, l'outil mémorisera l'utilisateur et la date de création du "
 "document ainsi que les informations relatives à la dernière modification.</p>"
 
@@ -73,7 +73,7 @@ msgstr ""
 
 #: help/02_configuration.html:6
 msgid "help-configuration_folder"
-msgstr "Les dossiers"
+msgstr "Dossiers"
 
 #: help/02_configuration.html:8
 msgid "help-configuration_folder-detail1"
@@ -85,8 +85,8 @@ msgstr ""
 msgid "help-configuration_folder-detail2"
 msgstr ""
 "<p>En associant judicieusement un dossier comme sous-dossier d'un parent, "
-"vous pouvez vous définir une arborescence de classement.</p><p>A chaque "
-"dossier, vous lui associez un ensemble de groupe de droits pour la "
+"vous pouvez vous définir une arborescence de classement.</p><p>Vous associez "
+"à chaque dossier un ensemble de groupe de droits pour la "
 "visualisation et la modification des fichiers. Seuls les utilisateurs "
 "appartenant aux groupes de visualisation pourront consulter les documents de "
 "cette catégorie. Seuls les utilisateurs appartenant aux groupes de "
