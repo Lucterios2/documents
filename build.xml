@@ -134,7 +134,7 @@
 			<arg value="--include=${core.path}/lucterios/CORE/*.py,${core.path}/lucterios/framework/*.py"/>
 			<arg value="./manage_${test.instance}.py"/>
 			<arg value="test"/>
-			<arg value="documents"/>
+			<arg value="lucterios.documents"/>
 		</exec>	
 		<exec executable="${testversion}">
 			<arg value="report"/>
