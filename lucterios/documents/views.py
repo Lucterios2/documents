@@ -24,6 +24,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
+from django.db.models import Q
 
 from lucterios.documents.models import Folder, Document
 from lucterios.framework.xferadvance import XferListEditor, XferDelete, XferAddEditor, XferShowEditor
@@ -85,9 +86,9 @@ class DocumentList(XferListEditor):
         else:
             self.current_folder = int(self.current_folder)
         if self.current_folder > 0:
-            self.filter = {'folder':self.current_folder}
+            self.filter = [Q(folder=self.current_folder)]
         else:
-            self.filter = {'folder':None}
+            self.filter = [Q(folder=None)]
 
     def fill_current_folder(self, new_col, new_row):
         lbl = XferCompLabelForm('lblcat')
