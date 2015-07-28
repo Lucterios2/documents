@@ -247,7 +247,6 @@ class DocumentSearch(XferSearchEditor):
     field_id = 'document'
 
     def get_text_search(self):
-        from django.db.models import Q
         criteria_desc = XferSearchEditor.get_text_search(self)
         if notfree_mode_connect():
             filter_result = Q()
@@ -259,7 +258,6 @@ class DocumentSearch(XferSearchEditor):
 
 @signal_and_lock.Signal.decorate('summary')
 def summary_documents(xfer):
-    from django.db.models import Q
     row = xfer.get_max_row() + 1
     lab = XferCompLabelForm('documenttitle')
     lab.set_value_as_infocenter(_('Document management'))
