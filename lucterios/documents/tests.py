@@ -25,8 +25,6 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 from lucterios.framework.test import LucteriosTest, add_empty_user
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
-from unittest.suite import TestSuite
-from unittest.loader import TestLoader
 from lucterios.documents.views import FolderList, FolderAddModify, FolderDel, \
     DocumentList, DocumentAddModify, DocumentShow, DocumentDel, DocumentSearch
 from lucterios.CORE.models import LucteriosGroup, LucteriosUser
@@ -379,11 +377,3 @@ class DocumentTest(LucteriosTest):
         self.call('/lucterios.documents/documentSearch', {'CRITERIA':'name||7||.png'}, False)
         self.assert_observer('Core.Custom', 'lucterios.documents', 'documentSearch')
         self.assert_count_equal('COMPONENTS/GRID[@name="document"]/RECORD', 2)
-
-def suite():
-    # pylint: disable=redefined-outer-name
-    suite = TestSuite()
-    loader = TestLoader()
-    suite.addTest(loader.loadTestsFromTestCase(FolderTest))
-    suite.addTest(loader.loadTestsFromTestCase(DocumentTest))
-    return suite
