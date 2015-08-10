@@ -23,16 +23,16 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from django.utils.translation import ugettext_lazy as _
+from os import unlink
+from os.path import isfile
+
 from django.db import models
+from django.utils import six
+from django.utils.translation import ugettext_lazy as _
+
 from lucterios.framework.models import LucteriosModel
+from lucterios.framework.filetools import get_user_path
 from lucterios.CORE.models import LucteriosGroup, LucteriosUser
-from lucterios.framework.filetools import get_user_path, get_user_dir
-from posix import unlink
-from django.utils import six, timezone
-from os.path import isfile, join
-from lucterios.framework.error import LucteriosException, IMPORTANT
-from lucterios.framework.tools import ActionsManage, CLOSE_NO, FORMTYPE_MODAL
 
 class Folder(LucteriosModel):
     name = models.CharField(_('name'), max_length=25, blank=False)
@@ -123,65 +123,8 @@ class Document(LucteriosModel):
     @classmethod
     def get_default_fields(cls):
         return ["name", "description", "date_modification", "modifier"]
-
-    def before_save(self, xfer):
-        current_folder = xfer.getparam('current_folder')
-        if current_folder is not None:
-            if current_folder != 0:
-                self.folder = Folder.objects.get(id=current_folder)  # pylint: disable=no-member
-            else:
-                self.folder = None
-        if xfer.getparam('filename_FILENAME') is not None:
-            self.name = xfer.getparam('filename_FILENAME')
-        if (self.creator is None) and xfer.request.user.is_authenticated():
-            self.creator = LucteriosUser.objects.get(pk=xfer.request.user.id)  # pylint: disable=no-member
-        if xfer.request.user.is_authenticated():
-            self.modifier = LucteriosUser.objects.get(pk=xfer.request.user.id)  # pylint: disable=no-member
-        else:
-            self.modifier = None
-        self.date_modification = timezone.now()
-        if self.id is None:  # pylint: disable=no-member
-            self.date_creation = self.date_modification
-        return
-
-    def saving(self, xfer):
-        if 'filename' in xfer.request.FILES.keys():
-            tmp_file = xfer.request.FILES['filename']
-            file_path = get_user_path("documents", "document_%s" % six.text_type(self.id))  # pylint: disable=no-member
-            with open(file_path, "wb") as file_tmp:
-                file_tmp.write(tmp_file.read())  # write the tmp file
-
     def __str__(self):
         return '[%s] %s' % (self.folder, self.name)
-
-    def edit(self, xfer):
-        from lucterios.framework.xfercomponents import XferCompUpLoad
-        xfer.change_to_readonly("folder")
-        obj_cmt = xfer.get_components('name')
-        xfer.remove_component('name')
-        file_name = XferCompUpLoad('filename')
-        file_name.http_file = True
-        file_name.compress = True
-        file_name.set_value('')
-        file_name.set_location(obj_cmt.col, obj_cmt.row, obj_cmt.colspan, obj_cmt.rowspan)
-        xfer.add_component(file_name)
-
-    def show(self, xfer):
-        from lucterios.framework.xfercomponents import XferCompDownLoad
-        destination_file = join("documents", "document_%s" % six.text_type(self.id))  # pylint: disable=no-member
-        if not isfile(join(get_user_dir(), destination_file)):
-            raise LucteriosException(IMPORTANT, _("File not found!"))
-        obj_cmt = xfer.get_components('creator')
-        down = XferCompDownLoad('filename')
-        down.compress = True
-        down.http_file = True
-        down.maxsize = 0
-        down.set_value(self.name)
-        down.set_filename("CORE/download?filename=" + destination_file)
-        if not xfer.is_readonly:
-            down.set_action(xfer.request, ActionsManage.get_act_changed('Document', 'modify', _('edit'), "images/edit.png"), {'modal':FORMTYPE_MODAL, 'close':CLOSE_NO})
-        down.set_location(obj_cmt.col - 1, obj_cmt.row + 1, 4)
-        xfer.add_component(down)
 
     def delete(self):
         file_path = get_user_path("documents", "document_%s" % six.text_type(self.id))  # pylint: disable=no-member
