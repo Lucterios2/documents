@@ -86,9 +86,9 @@ class DocumentList(XferListEditor):
         else:
             self.current_folder = int(self.current_folder)
         if self.current_folder > 0:
-            self.filter = [Q(folder=self.current_folder)]
+            self.filter = Q(folder=self.current_folder)
         else:
-            self.filter = [Q(folder=None)]
+            self.filter = Q(folder=None)
 
     def fill_current_folder(self, new_col, new_row):
         lbl = XferCompLabelForm('lblcat')
@@ -249,11 +249,9 @@ class DocumentSearch(XferSearchEditor):
     def get_text_search(self):
         criteria_desc = XferSearchEditor.get_text_search(self)
         if notfree_mode_connect():
-            filter_result = Q()
-            if self.filter is not None and (len(self.filter) > 0):
-                filter_result = self.filter[0]
-            filter_result = filter_result & (Q(folder=None) | Q(folder__viewer__in=self.request.user.groups.all()))
-            self.filter = [filter_result]
+            if self.filter is None:
+                self.filter = Q()
+            self.filter = self.filter & (Q(folder=None) | Q(folder__viewer__in=self.request.user.groups.all()))
         return criteria_desc
 
 @signal_and_lock.Signal.decorate('summary')
