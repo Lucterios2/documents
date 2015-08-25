@@ -37,32 +37,37 @@ from lucterios.framework.editors import LucteriosEditor
 from lucterios.CORE.models import LucteriosUser
 from lucterios.documents.models import Folder
 
+
 class DocumentEditor(LucteriosEditor):
 
     def before_save(self, xfer):
         current_folder = xfer.getparam('current_folder')
         if current_folder is not None:
             if current_folder != 0:
-                self.item.folder = Folder.objects.get(id=current_folder)  # pylint: disable=no-member
+                self.item.folder = Folder.objects.get(
+                    id=current_folder)
             else:
                 self.item.folder = None
         if xfer.getparam('filename_FILENAME') is not None:
             self.item.name = xfer.getparam('filename_FILENAME')
         if (self.item.creator is None) and xfer.request.user.is_authenticated():
-            self.item.creator = LucteriosUser.objects.get(pk=xfer.request.user.id)  # pylint: disable=no-member
+            self.item.creator = LucteriosUser.objects.get(
+                pk=xfer.request.user.id)
         if xfer.request.user.is_authenticated():
-            self.item.modifier = LucteriosUser.objects.get(pk=xfer.request.user.id)  # pylint: disable=no-member
+            self.item.modifier = LucteriosUser.objects.get(
+                pk=xfer.request.user.id)
         else:
             self.item.modifier = None
         self.item.date_modification = timezone.now()
-        if self.item.id is None:  # pylint: disable=no-member
+        if self.item.id is None:
             self.item.date_creation = self.item.date_modification
         return
 
     def saving(self, xfer):
         if 'filename' in xfer.request.FILES.keys():
             tmp_file = xfer.request.FILES['filename']
-            file_path = get_user_path("documents", "document_%s" % six.text_type(self.item.id))  # pylint: disable=no-member
+            file_path = get_user_path("documents", "document_%s" % six.text_type(
+                self.item.id))
             with open(file_path, "wb") as file_tmp:
                 file_tmp.write(tmp_file.read())  # write the tmp file
 
@@ -74,11 +79,13 @@ class DocumentEditor(LucteriosEditor):
         file_name.http_file = True
         file_name.compress = True
         file_name.set_value('')
-        file_name.set_location(obj_cmt.col, obj_cmt.row, obj_cmt.colspan, obj_cmt.rowspan)
+        file_name.set_location(
+            obj_cmt.col, obj_cmt.row, obj_cmt.colspan, obj_cmt.rowspan)
         xfer.add_component(file_name)
 
     def show(self, xfer):
-        destination_file = join("documents", "document_%s" % six.text_type(self.item.id))  # pylint: disable=no-member
+        destination_file = join("documents", "document_%s" % six.text_type(
+            self.item.id))
         if not isfile(join(get_user_dir(), destination_file)):
             raise LucteriosException(IMPORTANT, _("File not found!"))
         obj_cmt = xfer.get_components('creator')
@@ -89,6 +96,7 @@ class DocumentEditor(LucteriosEditor):
         down.set_value(self.item.name)
         down.set_filename("CORE/download?filename=" + destination_file)
         if not xfer.is_readonly:
-            down.set_action(xfer.request, ActionsManage.get_act_changed('Document', 'modify', _('edit'), "images/edit.png"), {'modal':FORMTYPE_MODAL, 'close':CLOSE_NO})
+            down.set_action(xfer.request, ActionsManage.get_act_changed('Document', 'modify', _(
+                'edit'), "images/edit.png"), {'modal': FORMTYPE_MODAL, 'close': CLOSE_NO})
         down.set_location(obj_cmt.col - 1, obj_cmt.row + 1, 4)
         xfer.add_component(down)

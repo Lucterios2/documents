@@ -34,23 +34,28 @@ from lucterios.framework.models import LucteriosModel
 from lucterios.framework.filetools import get_user_path
 from lucterios.CORE.models import LucteriosGroup, LucteriosUser
 
+
 class Folder(LucteriosModel):
     name = models.CharField(_('name'), max_length=25, blank=False)
     description = models.TextField(_('description'), blank=False)
-    parent = models.ForeignKey('Folder', verbose_name=_('parent'), null=True, on_delete=models.CASCADE)
-    viewer = models.ManyToManyField(LucteriosGroup, related_name="folder_viewer", verbose_name=_('viewer'), blank=True)
-    modifier = models.ManyToManyField(LucteriosGroup, related_name="folder_modifier", verbose_name=_('modifier'), blank=True)
+    parent = models.ForeignKey(
+        'Folder', verbose_name=_('parent'), null=True, on_delete=models.CASCADE)
+    viewer = models.ManyToManyField(
+        LucteriosGroup, related_name="folder_viewer", verbose_name=_('viewer'), blank=True)
+    modifier = models.ManyToManyField(
+        LucteriosGroup, related_name="folder_modifier", verbose_name=_('modifier'), blank=True)
 
     viewer__titles = [_("Available group viewers"), _("Chosen group viewers")]
-    modifier__titles = [_("Available group modifiers"), _("Chosen group modifiers")]
+    modifier__titles = [
+        _("Available group modifiers"), _("Chosen group modifiers")]
 
     @classmethod
     def get_show_fields(cls):
-        return {_('001@Info'):["name", "description", "parent"], _('001@Permission'):["viewer", "modifier"]}
+        return {_('001@Info'): ["name", "description", "parent"], _('001@Permission'): ["viewer", "modifier"]}
 
     @classmethod
     def get_edit_fields(cls):
-        return {_('001@Info'):["name", "description", "parent"], _('001@Permission'):["viewer", "modifier"]}
+        return {_('001@Info'): ["name", "description", "parent"], _('001@Permission'): ["viewer", "modifier"]}
 
     @classmethod
     def get_search_fields(cls):
@@ -62,8 +67,9 @@ class Folder(LucteriosModel):
 
     def get_title(self):
         title = ">" + self.name
-        if self.parent != None:
-            title = self.parent.get_title() + title  # pylint: disable=no-member
+        if self.parent is not None:
+            title = self.parent.get_title() + \
+                title
         return title
 
     def __str__(self):
@@ -71,42 +77,49 @@ class Folder(LucteriosModel):
 
     def is_readonly(self, user):
         readonly = True
-        for modifier_item in self.modifier.all():  # pylint: disable=no-member
+        for modifier_item in self.modifier.all():
             if modifier_item in user.groups.all():
                 readonly = False
         return readonly
 
     def cannot_view(self, user):
         cannotview = True
-        for viewer_item in self.viewer.all():  # pylint: disable=no-member
+        for viewer_item in self.viewer.all():
             if viewer_item in user.groups.all():
                 cannotview = False
         return cannotview
 
     def delete(self):
         file_paths = []
-        docs = self.document_set.all()  # pylint: disable=no-member
+        docs = self.document_set.all()
         for doc in docs:
-            file_paths.append(get_user_path("documents", "document_%s" % six.text_type(doc.id)))
+            file_paths.append(
+                get_user_path("documents", "document_%s" % six.text_type(doc.id)))
         LucteriosModel.delete(self)
         for file_path in file_paths:
             if isfile(file_path):
                 unlink(file_path)
 
     class Meta(object):
-        # pylint: disable=no-init
+
         verbose_name = _('folder')
         verbose_name_plural = _('folders')
         ordering = ['parent__name', 'name']
 
+
 class Document(LucteriosModel):
-    folder = models.ForeignKey('Folder', verbose_name=_('folder'), null=True, on_delete=models.CASCADE)
+    folder = models.ForeignKey(
+        'Folder', verbose_name=_('folder'), null=True, on_delete=models.CASCADE)
     name = models.CharField(_('name'), max_length=25, blank=False)
     description = models.TextField(_('description'), blank=False)
-    modifier = models.ForeignKey(LucteriosUser, related_name="document_modifier", verbose_name=_('modifier'), null=True, on_delete=models.CASCADE)
-    date_modification = models.DateTimeField(verbose_name=_('date modification'), null=False)
-    creator = models.ForeignKey(LucteriosUser, related_name="document_creator", verbose_name=_('creator'), null=True, on_delete=models.CASCADE)
-    date_creation = models.DateTimeField(verbose_name=_('date creation'), null=False)
+    modifier = models.ForeignKey(LucteriosUser, related_name="document_modifier", verbose_name=_(
+        'modifier'), null=True, on_delete=models.CASCADE)
+    date_modification = models.DateTimeField(
+        verbose_name=_('date modification'), null=False)
+    creator = models.ForeignKey(LucteriosUser, related_name="document_creator", verbose_name=_(
+        'creator'), null=True, on_delete=models.CASCADE)
+    date_creation = models.DateTimeField(
+        verbose_name=_('date creation'), null=False)
 
     @classmethod
     def get_show_fields(cls):
@@ -123,17 +136,19 @@ class Document(LucteriosModel):
     @classmethod
     def get_default_fields(cls):
         return ["name", "description", "date_modification", "modifier"]
+
     def __str__(self):
         return '[%s] %s' % (self.folder, self.name)
 
     def delete(self):
-        file_path = get_user_path("documents", "document_%s" % six.text_type(self.id))  # pylint: disable=no-member
+        file_path = get_user_path("documents", "document_%s" % six.text_type(
+            self.id))
         LucteriosModel.delete(self)
         if isfile(file_path):
             unlink(file_path)
 
     class Meta(object):
-        # pylint: disable=no-init
+
         verbose_name = _('document')
         verbose_name_plural = _('documents')
         ordering = ['folder__name', 'name']

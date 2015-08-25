@@ -38,7 +38,9 @@ from lucterios.CORE.parameters import notfree_mode_connect
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework import signal_and_lock
 
-MenuManage.add_sub("documents.conf", "core.extensions", "", _("Document"), "", 10)
+MenuManage.add_sub(
+    "documents.conf", "core.extensions", "", _("Document"), "", 10)
+
 
 @MenuManage.describ('documents.change_folder', FORMTYPE_NOMODAL, 'documents.conf', _("Management of document's folders"))
 class FolderList(XferListEditor):
@@ -46,6 +48,7 @@ class FolderList(XferListEditor):
     icon = "documentConf.png"
     model = Folder
     field_id = 'folder'
+
 
 @ActionsManage.affect('Folder', 'add', 'edit')
 @MenuManage.describ('documents.add_folder')
@@ -56,6 +59,7 @@ class FolderAddModify(XferAddEditor):
     caption_add = _("Add folder")
     caption_modify = _("Modify folder")
 
+
 @ActionsManage.affect('Folder', 'delete')
 @MenuManage.describ('documents.delete_folder')
 class FolderDel(XferDelete):
@@ -64,9 +68,12 @@ class FolderDel(XferDelete):
     model = Folder
     field_id = 'folder'
 
-MenuManage.add_sub("office", None, "lucterios.documents/images/office.png", _("Office"), _("Office tools"), 70)
+MenuManage.add_sub(
+    "office", None, "lucterios.documents/images/office.png", _("Office"), _("Office tools"), 70)
 
-MenuManage.add_sub("documents.actions", "office", "lucterios.documents/images/document.png", _("Documents"), _("Documents storage tools"), 80)
+MenuManage.add_sub("documents.actions", "office", "lucterios.documents/images/document.png",
+                   _("Documents"), _("Documents storage tools"), 80)
+
 
 @MenuManage.describ('documents.change_document', FORMTYPE_NOMODAL, 'documents.actions', _("Management of documents"))
 class DocumentList(XferListEditor):
@@ -97,7 +104,8 @@ class DocumentList(XferListEditor):
         self.add_component(lbl)
         lbl = XferCompLabelForm('lbltitlecat')
         if self.current_folder > 0:
-            folder_obj = Folder.objects.get(id=self.current_folder)  # pylint: disable=no-member
+            folder_obj = Folder.objects.get(
+                id=self.current_folder)
             lbl.set_value(folder_obj.get_title())
             folder_description = folder_obj.description
         else:
@@ -115,14 +123,14 @@ class DocumentList(XferListEditor):
     def add_folder_buttons(self, new_col, new_row):
         btn = XferCompButton('btnFolder')
         btn.set_location(new_col, new_row + 2)
-        btn.set_action(self.request, ActionsManage.get_act_changed('Folder', 'add', _('add'), "images/add.png"), \
-                       {'modal':FORMTYPE_MODAL, 'close':CLOSE_NO})
+        btn.set_action(self.request, ActionsManage.get_act_changed('Folder', 'add', _('add'), "images/add.png"),
+                       {'modal': FORMTYPE_MODAL, 'close': CLOSE_NO})
         self.add_component(btn)
         if self.current_folder > 0:
             btn = XferCompButton('btnEditFolder')
             btn.set_location(new_col + 1, new_row + 2, 1)
-            btn.set_action(self.request, ActionsManage.get_act_changed('Folder', 'edit', _('edit'), "images/edit.png"), \
-                           {'modal':FORMTYPE_MODAL, 'close':CLOSE_NO, 'params':{'folder':six.text_type(self.current_folder)}})
+            btn.set_action(self.request, ActionsManage.get_act_changed('Folder', 'edit', _('edit'), "images/edit.png"),
+                           {'modal': FORMTYPE_MODAL, 'close': CLOSE_NO, 'params': {'folder': six.text_type(self.current_folder)}})
             self.add_component(btn)
 
     def fillresponse(self):
@@ -140,20 +148,22 @@ class DocumentList(XferListEditor):
         self.add_component(obj_lbl_doc)
 
         folder_obj = self.fill_current_folder(new_col, new_row)
-        if folder_obj is not None and  notfree_mode_connect():
+        if folder_obj is not None and notfree_mode_connect():
             if folder_obj.cannot_view(self.request.user):
                 raise LucteriosException(IMPORTANT, _("No allow to view!"))
             if folder_obj.is_readonly(self.request.user):
                 obj_doc.actions = []
-                obj_doc.add_actions(self, action_list=[('show', _("Edit"), "images/edit.png", SELECT_SINGLE)])
+                obj_doc.add_actions(
+                    self, action_list=[('show', _("Edit"), "images/edit.png", SELECT_SINGLE)])
         list_folders = []
         if self.current_folder > 0:
-            folder_filter = {'parent__id':self.current_folder}
+            folder_filter = {'parent__id': self.current_folder}
         else:
-            folder_filter = {'parent':None}
+            folder_filter = {'parent': None}
         if notfree_mode_connect():
             folder_filter['viewer__in'] = self.request.user.groups.all()
-        folder_list = Folder.objects.filter(**folder_filter)  # pylint: disable=no-member
+        folder_list = Folder.objects.filter(
+            **folder_filter)
         for folder_item in folder_list:
             list_folders.append((folder_item.id, folder_item.name))
         if folder_obj is not None:
@@ -166,10 +176,12 @@ class DocumentList(XferListEditor):
         select.simple = True
         select.set_select(list_folders)
         select.set_location(new_col, new_row + 1, 2)
-        select.set_action(self.request, self.get_action(), {'modal':FORMTYPE_REFRESH, 'close':CLOSE_NO})
+        select.set_action(
+            self.request, self.get_action(), {'modal': FORMTYPE_REFRESH, 'close': CLOSE_NO})
         self.add_component(select)
 
         self.add_folder_buttons(new_col, new_row)
+
 
 @ActionsManage.affect('Document', 'add', 'modify')
 @MenuManage.describ('documents.add_document')
@@ -185,7 +197,8 @@ class DocumentAddModify(XferAddEditor):
         if self.item.id is None:
             current_folder = self.getparam('current_folder')
             if current_folder is not None:
-                self.item.folder = Folder.objects.get(id=current_folder)  # pylint: disable=no-member
+                self.item.folder = Folder.objects.get(
+                    id=current_folder)
                 self.has_changed = True
         return self.has_changed
 
@@ -196,6 +209,7 @@ class DocumentAddModify(XferAddEditor):
             if self.item.folder.is_readonly(self.request.user):
                 raise LucteriosException(IMPORTANT, _("No allow to write!"))
         XferAddEditor.fillresponse(self)
+
 
 @ActionsManage.affect('Document', 'show')
 @MenuManage.describ('documents.change_document')
@@ -211,7 +225,8 @@ class DocumentShow(XferShowEditor):
 
     def fillresponse(self):
         self.is_readonly = False
-        action_list = [('modify', _("Modify"), "images/edit.png", CLOSE_YES), ('print', _("Print"), "images/print.png", CLOSE_NO)]
+        action_list = [('modify', _("Modify"), "images/edit.png", CLOSE_YES),
+                       ('print', _("Print"), "images/print.png", CLOSE_NO)]
         if self.item.folder is not None and notfree_mode_connect():
             if self.item.folder.cannot_view(self.request.user):
                 raise LucteriosException(IMPORTANT, _("No allow to view!"))
@@ -219,6 +234,7 @@ class DocumentShow(XferShowEditor):
                 self.is_readonly = True
                 del action_list[0]
         XferShowEditor.fillresponse(self, action_list)
+
 
 @ActionsManage.affect('Document', 'delete')
 @MenuManage.describ('documents.delete_document')
@@ -239,6 +255,7 @@ class DocumentDel(XferDelete):
                 raise LucteriosException(IMPORTANT, _("No allow to write!"))
         XferDelete.fillresponse(self)
 
+
 @MenuManage.describ('documents.change_document', FORMTYPE_NOMODAL, 'documents.actions', _('To find a document following a set of criteria.'))
 class DocumentSearch(XferSearchEditor):
     caption = _("Document search")
@@ -251,8 +268,10 @@ class DocumentSearch(XferSearchEditor):
         if notfree_mode_connect():
             if self.filter is None:
                 self.filter = Q()
-            self.filter = self.filter & (Q(folder=None) | Q(folder__viewer__in=self.request.user.groups.all()))
+            self.filter = self.filter & (
+                Q(folder=None) | Q(folder__viewer__in=self.request.user.groups.all()))
         return criteria_desc
+
 
 @signal_and_lock.Signal.decorate('summary')
 def summary_documents(xfer):
@@ -263,8 +282,10 @@ def summary_documents(xfer):
     xfer.add_component(lab)
     filter_result = Q()
     if notfree_mode_connect():
-        filter_result = filter_result & (Q(folder=None) | Q(folder__viewer__in=xfer.request.user.groups.all()))
-    nb_doc = len(Document.objects.filter(*[filter_result]))  # pylint: disable=no-member
+        filter_result = filter_result & (
+            Q(folder=None) | Q(folder__viewer__in=xfer.request.user.groups.all()))
+    nb_doc = len(Document.objects.filter(
+        *[filter_result]))
     lbl_doc = XferCompLabelForm('lbl_nbdocument')
     lbl_doc.set_location(0, row + 1, 4)
     if nb_doc == 0:
