@@ -225,15 +225,13 @@ class DocumentShow(XferShowEditor):
 
     def fillresponse(self):
         self.is_readonly = False
-        action_list = [('modify', _("Modify"), "images/edit.png", CLOSE_YES),
-                       ('print', _("Print"), "images/print.png", CLOSE_NO)]
         if self.item.folder is not None and notfree_mode_connect():
             if self.item.folder.cannot_view(self.request.user):
                 raise LucteriosException(IMPORTANT, _("No allow to view!"))
             if self.item.folder.is_readonly(self.request.user):
                 self.is_readonly = True
-                del action_list[0]
-        XferShowEditor.fillresponse(self, action_list)
+                del self.action_list[0]
+        XferShowEditor.fillresponse(self)
 
 
 @ActionsManage.affect('Document', 'delete')
