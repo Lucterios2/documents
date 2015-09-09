@@ -4,6 +4,7 @@
 	<property name="project.packagepath" value="lucterios/documents" />
 	<property name="project.packagename" value="lucterios.documents" />
 	<property name="project.name" value="lucterios" />
+	<property name="project.packname" value="lucterios_documents.egg-info" />
 	<property name="project.pythonpath" value="${standard.path}:${core.path}:${env.PYTHONPATH}" />
 	<property name="project.modules" value="lucterios.documents" />
 	<property name="project.appli" value="lucterios.standard" />
@@ -11,9 +12,4 @@
 	<property name="project.test.omit" value="${core.path}/lucterios/install/*"/>
 	<property name="project.test.include" value="${core.path}/lucterios/CORE/*.py,${core.path}/lucterios/framework/*.py"/>
     <import file="${core.path}/utils/lib_build.xml"/>
-
-	<target name="package_del">
-		<delete dir="lucterios_documents.egg-info" />
-	</target>
-
 </project>	

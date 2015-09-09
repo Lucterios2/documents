@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-08-25 13:33+0000\n"
+"POT-Creation-Date: 2015-09-09 10:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -217,7 +217,7 @@ msgstr "current folder:"
 msgid "add"
 msgstr "add"
 
-#: views.py:153 views.py:208 views.py:232 views.py:253
+#: views.py:153 views.py:208 views.py:230 views.py:251
 msgid "No allow to view!"
 msgstr "No allow to view!"
 
@@ -233,7 +233,7 @@ msgstr "Add document"
 msgid "Modify document"
 msgstr "Modify document"
 
-#: views.py:210 views.py:255
+#: views.py:210 views.py:253
 msgid "No allow to write!"
 msgstr "No allow to write!"
 
@@ -241,39 +241,37 @@ msgstr "No allow to write!"
 msgid "Show document"
 msgstr "Show document"
 
-#: views.py:228
-msgid "Modify"
-msgstr "Modify"
-
-#: views.py:229
-msgid "Print"
-msgstr "Print"
-
-#: views.py:242
+#: views.py:240
 msgid "Delete document"
 msgstr "Delete document"
 
-#: views.py:259
+#: views.py:257
 msgid "To find a document following a set of criteria."
 msgstr "To find a document following a set of criteria."
 
-#: views.py:261
+#: views.py:259
 msgid "Document search"
 msgstr "Document search"
 
-#: views.py:280
+#: views.py:278
 msgid "Document management"
 msgstr "Document management"
 
-#: views.py:292
+#: views.py:290
 msgid "no file currently available"
 msgstr "no file currently available"
 
-#: views.py:294
+#: views.py:292
 msgid "one file currently available"
 msgstr "one file currently available"
 
-#: views.py:296
+#: views.py:294
 #, python-format
 msgid "%d files currently available"
 msgstr "%d files currently available"
+
+#~ msgid "Modify"
+#~ msgstr "Modify"
+
+#~ msgid "Print"
+#~ msgstr "Print"
