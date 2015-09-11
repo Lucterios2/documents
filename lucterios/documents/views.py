@@ -297,3 +297,4 @@ def summary_documents(xfer):
     lab.set_value_center('{[hr/]}')
     lab.set_location(0, row + 2, 4)
     xfer.add_component(lab)
+    return True
