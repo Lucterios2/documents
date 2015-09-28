@@ -102,7 +102,7 @@ class FolderTest(LucteriosTest):
                                                            'parent': '0', 'viewer': '1;2', 'modifier': '2'}, False)
         self.assert_observer(
             'core.acknowledge', 'lucterios.documents', 'folderAddModify')
-        self.assert_count_equal('CONTEXT/PARAM', 6)
+        self.assert_count_equal('CONTEXT/PARAM', 5)
 
         folder = Folder.objects.all()
         self.assertEqual(len(folder), 1)
@@ -345,7 +345,7 @@ class DocumentTest(LucteriosTest):
                                                                  'filename_FILENAME': 'doc.png', 'filename': file_to_load}, False)
         self.assert_observer(
             'core.acknowledge', 'lucterios.documents', 'documentAddModify')
-        self.assert_count_equal('CONTEXT/PARAM', 4)
+        self.assert_count_equal('CONTEXT/PARAM', 3)
 
         docs = Document.objects.all()
         self.assertEqual(len(docs), 1)
