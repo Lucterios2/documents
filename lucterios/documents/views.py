@@ -142,8 +142,8 @@ class DocumentList(XferListEditor):
         new_row = obj_doc.row
         obj_doc.set_location(new_col + 2, new_row + 1, 2, 2)
         self.add_component(obj_doc)
-        obj_lbl_doc = self.get_components('nb')
-        self.remove_component('nb')
+        obj_lbl_doc = self.get_components('nb_document')
+        self.remove_component('nb_document')
         obj_lbl_doc.set_location(new_col + 2, new_row + 3, 2, 1)
         self.add_component(obj_lbl_doc)
 
