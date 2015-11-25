@@ -40,7 +40,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(
                     verbose_name='ID', serialize=False, primary_key=True, auto_created=True)),
-                ('name', models.CharField(verbose_name='name', max_length=25)),
+                ('name', models.CharField(verbose_name='name', max_length=50)),
                 ('description', models.TextField(verbose_name='description')),
                 ('modifier', models.ManyToManyField(verbose_name='modifier',
                                                     blank=True, related_name='folder_modifier', to='CORE.LucteriosGroup')),
@@ -61,7 +61,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(
                     verbose_name='ID', serialize=False, primary_key=True, auto_created=True)),
-                ('name', models.CharField(verbose_name='name', max_length=25)),
+                ('name', models.CharField(verbose_name='name', max_length=50)),
                 ('description', models.TextField(verbose_name='description')),
                 ('date_modification', models.DateTimeField(
                     verbose_name='date modification', auto_now_add=True)),
