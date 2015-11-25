@@ -36,7 +36,7 @@ from lucterios.CORE.models import LucteriosGroup, LucteriosUser
 
 
 class Folder(LucteriosModel):
-    name = models.CharField(_('name'), max_length=25, blank=False)
+    name = models.CharField(_('name'), max_length=50, blank=False)
     description = models.TextField(_('description'), blank=False)
     parent = models.ForeignKey(
         'Folder', verbose_name=_('parent'), null=True, on_delete=models.CASCADE)
@@ -110,7 +110,7 @@ class Folder(LucteriosModel):
 class Document(LucteriosModel):
     folder = models.ForeignKey(
         'Folder', verbose_name=_('folder'), null=True, on_delete=models.CASCADE)
-    name = models.CharField(_('name'), max_length=25, blank=False)
+    name = models.CharField(_('name'), max_length=50, blank=False)
     description = models.TextField(_('description'), blank=False)
     modifier = models.ForeignKey(LucteriosUser, related_name="document_modifier", verbose_name=_(
         'modifier'), null=True, on_delete=models.CASCADE)
