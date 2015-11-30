@@ -163,7 +163,7 @@ class DocumentList(XferListEditor):
         if notfree_mode_connect() and not self.request.user.is_superuser:
             folder_filter['viewer__in'] = self.request.user.groups.all()
         folder_list = Folder.objects.filter(
-            **folder_filter)
+            **folder_filter).order_by("name").distinct()
         for folder_item in folder_list:
             list_folders.append((folder_item.id, folder_item.name))
         if folder_obj is not None:

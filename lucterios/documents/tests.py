@@ -33,6 +33,7 @@ from os.path import join, dirname, exists
 from lucterios.framework.filetools import get_user_path, get_user_dir
 from shutil import rmtree, copyfile
 from django.utils import formats, timezone
+from django.contrib.auth.models import Permission
 
 
 class FolderTest(LucteriosTest):
@@ -161,7 +162,7 @@ class DocumentTest(LucteriosTest):
 
         rmtree(get_user_dir(), True)
         current_user = add_empty_user()
-        current_user.is_superuser = True
+        current_user.is_superuser = False
         current_user.save()
         group = LucteriosGroup.objects.create(
             name="my_group")
@@ -173,6 +174,7 @@ class DocumentTest(LucteriosTest):
             username='empty')
         self.factory.user.groups = LucteriosGroup.objects.filter(
             id__in=[2])
+        self.factory.user.user_permissions = Permission.objects.all()
         self.factory.user.save()
 
         folder1 = Folder.objects.create(
