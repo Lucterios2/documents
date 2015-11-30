@@ -30,7 +30,7 @@ from lucterios.documents.models import Folder, Document
 from lucterios.framework.xferadvance import XferListEditor, XferDelete, XferAddEditor, XferShowEditor
 from lucterios.framework.xfersearch import XferSearchEditor
 from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, ActionsManage, \
-    FORMTYPE_MODAL, CLOSE_NO, FORMTYPE_REFRESH, SELECT_SINGLE, CLOSE_YES
+    FORMTYPE_MODAL, CLOSE_NO, FORMTYPE_REFRESH, SELECT_SINGLE
 from lucterios.framework.xfercomponents import XferCompButton, XferCompLabelForm, \
     XferCompCheckList
 from django.utils import six
@@ -148,7 +148,7 @@ class DocumentList(XferListEditor):
         self.add_component(obj_lbl_doc)
 
         folder_obj = self.fill_current_folder(new_col, new_row)
-        if folder_obj is not None and notfree_mode_connect():
+        if folder_obj is not None and notfree_mode_connect() and not self.request.user.is_superuser:
             if folder_obj.cannot_view(self.request.user):
                 raise LucteriosException(IMPORTANT, _("No allow to view!"))
             if folder_obj.is_readonly(self.request.user):
@@ -160,7 +160,7 @@ class DocumentList(XferListEditor):
             folder_filter = {'parent__id': self.current_folder}
         else:
             folder_filter = {'parent': None}
-        if notfree_mode_connect():
+        if notfree_mode_connect() and not self.request.user.is_superuser:
             folder_filter['viewer__in'] = self.request.user.groups.all()
         folder_list = Folder.objects.filter(
             **folder_filter)
@@ -203,7 +203,7 @@ class DocumentAddModify(XferAddEditor):
         return self.has_changed
 
     def fillresponse(self):
-        if self.item.folder is not None and notfree_mode_connect():
+        if self.item.folder is not None and notfree_mode_connect() and not self.request.user.is_superuser:
             if self.item.folder.cannot_view(self.request.user):
                 raise LucteriosException(IMPORTANT, _("No allow to view!"))
             if self.item.folder.is_readonly(self.request.user):
@@ -225,7 +225,7 @@ class DocumentShow(XferShowEditor):
 
     def fillresponse(self):
         self.is_readonly = False
-        if self.item.folder is not None and notfree_mode_connect():
+        if self.item.folder is not None and notfree_mode_connect() and not self.request.user.is_superuser:
             if self.item.folder.cannot_view(self.request.user):
                 raise LucteriosException(IMPORTANT, _("No allow to view!"))
             if self.item.folder.is_readonly(self.request.user):
@@ -246,7 +246,7 @@ class DocumentDel(XferDelete):
         folder = None
         if len(self.items) > 0:
             folder = self.items[0].folder
-        if folder is not None and notfree_mode_connect():
+        if folder is not None and notfree_mode_connect() and not self.request.user.is_superuser:
             if folder.cannot_view(self.request.user):
                 raise LucteriosException(IMPORTANT, _("No allow to view!"))
             if folder.is_readonly(self.request.user):
