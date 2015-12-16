@@ -64,9 +64,9 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(verbose_name='name', max_length=50)),
                 ('description', models.TextField(verbose_name='description')),
                 ('date_modification', models.DateTimeField(
-                    verbose_name='date modification', auto_now_add=True)),
+                    verbose_name='date modification')),
                 ('date_creation', models.DateTimeField(
-                    verbose_name='date creation', auto_now_add=True)),
+                    verbose_name='date creation')),
                 ('folder', models.ForeignKey(
                     verbose_name='folder', null=True, to='documents.Folder')),
                 ('creator', models.ForeignKey(verbose_name='creator', null=True,
