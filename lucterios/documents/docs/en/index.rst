@@ -9,6 +9,10 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   shared_document.rst
+   configuration.rst
+
+
 
 
 
