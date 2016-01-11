@@ -51,7 +51,7 @@ class DocumentsMigrate(MigrateAbstract):
         cur.execute(
             "SELECT id, nom, description, parent FROM org_lucterios_documents_categorie ORDER BY parent,id")
         for folderid, folder_name, folder_description, folder_parent in cur.fetchall():
-            self.print_log("=> Folder %s", (folder_name,))
+            self.print_debug("=> Folder %s", (folder_name,))
             self.folder_list[folderid] = folder_mdl.objects.create(
                 name=folder_name, description=folder_description)
             if folder_parent is not None:
@@ -87,7 +87,7 @@ class DocumentsMigrate(MigrateAbstract):
         cur.execute(
             "SELECT id, nom, description, categorie, modificateur, createur, dateModification, dateCreation FROM org_lucterios_documents_document")
         for docid, doc_name, doc_description, doc_folder, doc_modifier, doc_creator, doc_datemod, doc_datecreat in cur.fetchall():
-            self.print_log("=> Document %s", (doc_name,))
+            self.print_debug("=> Document %s", (doc_name,))
             self.doc_list[docid] = doc_mdl.objects.create(
                 name=doc_name, description=doc_description, date_modification=doc_datemod, date_creation=doc_datecreat)
             if doc_folder is not None:
@@ -108,3 +108,5 @@ class DocumentsMigrate(MigrateAbstract):
     def run(self):
         self._folders()
         self._docs()
+        self.print_info("Nb folders:%d", len(self.folder_list))
+        self.print_info("Nb users:%d", len(self.doc_list))
