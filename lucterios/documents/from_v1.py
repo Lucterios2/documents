@@ -52,6 +52,8 @@ class DocumentsMigrate(MigrateAbstract):
             "SELECT id, nom, description, parent FROM org_lucterios_documents_categorie ORDER BY parent,id")
         for folderid, folder_name, folder_description, folder_parent in cur.fetchall():
             self.print_debug("=> Folder %s", (folder_name,))
+            if (folder_description is None) or (folder_description == ""):
+                folder_description = folder_name
             self.folder_list[folderid] = folder_mdl.objects.create(
                 name=folder_name, description=folder_description)
             if folder_parent is not None:
