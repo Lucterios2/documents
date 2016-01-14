@@ -203,7 +203,8 @@ class DocumentTest(LucteriosTest):
         folder4.save()
 
     def create_doc(self):
-        file_path = join(dirname(__file__), 'images', 'documentFind.png')
+        file_path = join(dirname(__file__), 'static',
+                         'lucterios.documents', 'images', 'documentFind.png')
         copyfile(file_path, get_user_path('documents', 'document_1'))
         copyfile(file_path, get_user_path('documents', 'document_2'))
         copyfile(file_path, get_user_path('documents', 'document_3'))
@@ -336,7 +337,8 @@ class DocumentTest(LucteriosTest):
             username='empty')
 
         self.assertFalse(exists(get_user_path('documents', 'document_1')))
-        file_path = join(dirname(__file__), 'images', 'documentFind.png')
+        file_path = join(
+            dirname(__file__), 'static', 'lucterios.documents', 'images', 'documentFind.png')
 
         docs = Document.objects.all()
         self.assertEqual(len(docs), 0)
