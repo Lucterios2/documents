@@ -8,19 +8,20 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-12-18 09:44+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2016-01-08 16:12+0000\n"
+"PO-Revision-Date: 2016-01-14 21:49+0000\n"
+"Last-Translator: b'Paul ARULATEDA <paul531@orange.fr>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Translated-Using: django-rosetta 0.7.8\n"
 
 #: __init__.py:41
 msgid "Lucterios documents"
-msgstr "Lucterios documents"
+msgstr "Documents Lucterios "
 
 #: editors.py:90
 msgid "File not found!"
@@ -28,7 +29,7 @@ msgstr "Ficher non trouvé!"
 
 #: editors.py:100 views.py:132
 msgid "edit"
-msgstr "editer"
+msgstr "éditer"
 
 #: help/01_shared_document.html:2
 msgid "01_shared_document.html"
@@ -44,17 +45,18 @@ msgstr ""
 "<p>Le menu <i>Bureautique/Gestion documentaire/Documents</i> vous permet de "
 "consulter la liste des fichiers que vous avez déjà enregistrés. Pour vous "
 "aider à retrouver vos documents, la liste est classifiée par un ensemble de "
-"dossiers et de sous-dossiers et une description vous donne un petit résumé.</"
-"p><p>Vous avez aussi la possibilité d'ajouter un sous-dossier ou de modifier "
-"les propriétés du dossier courant.</p>"
+"dossiers et de sous-dossiers et une description vous donne un petit "
+"résumé.</p><p>Vous avez aussi la possibilité d'ajouter un sous-dossier ou de"
+" modifier les propriétés du dossier courant.</p>"
 
 #: help/01_shared_document.html:9
 msgid "help-shared_document_list-detail2"
 msgstr ""
 "<p>Suivant vos permissions, vous pouvez extraire votre fichier pour le "
-"consulter, le modifier et éventuellement ré-injecter vos corrections.</"
-"p><p>De plus, l'outil mémorisera l'utilisateur et la date de création du "
-"document ainsi que les informations relatives à la dernière modification.</p>"
+"consulter, le modifier et éventuellement ré-injecter vos "
+"corrections.</p><p>De plus, l'outil mémorisera l'utilisateur et la date de "
+"création du document ainsi que les informations relatives à la dernière "
+"modification.</p>"
 
 #: help/01_shared_document.html:12
 msgid "help-shared_document_search"
@@ -75,8 +77,8 @@ msgstr "Configuration"
 #: help/02_configuration.html:4
 msgid "help-config_intro"
 msgstr ""
-"<p>Dans le menu <i>Administration/Extensions (conf)/Dossiers</i> vous avez à "
-"votre disposition un ensemble d'outils pour configurer la gestion "
+"<p>Dans le menu <i>Administration/Extensions (conf)/Dossiers</i> vous avez à"
+" votre disposition un ensemble d'outils pour configurer la gestion "
 "documentaire.</p>"
 
 #: help/02_configuration.html:6
@@ -93,12 +95,12 @@ msgstr ""
 msgid "help-configuration_folder-detail2"
 msgstr ""
 "<p>En associant judicieusement un dossier comme sous-dossier d'un parent, "
-"vous pouvez vous définir une arborescence de classement.</p><p>Vous associez "
-"à chaque dossier un ensemble de groupe de droits pour la visualisation et la "
-"modification des fichiers. Seuls les utilisateurs appartenant aux groupes de "
-"visualisation pourront consulter les documents de cette catégorie. Seuls les "
-"utilisateurs appartenant aux groupes de modification pourront corriger les "
-"documents de cette catégorie.</p>"
+"vous pouvez vous définir une arborescence de classement.</p><p>Vous associez"
+" à chaque dossier un ensemble de groupe de droits pour la visualisation et "
+"la modification des fichiers. Seuls les utilisateurs appartenant aux groupes"
+" de visualisation pourront consulter les documents de cette catégorie. Seuls"
+" les utilisateurs appartenant aux groupes de modification pourront corriger "
+"les documents de cette catégorie.</p>"
 
 #: models.py:39 models.py:113
 msgid "name"
@@ -162,7 +164,7 @@ msgstr "créateur"
 
 #: models.py:122
 msgid "date creation"
-msgstr "date de création"
+msgstr "création de date"
 
 #: models.py:152
 msgid "document"
@@ -226,11 +228,11 @@ msgstr "ajouter"
 
 #: views.py:153 views.py:208 views.py:230 views.py:251
 msgid "No allow to view!"
-msgstr "Non authorisé à voir !"
+msgstr "Affichage non autorisé !"
 
 #: views.py:157
 msgid "Edit"
-msgstr "Editer"
+msgstr "Éditer"
 
 #: views.py:192
 msgid "Add document"
@@ -242,11 +244,11 @@ msgstr "Modifier un document"
 
 #: views.py:210 views.py:253
 msgid "No allow to write!"
-msgstr "Non authorisé à écrire !"
+msgstr "Écriture non autorisée !"
 
 #: views.py:217
 msgid "Show document"
-msgstr "Voir un document"
+msgstr "Affichage d'un document"
 
 #: views.py:240
 msgid "Delete document"
