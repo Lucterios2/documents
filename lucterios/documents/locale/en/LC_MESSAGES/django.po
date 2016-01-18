@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-08 16:12+0000\n"
+"POT-Creation-Date: 2016-01-18 10:33+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -28,70 +28,6 @@ msgstr "File not found!"
 #: editors.py:100 views.py:132
 msgid "edit"
 msgstr "edit"
-
-#: help/01_shared_document.html:2
-msgid "01_shared_document.html"
-msgstr "Shared documents"
-
-#: help/01_shared_document.html:4
-msgid "help-shared_document_list"
-msgstr "List of documents"
-
-#: help/01_shared_document.html:6
-msgid "help-shared_document_list-detail1"
-msgstr ""
-"<p>The menu <i>Office/Document management/Documents</i> allows you to view "
-"the list of files you have already registered. To help you find your "
-"documents, the list is classified by a set of folders and subfolders and "
-"description gives you a quick summary.</p><p>You also can add a subfolder or "
-"change the properties of the current folder.</p>"
-
-#: help/01_shared_document.html:9
-msgid "help-shared_document_list-detail2"
-msgstr ""
-"<p>Depending on your permissions, you can retrieve your consultation file, "
-"modify it and possibly re-inject your corrections.</p><p>In addition, the "
-"tool will store the user and the creation date of the document and the "
-"information about the last change.</p>"
-
-#: help/01_shared_document.html:12
-msgid "help-shared_document_search"
-msgstr "Document search"
-
-#: help/01_shared_document.html:14
-msgid "help-shared_document_search-detail"
-msgstr ""
-"<p>The menu <i>Office/Document management/Document search</i> allows you to "
-"define a search criteria on a document.</p><p>Once validated, the tool will "
-"search the database all relevant files to these criteria.</p>"
-
-#: help/02_configuration.html:2
-msgid "02_configuration.html"
-msgstr "Configuration"
-
-#: help/02_configuration.html:4
-msgid "help-config_intro"
-msgstr ""
-"<p>The menu <i>Management/Modules (conf.) /Folders</i> you have at your "
-"disposal a set of tools to configure document management. </p>"
-
-#: help/02_configuration.html:6
-msgid "help-configuration_folder"
-msgstr "Folders"
-
-#: help/02_configuration.html:8
-msgid "help-configuration_folder-detail1"
-msgstr ""
-"<p>In this screen, you can create or edit folders to sort your documents.</p>"
-
-#: help/02_configuration.html:11
-msgid "help-configuration_folder-detail2"
-msgstr ""
-"<p>In combining some folders with other sub-folders, you can define you in a "
-"ranking tree.</p><p>For each folder, you associate some permission groups to "
-"the visualization and modification of files. Only users belonging to group "
-"viewers can consult the documents of this category. Only users belonging to "
-"group modifiers can change the documents of this category. </p>"
 
 #: models.py:39 models.py:113
 msgid "name"
@@ -269,6 +205,61 @@ msgstr "one file currently available"
 #, python-format
 msgid "%d files currently available"
 msgstr "%d files currently available"
+
+#~ msgid "01_shared_document.html"
+#~ msgstr "Shared documents"
+
+#~ msgid "help-shared_document_list"
+#~ msgstr "List of documents"
+
+#~ msgid "help-shared_document_list-detail1"
+#~ msgstr ""
+#~ "<p>The menu <i>Office/Document management/Documents</i> allows you to "
+#~ "view the list of files you have already registered. To help you find your "
+#~ "documents, the list is classified by a set of folders and subfolders and "
+#~ "description gives you a quick summary.</p><p>You also can add a subfolder "
+#~ "or change the properties of the current folder.</p>"
+
+#~ msgid "help-shared_document_list-detail2"
+#~ msgstr ""
+#~ "<p>Depending on your permissions, you can retrieve your consultation "
+#~ "file, modify it and possibly re-inject your corrections.</p><p>In "
+#~ "addition, the tool will store the user and the creation date of the "
+#~ "document and the information about the last change.</p>"
+
+#~ msgid "help-shared_document_search"
+#~ msgstr "Document search"
+
+#~ msgid "help-shared_document_search-detail"
+#~ msgstr ""
+#~ "<p>The menu <i>Office/Document management/Document search</i> allows you "
+#~ "to define a search criteria on a document.</p><p>Once validated, the tool "
+#~ "will search the database all relevant files to these criteria.</p>"
+
+#~ msgid "02_configuration.html"
+#~ msgstr "Configuration"
+
+#~ msgid "help-config_intro"
+#~ msgstr ""
+#~ "<p>The menu <i>Management/Modules (conf.) /Folders</i> you have at your "
+#~ "disposal a set of tools to configure document management. </p>"
+
+#~ msgid "help-configuration_folder"
+#~ msgstr "Folders"
+
+#~ msgid "help-configuration_folder-detail1"
+#~ msgstr ""
+#~ "<p>In this screen, you can create or edit folders to sort your documents."
+#~ "</p>"
+
+#~ msgid "help-configuration_folder-detail2"
+#~ msgstr ""
+#~ "<p>In combining some folders with other sub-folders, you can define you "
+#~ "in a ranking tree.</p><p>For each folder, you associate some permission "
+#~ "groups to the visualization and modification of files. Only users "
+#~ "belonging to group viewers can consult the documents of this category. "
+#~ "Only users belonging to group modifiers can change the documents of this "
+#~ "category. </p>"
 
 #~ msgid "Modify"
 #~ msgstr "Modify"

@@ -8,14 +8,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-08 16:12+0000\n"
+"POT-Creation-Date: 2016-01-18 10:33+0000\n"
 "PO-Revision-Date: 2016-01-14 21:49+0000\n"
 "Last-Translator: b'Paul ARULATEDA <paul531@orange.fr>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Translated-Using: django-rosetta 0.7.8\n"
 
@@ -30,77 +30,6 @@ msgstr "Ficher non trouvé!"
 #: editors.py:100 views.py:132
 msgid "edit"
 msgstr "éditer"
-
-#: help/01_shared_document.html:2
-msgid "01_shared_document.html"
-msgstr "Fichiers partagés"
-
-#: help/01_shared_document.html:4
-msgid "help-shared_document_list"
-msgstr "Liste des documents"
-
-#: help/01_shared_document.html:6
-msgid "help-shared_document_list-detail1"
-msgstr ""
-"<p>Le menu <i>Bureautique/Gestion documentaire/Documents</i> vous permet de "
-"consulter la liste des fichiers que vous avez déjà enregistrés. Pour vous "
-"aider à retrouver vos documents, la liste est classifiée par un ensemble de "
-"dossiers et de sous-dossiers et une description vous donne un petit "
-"résumé.</p><p>Vous avez aussi la possibilité d'ajouter un sous-dossier ou de"
-" modifier les propriétés du dossier courant.</p>"
-
-#: help/01_shared_document.html:9
-msgid "help-shared_document_list-detail2"
-msgstr ""
-"<p>Suivant vos permissions, vous pouvez extraire votre fichier pour le "
-"consulter, le modifier et éventuellement ré-injecter vos "
-"corrections.</p><p>De plus, l'outil mémorisera l'utilisateur et la date de "
-"création du document ainsi que les informations relatives à la dernière "
-"modification.</p>"
-
-#: help/01_shared_document.html:12
-msgid "help-shared_document_search"
-msgstr "Recherche de documents"
-
-#: help/01_shared_document.html:14
-msgid "help-shared_document_search-detail"
-msgstr ""
-"<p>Le menu <i>Bureautique/Gestion documentaire/Recherche de document</i> "
-"vous permet de définir un critère de recherche sur un document.</p><p>Une "
-"fois validé, l'outil va rechercher dans la base toutes les fichiers "
-"correspondants à ces critères.</p>"
-
-#: help/02_configuration.html:2
-msgid "02_configuration.html"
-msgstr "Configuration"
-
-#: help/02_configuration.html:4
-msgid "help-config_intro"
-msgstr ""
-"<p>Dans le menu <i>Administration/Extensions (conf)/Dossiers</i> vous avez à"
-" votre disposition un ensemble d'outils pour configurer la gestion "
-"documentaire.</p>"
-
-#: help/02_configuration.html:6
-msgid "help-configuration_folder"
-msgstr "Dossiers"
-
-#: help/02_configuration.html:8
-msgid "help-configuration_folder-detail1"
-msgstr ""
-"<p>Dans cet écran vous avez la possibilité de créer ou de modifier des "
-"dossiers de classement documentaire.</p>"
-
-#: help/02_configuration.html:11
-msgid "help-configuration_folder-detail2"
-msgstr ""
-"<p>En associant judicieusement un dossier comme sous-dossier d'un parent, "
-"vous pouvez vous définir une arborescence de classement.</p><p>Vous associez"
-" à chaque dossier un ensemble de groupe de droits pour la visualisation et "
-"la modification des fichiers. Seuls les utilisateurs appartenant aux groupes"
-" de visualisation pourront consulter les documents de cette catégorie. Seuls"
-" les utilisateurs appartenant aux groupes de modification pourront corriger "
-"les documents de cette catégorie.</p>"
 
 #: models.py:39 models.py:113
 msgid "name"
@@ -278,6 +207,66 @@ msgstr "un fichier actuellement accessible"
 #, python-format
 msgid "%d files currently available"
 msgstr "%d fichiers actuellement accessible"
+
+#~ msgid "01_shared_document.html"
+#~ msgstr "Fichiers partagés"
+
+#~ msgid "help-shared_document_list"
+#~ msgstr "Liste des documents"
+
+#~ msgid "help-shared_document_list-detail1"
+#~ msgstr ""
+#~ "<p>Le menu <i>Bureautique/Gestion documentaire/Documents</i> vous permet "
+#~ "de consulter la liste des fichiers que vous avez déjà enregistrés. Pour "
+#~ "vous aider à retrouver vos documents, la liste est classifiée par un "
+#~ "ensemble de dossiers et de sous-dossiers et une description vous donne un "
+#~ "petit résumé.</p><p>Vous avez aussi la possibilité d'ajouter un sous-"
+#~ "dossier ou de modifier les propriétés du dossier courant.</p>"
+
+#~ msgid "help-shared_document_list-detail2"
+#~ msgstr ""
+#~ "<p>Suivant vos permissions, vous pouvez extraire votre fichier pour le "
+#~ "consulter, le modifier et éventuellement ré-injecter vos corrections.</"
+#~ "p><p>De plus, l'outil mémorisera l'utilisateur et la date de création du "
+#~ "document ainsi que les informations relatives à la dernière modification."
+#~ "</p>"
+
+#~ msgid "help-shared_document_search"
+#~ msgstr "Recherche de documents"
+
+#~ msgid "help-shared_document_search-detail"
+#~ msgstr ""
+#~ "<p>Le menu <i>Bureautique/Gestion documentaire/Recherche de document</i> "
+#~ "vous permet de définir un critère de recherche sur un document.</p><p>Une "
+#~ "fois validé, l'outil va rechercher dans la base toutes les fichiers "
+#~ "correspondants à ces critères.</p>"
+
+#~ msgid "02_configuration.html"
+#~ msgstr "Configuration"
+
+#~ msgid "help-config_intro"
+#~ msgstr ""
+#~ "<p>Dans le menu <i>Administration/Extensions (conf)/Dossiers</i> vous "
+#~ "avez à votre disposition un ensemble d'outils pour configurer la gestion "
+#~ "documentaire.</p>"
+
+#~ msgid "help-configuration_folder"
+#~ msgstr "Dossiers"
+
+#~ msgid "help-configuration_folder-detail1"
+#~ msgstr ""
+#~ "<p>Dans cet écran vous avez la possibilité de créer ou de modifier des "
+#~ "dossiers de classement documentaire.</p>"
+
+#~ msgid "help-configuration_folder-detail2"
+#~ msgstr ""
+#~ "<p>En associant judicieusement un dossier comme sous-dossier d'un parent, "
+#~ "vous pouvez vous définir une arborescence de classement.</p><p>Vous "
+#~ "associez à chaque dossier un ensemble de groupe de droits pour la "
+#~ "visualisation et la modification des fichiers. Seuls les utilisateurs "
+#~ "appartenant aux groupes de visualisation pourront consulter les documents "
+#~ "de cette catégorie. Seuls les utilisateurs appartenant aux groupes de "
+#~ "modification pourront corriger les documents de cette catégorie.</p>"
 
 #~ msgid "Modify"
 #~ msgstr "Modifier"

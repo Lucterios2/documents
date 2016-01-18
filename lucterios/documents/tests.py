@@ -369,7 +369,7 @@ class DocumentTest(LucteriosTest):
             '/lucterios.documents/documentShow', {"document": "1"}, False)
         self.assert_observer(
             'core.custom', 'lucterios.documents', 'documentShow')
-        self.assert_xml_equal('TITLE', 'Voir un document')
+        self.assert_xml_equal('TITLE', "Affichage d'un document")
         self.assert_count_equal('COMPONENTS/*', 16)
         self.assert_comp_equal(
             'COMPONENTS/LABELFORM[@name="folder"]', ">truc2", (2, 0, 3, 1))
@@ -439,7 +439,7 @@ class DocumentTest(LucteriosTest):
             '/lucterios.documents/documentShow', {"document": "2"}, False)
         self.assert_observer(
             'core.custom', 'lucterios.documents', 'documentShow')
-        self.assert_xml_equal('TITLE', 'Voir un document')
+        self.assert_xml_equal('TITLE', "Affichage d'un document")
         self.assert_count_equal('COMPONENTS/*', 16)
         self.assert_comp_equal(
             'COMPONENTS/LABELFORM[@name="folder"]', ">truc1", (2, 0, 3, 1))
@@ -462,13 +462,13 @@ class DocumentTest(LucteriosTest):
             '/lucterios.documents/documentAddModify', {"document": "2"}, False)
         self.assert_observer(
             'core.exception', 'lucterios.documents', 'documentAddModify')
-        self.assert_xml_equal('EXCEPTION/MESSAGE', "Non authorisé à écrire !")
+        self.assert_xml_equal('EXCEPTION/MESSAGE', "Écriture non autorisée !")
 
         self.factory.xfer = DocumentDel()
         self.call('/lucterios.documents/documentDel', {"document": "2"}, False)
         self.assert_observer(
             'core.exception', 'lucterios.documents', 'documentDel')
-        self.assert_xml_equal('EXCEPTION/MESSAGE', "Non authorisé à écrire !")
+        self.assert_xml_equal('EXCEPTION/MESSAGE', "Écriture non autorisée !")
 
     def test_cannot_view(self):
         self.create_doc()
@@ -478,20 +478,20 @@ class DocumentTest(LucteriosTest):
             '/lucterios.documents/documentShow', {"document": "3"}, False)
         self.assert_observer(
             'core.exception', 'lucterios.documents', 'documentShow')
-        self.assert_xml_equal('EXCEPTION/MESSAGE', "Non authorisé à voir !")
+        self.assert_xml_equal('EXCEPTION/MESSAGE', "Affichage non autorisé !")
 
         self.factory.xfer = DocumentAddModify()
         self.call(
             '/lucterios.documents/documentAddModify', {"document": "3"}, False)
         self.assert_observer(
             'core.exception', 'lucterios.documents', 'documentAddModify')
-        self.assert_xml_equal('EXCEPTION/MESSAGE', "Non authorisé à voir !")
+        self.assert_xml_equal('EXCEPTION/MESSAGE', "Affichage non autorisé !")
 
         self.factory.xfer = DocumentDel()
         self.call('/lucterios.documents/documentDel', {"document": "3"}, False)
         self.assert_observer(
             'core.exception', 'lucterios.documents', 'documentDel')
-        self.assert_xml_equal('EXCEPTION/MESSAGE', "Non authorisé à voir !")
+        self.assert_xml_equal('EXCEPTION/MESSAGE', "Affichage non autorisé !")
 
     def test_search(self):
         self.create_doc()
