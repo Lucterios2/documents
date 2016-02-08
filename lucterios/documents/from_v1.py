@@ -42,46 +42,50 @@ class DocumentsMigrate(MigrateAbstract):
         self.doc_list = {}
 
     def _folders(self):
-
         group_mdl = apps.get_model("CORE", "LucteriosGroup")
         folder_mdl = apps.get_model("documents", "Folder")
         folder_mdl.objects.all().delete()
         self.folder_list = {}
         cur = self.old_db.open()
         cur.execute(
-            "SELECT id, nom, description, parent FROM org_lucterios_documents_categorie ORDER BY parent,id")
-        for folderid, folder_name, folder_description, folder_parent in cur.fetchall():
-            self.print_debug("=> Folder %s", (folder_name,))
+            "SELECT id, nom, description FROM org_lucterios_documents_categorie ORDER BY parent,id")
+        for folderid, folder_name, folder_description in cur.fetchall():
+            self.print_debug(
+                "=> Folder [%s]%s '%s'", (folderid, folder_name, folder_description))
             if (folder_description is None) or (folder_description == ""):
                 folder_description = folder_name
             self.folder_list[folderid] = folder_mdl.objects.create(
                 name=folder_name, description=folder_description)
-            if folder_parent is not None:
-                self.folder_list[folderid].parent = self.folder_list[
-                    folder_parent]
-                self.folder_list[folderid].save()
-
             modif_group = []
             cur_mod = self.old_db.open()
             cur_mod.execute(
                 "SELECT groupe FROM org_lucterios_documents_modification WHERE categorie=%d" % folderid)
             for group_id in cur_mod.fetchall():
                 modif_group.append(self.group_list[group_id[0]].id)
-
             visu_group = []
             cur_visu = self.old_db.open()
             cur_visu.execute(
                 "SELECT groupe FROM org_lucterios_documents_visualisation WHERE categorie=%d" % folderid)
             for group_id in cur_visu.fetchall():
                 visu_group.append(self.group_list[group_id[0]].id)
-
             self.folder_list[folderid].modifier = group_mdl.objects.filter(
                 id__in=modif_group)
             self.folder_list[folderid].viewer = group_mdl.objects.filter(
                 id__in=visu_group)
+            self.folder_list[folderid].save()
+
+        cur2 = self.old_db.open()
+        cur2.execute(
+            "SELECT id, parent FROM org_lucterios_documents_categorie WHERE (NOT parent IS NULL) ORDER BY parent,id")
+        for folderid, folder_parent in cur2.fetchall():
+            self.print_debug(
+                "=> Folder %s  of %s", (folderid, folder_parent))
+            if folder_parent is not None:
+                self.folder_list[folderid].parent = self.folder_list[
+                    folder_parent]
+                self.folder_list[folderid].save()
 
     def _docs(self):
-
         doc_mdl = apps.get_model("documents", "Document")
         doc_mdl.objects.all().delete()
         self.doc_list = {}
@@ -111,4 +115,4 @@ class DocumentsMigrate(MigrateAbstract):
         self._folders()
         self._docs()
         self.print_info("Nb folders:%d", len(self.folder_list))
-        self.print_info("Nb users:%d", len(self.doc_list))
+        self.print_info("Nb documents:%d", len(self.doc_list))
