@@ -28,6 +28,7 @@ from django.apps import apps
 from lucterios.install.lucterios_migration import MigrateAbstract
 from lucterios.framework.filetools import get_user_path
 from os.path import join, isfile
+from os import mknod
 from shutil import copyfile
 from django.utils import six
 
@@ -108,8 +109,8 @@ class DocumentsMigrate(MigrateAbstract):
             if isfile(old_filename):
                 copyfile(old_filename, new_filename)
             else:
-                with open(new_filename, 'wb') as newfl:
-                    newfl.write('')
+                self.print_info("*** Document '%s' not found ***", doc_name)
+                mknod(new_filename)
 
     def run(self):
         self._folders()
