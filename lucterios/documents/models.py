@@ -23,11 +23,12 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from os import unlink
-from os.path import isfile
+from os import unlink, listdir, makedirs
+from os.path import isfile, isdir, join
+from zipfile import ZipFile
 
 from django.db import models
-from django.utils import six
+from django.utils import six, timezone
 from django.utils.translation import ugettext_lazy as _
 
 from lucterios.framework.models import LucteriosModel
@@ -100,8 +101,44 @@ class Folder(LucteriosModel):
             if isfile(file_path):
                 unlink(file_path)
 
-    class Meta(object):
+    def import_files(self, dir_to_import, viewers, modifiers, user):
+        for filename in listdir(dir_to_import):
+            complet_path = join(dir_to_import, filename)
+            if isfile(complet_path):
+                new_doc = Document(
+                    name=filename, description=filename, folder_id=self.id)
+                if user.is_authenticated():
+                    new_doc.creator = LucteriosUser.objects.get(pk=user.id)
+                    new_doc.modifier = new_doc.creator
+                new_doc.date_modification = timezone.now()
+                new_doc.date_creation = new_doc.date_modification
+                new_doc.save()
+                file_path = get_user_path(
+                    "documents", "document_%s" % six.text_type(new_doc.id))
+                with ZipFile(file_path, 'w') as zip_ref:
+                    zip_ref.write(complet_path, arcname=filename)
+            elif isdir(complet_path):
+                new_folder = Folder.objects.create(
+                    name=filename, description=filename, parent_id=self.id)
+                new_folder.viewer = viewers
+                new_folder.modifier = modifiers
+                new_folder.save()
+                new_folder.import_files(complet_path, viewers, modifiers, user)
 
+    def extract_files(self, dir_to_extract):
+        for doc in Document.objects.filter(folder_id=self.id):
+            file_path = get_user_path(
+                "documents", "document_%s" % six.text_type(doc.id))
+            if isfile(file_path):
+                with ZipFile(file_path, 'r') as zip_ref:
+                    zip_ref.extractall(dir_to_extract)
+        for folder in Folder.objects.filter(parent_id=self.id):
+            new_dir_to_extract = join(dir_to_extract, folder.name)
+            if not isdir(new_dir_to_extract):
+                makedirs(new_dir_to_extract)
+            folder.extract_files(new_dir_to_extract)
+
+    class Meta(object):
         verbose_name = _('folder')
         verbose_name_plural = _('folders')
         ordering = ['parent__name', 'name']

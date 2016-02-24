@@ -23,20 +23,31 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
+from os.path import join, exists
+from os import makedirs, walk
+from shutil import rmtree
+from zipfile import ZipFile
+
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
+from django.utils import six
 
-from lucterios.documents.models import Folder, Document
 from lucterios.framework.xferadvance import XferListEditor, XferDelete, XferAddEditor, XferShowEditor
 from lucterios.framework.xfersearch import XferSearchEditor
 from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, ActionsManage, \
-    FORMTYPE_MODAL, CLOSE_NO, FORMTYPE_REFRESH, SELECT_SINGLE
+    FORMTYPE_MODAL, CLOSE_NO, FORMTYPE_REFRESH, SELECT_SINGLE, SELECT_NONE,\
+    WrapAction, CLOSE_YES
 from lucterios.framework.xfercomponents import XferCompButton, XferCompLabelForm, \
-    XferCompCheckList
-from django.utils import six
-from lucterios.CORE.parameters import notfree_mode_connect
+    XferCompCheckList, XferCompImage, XferCompUpLoad,\
+    XferCompDownLoad
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework import signal_and_lock
+from lucterios.framework.xfergraphic import XferContainerAcknowledge
+from lucterios.framework.filetools import get_tmp_dir, get_user_dir
+from lucterios.CORE.parameters import notfree_mode_connect
+from lucterios.CORE.models import LucteriosGroup
+
+from lucterios.documents.models import Folder, Document
 
 MenuManage.add_sub(
     "documents.conf", "core.extensions", "", _("Document"), "", 10)
@@ -48,6 +59,13 @@ class FolderList(XferListEditor):
     icon = "documentConf.png"
     model = Folder
     field_id = 'folder'
+
+    def __init__(self, **kwargs):
+        XferListEditor.__init__(self, **kwargs)
+        self.action_grid.append(
+            ('import', _("Import"), "zip.png", SELECT_NONE))
+        self.action_grid.append(
+            ('extract', _("Extract"), "zip.png", SELECT_NONE))
 
 
 @ActionsManage.affect('Folder', 'add', 'edit')
@@ -67,6 +85,129 @@ class FolderDel(XferDelete):
     icon = "documentConf.png"
     model = Folder
     field_id = 'folder'
+
+
+class FolderImportExport(XferContainerAcknowledge):
+    icon = "documentConf.png"
+    model = Folder
+    field_id = 'folder'
+
+    def add_components(self, dlg):
+        pass
+
+    def run_archive(self):
+        pass
+
+    def fillresponse(self):
+        if self.getparam('SAVE') is None:
+            dlg = self.create_custom()
+            dlg.item = self.item
+            img = XferCompImage('img')
+            img.set_value(self.icon_path())
+            img.set_location(0, 0, 1, 3)
+            dlg.add_component(img)
+            lbl = XferCompLabelForm('title')
+            lbl.set_value_as_title(self.caption)
+            lbl.set_location(1, 0, 6)
+            dlg.add_component(lbl)
+
+            dlg.fill_from_model(1, 1, False, desc_fields=['parent'])
+            parent = dlg.get_components('parent')
+            parent.colspan = 3
+
+            self.add_components(dlg)
+            dlg.add_action(self.get_action(
+                _('Ok'), "images/ok.png"), {'close': CLOSE_YES, 'params': {'SAVE': 'YES'}})
+            dlg.add_action(WrapAction(_('Cancel'), 'images/cancel.png'), {})
+        else:
+            if self.getparam("parent", 0) != 0:
+                self.item = Folder.objects.get(id=self.getparam("parent", 0))
+            else:
+                self.item = Folder()
+            self.run_archive()
+
+
+@ActionsManage.affect('Folder', 'import')
+@MenuManage.describ('documents.add_folder')
+class FolderImport(FolderImportExport):
+    caption = _("Import")
+
+    def add_components(self, dlg):
+        dlg.fill_from_model(1, 2, False, desc_fields=['viewer', 'modifier'])
+        lbl = XferCompLabelForm('lbl_file')
+        lbl.set_value_as_name(_('zip file'))
+        lbl.set_location(1, 15)
+        dlg.add_component(lbl)
+        zipfile = XferCompUpLoad('zipfile')
+        zipfile.http_file = True
+        zipfile.maxsize = 1024 * 1024 * 1024  # 1Go
+        zipfile.add_filter('.zip')
+        zipfile.set_location(2, 15)
+        dlg.add_component(zipfile)
+
+    def run_archive(self):
+        viewerids = self.getparam("viewer", ())
+        modifierids = self.getparam("modifier", ())
+        if 'zipfile' in self.request.FILES.keys():
+            upload_file = self.request.FILES['zipfile']
+            tmp_dir = join(get_tmp_dir(), 'zipfile')
+            if exists(tmp_dir):
+                rmtree(tmp_dir)
+            makedirs(tmp_dir)
+            try:
+                with ZipFile(upload_file, 'r') as zip_ref:
+                    zip_ref.extractall(tmp_dir)
+                viewers = LucteriosGroup.objects.filter(id__in=viewerids)
+                modifiers = LucteriosGroup.objects.filter(id__in=modifierids)
+                self.item.import_files(
+                    tmp_dir, viewers, modifiers, self.request.user)
+            finally:
+                if exists(tmp_dir):
+                    rmtree(tmp_dir)
+
+
+@ActionsManage.affect('Folder', 'extract')
+@MenuManage.describ('documents.add_folder')
+class FolderExtract(FolderImportExport):
+    caption = _("Extract")
+
+    def open_zipfile(self, filename):
+        dlg = self.create_custom()
+        dlg.item = self.item
+        img = XferCompImage('img')
+        img.set_value(self.icon_path())
+        img.set_location(0, 0, 1, 3)
+        dlg.add_component(img)
+        lbl = XferCompLabelForm('title')
+        lbl.set_value_as_title(self.caption)
+        lbl.set_location(1, 0, 6)
+        dlg.add_component(lbl)
+        zipdown = XferCompDownLoad('filename')
+        zipdown.compress = False
+        zipdown.http_file = True
+        zipdown.maxsize = 0
+        zipdown.set_value(filename)
+        zipdown.set_download(filename)
+        zipdown.set_location(1, 15, 2)
+        dlg.add_component(zipdown)
+
+    def run_archive(self):
+        tmp_dir = join(get_tmp_dir(), 'zipfile')
+        download_file = join(get_user_dir(), 'extract.zip')
+        if exists(tmp_dir):
+            rmtree(tmp_dir)
+        makedirs(tmp_dir)
+        try:
+            self.item.extract_files(tmp_dir)
+            with ZipFile(download_file, 'w') as zip_ref:
+                for (dirpath, _dirs, filenames) in walk(tmp_dir):
+                    for filename in filenames:
+                        zip_ref.write(
+                            join(dirpath, filename), join(dirpath[len(tmp_dir):], filename))
+        finally:
+            if exists(tmp_dir):
+                rmtree(tmp_dir)
+        self.open_zipfile('extract.zip')
 
 MenuManage.add_sub(
     "office", None, "lucterios.documents/images/office.png", _("Office"), _("Office tools"), 70)

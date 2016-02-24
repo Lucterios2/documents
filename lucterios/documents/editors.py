@@ -94,7 +94,7 @@ class DocumentEditor(LucteriosEditor):
         down.http_file = True
         down.maxsize = 0
         down.set_value(self.item.name)
-        down.set_filename("CORE/download?filename=" + destination_file)
+        down.set_download(destination_file)
         if not xfer.is_readonly:
             down.set_action(xfer.request, ActionsManage.get_act_changed('Document', 'modify', _(
                 'edit'), "images/edit.png"), {'modal': FORMTYPE_MODAL, 'close': CLOSE_NO})
