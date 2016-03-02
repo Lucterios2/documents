@@ -44,8 +44,8 @@ class Migration(migrations.Migration):
                 ('description', models.TextField(verbose_name='description')),
                 ('modifier', models.ManyToManyField(verbose_name='modifier',
                                                     blank=True, related_name='folder_modifier', to='CORE.LucteriosGroup')),
-                ('parent', models.ForeignKey(
-                    verbose_name='parent', null=True, to='documents.Folder')),
+                ('parent', models.ForeignKey(on_delete=models.CASCADE,
+                                             verbose_name='parent', null=True, to='documents.Folder')),
                 ('viewer', models.ManyToManyField(verbose_name='viewer', blank=True,
                                                   related_name='folder_viewer', to='CORE.LucteriosGroup')),
             ],
@@ -67,12 +67,12 @@ class Migration(migrations.Migration):
                     verbose_name='date modification')),
                 ('date_creation', models.DateTimeField(
                     verbose_name='date creation')),
-                ('folder', models.ForeignKey(
-                    verbose_name='folder', null=True, to='documents.Folder')),
+                ('folder', models.ForeignKey(on_delete=models.CASCADE,
+                                             verbose_name='folder', null=True, to='documents.Folder')),
                 ('creator', models.ForeignKey(verbose_name='creator', null=True,
-                                              to='CORE.LucteriosUser', related_name='document_creator')),
+                                              to='CORE.LucteriosUser', related_name='document_creator', on_delete=models.CASCADE)),
                 ('modifier', models.ForeignKey(verbose_name='modifier', null=True,
-                                               to='CORE.LucteriosUser', related_name='document_modifier')),
+                                               to='CORE.LucteriosUser', related_name='document_modifier', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name_plural': 'documents',
