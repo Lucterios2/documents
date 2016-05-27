@@ -35,10 +35,10 @@ from django.utils import six
 from lucterios.framework.xferadvance import XferListEditor, XferDelete, XferAddEditor, XferShowEditor
 from lucterios.framework.xfersearch import XferSearchEditor
 from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, ActionsManage, \
-    FORMTYPE_MODAL, CLOSE_NO, FORMTYPE_REFRESH, SELECT_SINGLE, SELECT_NONE,\
+    FORMTYPE_MODAL, CLOSE_NO, FORMTYPE_REFRESH, SELECT_SINGLE, SELECT_NONE, \
     WrapAction, CLOSE_YES
 from lucterios.framework.xfercomponents import XferCompButton, XferCompLabelForm, \
-    XferCompCheckList, XferCompImage, XferCompUpLoad,\
+    XferCompCheckList, XferCompImage, XferCompUpLoad, \
     XferCompDownLoad
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework import signal_and_lock
@@ -414,28 +414,31 @@ class DocumentSearch(XferSearchEditor):
 
 @signal_and_lock.Signal.decorate('summary')
 def summary_documents(xfer):
-    row = xfer.get_max_row() + 1
-    lab = XferCompLabelForm('documenttitle')
-    lab.set_value_as_infocenter(_('Document management'))
-    lab.set_location(0, row, 4)
-    xfer.add_component(lab)
-    filter_result = Q()
-    if notfree_mode_connect():
-        filter_result = filter_result & (
-            Q(folder=None) | Q(folder__viewer__in=xfer.request.user.groups.all()))
-    nb_doc = len(Document.objects.filter(
-        *[filter_result]))
-    lbl_doc = XferCompLabelForm('lbl_nbdocument')
-    lbl_doc.set_location(0, row + 1, 4)
-    if nb_doc == 0:
-        lbl_doc.set_value_center(_("no file currently available"))
-    elif nb_doc == 1:
-        lbl_doc.set_value_center(_("one file currently available"))
+    if WrapAction.is_permission(xfer.request, 'documents.change_document'):
+        row = xfer.get_max_row() + 1
+        lab = XferCompLabelForm('documenttitle')
+        lab.set_value_as_infocenter(_('Document management'))
+        lab.set_location(0, row, 4)
+        xfer.add_component(lab)
+        filter_result = Q()
+        if notfree_mode_connect():
+            filter_result = filter_result & (
+                Q(folder=None) | Q(folder__viewer__in=xfer.request.user.groups.all()))
+        nb_doc = len(Document.objects.filter(
+            *[filter_result]))
+        lbl_doc = XferCompLabelForm('lbl_nbdocument')
+        lbl_doc.set_location(0, row + 1, 4)
+        if nb_doc == 0:
+            lbl_doc.set_value_center(_("no file currently available"))
+        elif nb_doc == 1:
+            lbl_doc.set_value_center(_("one file currently available"))
+        else:
+            lbl_doc.set_value_center(_("%d files currently available") % nb_doc)
+        xfer.add_component(lbl_doc)
+        lab = XferCompLabelForm('documentend')
+        lab.set_value_center('{[hr/]}')
+        lab.set_location(0, row + 2, 4)
+        xfer.add_component(lab)
+        return True
     else:
-        lbl_doc.set_value_center(_("%d files currently available") % nb_doc)
-    xfer.add_component(lbl_doc)
-    lab = XferCompLabelForm('documentend')
-    lab.set_value_center('{[hr/]}')
-    lab.set_location(0, row + 2, 4)
-    xfer.add_component(lab)
-    return True
+        return False
