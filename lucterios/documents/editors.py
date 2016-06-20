@@ -95,8 +95,7 @@ class DocumentEditor(LucteriosEditor):
         down.maxsize = 0
         down.set_value(self.item.name)
         down.set_download(destination_file)
-        if not xfer.is_readonly:
-            down.set_action(xfer.request, ActionsManage.get_act_changed('Document', 'modify', _(
-                'edit'), "images/edit.png"), {'modal': FORMTYPE_MODAL, 'close': CLOSE_NO})
+        down.set_action(xfer.request, ActionsManage.get_action_url('Document', 'AddModify', xfer),
+                        {'modal': FORMTYPE_MODAL, 'close': CLOSE_NO})
         down.set_location(obj_cmt.col - 1, obj_cmt.row + 1, 4)
         xfer.add_component(down)

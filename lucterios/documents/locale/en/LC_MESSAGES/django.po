@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-18 10:33+0000\n"
+"POT-Creation-Date: 2016-06-20 17:14+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,244 +25,191 @@ msgstr "Lucterios documents"
 msgid "File not found!"
 msgstr "File not found!"
 
-#: editors.py:100 views.py:132
-msgid "edit"
-msgstr "edit"
-
-#: models.py:39 models.py:113
+#: models.py:40 models.py:150
 msgid "name"
 msgstr "name"
 
-#: models.py:40 models.py:114
+#: models.py:41 models.py:151
 msgid "description"
 msgstr "description"
 
-#: models.py:42
+#: models.py:43
 msgid "parent"
 msgstr "parent"
 
-#: models.py:44
+#: models.py:45
 msgid "viewer"
 msgstr "viewer"
 
-#: models.py:46 models.py:116
+#: models.py:47 models.py:153
 msgid "modifier"
 msgstr "modifier"
 
-#: models.py:48
+#: models.py:49
 msgid "Available group viewers"
 msgstr "Available group viewers"
 
-#: models.py:48
+#: models.py:49
 msgid "Chosen group viewers"
 msgstr "Chosen group viewers"
 
-#: models.py:50
+#: models.py:51
 msgid "Available group modifiers"
 msgstr "Available group modifiers"
 
-#: models.py:50
+#: models.py:51
 msgid "Chosen group modifiers"
 msgstr "Chosen group modifiers"
 
-#: models.py:54 models.py:58
+#: models.py:55 models.py:59
 msgid "001@Info"
 msgstr "001@Info"
 
-#: models.py:54 models.py:58
+#: models.py:55 models.py:59
 msgid "001@Permission"
 msgstr "001@Permission"
 
-#: models.py:105 models.py:112
+#: models.py:142 models.py:149
 msgid "folder"
 msgstr "folder"
 
-#: models.py:106
+#: models.py:143
 msgid "folders"
 msgstr "folders"
 
-#: models.py:118
+#: models.py:155
 msgid "date modification"
 msgstr "date modification"
 
-#: models.py:120
+#: models.py:157
 msgid "creator"
 msgstr "creator"
 
-#: models.py:122
+#: models.py:159
 msgid "date creation"
 msgstr "date creation"
 
-#: models.py:152
+#: models.py:189
 msgid "document"
 msgstr "document"
 
-#: models.py:153
+#: models.py:190
 msgid "documents"
 msgstr "documents"
 
-#: views.py:42
+#: views.py:54
 msgid "Document"
 msgstr "Document management"
 
-#: views.py:45
+#: views.py:57
 msgid "Management of document's folders"
 msgstr "Management of document's folders"
 
-#: views.py:47
+#: views.py:59
 msgid "Folders"
 msgstr "Folders"
 
-#: views.py:59
+#: views.py:72
 msgid "Add folder"
 msgstr "Add folder"
 
-#: views.py:60
+#: views.py:73
 msgid "Modify folder"
 msgstr "Modify folder"
 
-#: views.py:66
+#: views.py:79
 msgid "Delete folder"
 msgstr "Delete folder"
 
-#: views.py:72
+#: views.py:124 views.py:127
+msgid "Import"
+msgstr "Import"
+
+#: views.py:132
+msgid "zip file"
+msgstr "zip file"
+
+#: views.py:163 views.py:166
+msgid "Extract"
+msgstr "Extract"
+
+#: views.py:207
 msgid "Office"
 msgstr "Office"
 
-#: views.py:72
+#: views.py:207
 msgid "Office tools"
 msgstr "Office tools"
 
-#: views.py:75 views.py:80
+#: views.py:210 views.py:215
 msgid "Documents"
 msgstr "Document management"
 
-#: views.py:75
+#: views.py:210
 msgid "Documents storage tools"
 msgstr "Documents storage tools"
 
-#: views.py:78
+#: views.py:213
 msgid "Management of documents"
 msgstr "Management of documents"
 
-#: views.py:102
+#: views.py:229
 msgid "current folder:"
 msgstr "current folder:"
 
-#: views.py:126
+#: views.py:252
 msgid "add"
 msgstr "add"
 
-#: views.py:153 views.py:208 views.py:230 views.py:251
+#: views.py:258
+msgid "edit"
+msgstr "edit"
+
+#: views.py:311 views.py:320 views.py:348 views.py:377
 msgid "No allow to view!"
 msgstr "No allow to view!"
 
-#: views.py:157
-msgid "Edit"
-msgstr "Edit"
-
-#: views.py:192
+#: views.py:333
 msgid "Add document"
 msgstr "Add document"
 
-#: views.py:193
+#: views.py:334
 msgid "Modify document"
 msgstr "Modify document"
 
-#: views.py:210 views.py:253
+#: views.py:350 views.py:379
 msgid "No allow to write!"
 msgstr "No allow to write!"
 
-#: views.py:217
+#: views.py:357
 msgid "Show document"
 msgstr "Show document"
 
-#: views.py:240
+#: views.py:366
 msgid "Delete document"
 msgstr "Delete document"
 
-#: views.py:257
+#: views.py:383
 msgid "To find a document following a set of criteria."
 msgstr "To find a document following a set of criteria."
 
-#: views.py:259
+#: views.py:385
 msgid "Document search"
 msgstr "Document search"
 
-#: views.py:278
+#: views.py:404
 msgid "Document management"
 msgstr "Document management"
 
-#: views.py:290
+#: views.py:416
 msgid "no file currently available"
 msgstr "no file currently available"
 
-#: views.py:292
+#: views.py:418
 msgid "one file currently available"
 msgstr "one file currently available"
 
-#: views.py:294
+#: views.py:420
 #, python-format
 msgid "%d files currently available"
 msgstr "%d files currently available"
-
-#~ msgid "01_shared_document.html"
-#~ msgstr "Shared documents"
-
-#~ msgid "help-shared_document_list"
-#~ msgstr "List of documents"
-
-#~ msgid "help-shared_document_list-detail1"
-#~ msgstr ""
-#~ "<p>The menu <i>Office/Document management/Documents</i> allows you to "
-#~ "view the list of files you have already registered. To help you find your "
-#~ "documents, the list is classified by a set of folders and subfolders and "
-#~ "description gives you a quick summary.</p><p>You also can add a subfolder "
-#~ "or change the properties of the current folder.</p>"
-
-#~ msgid "help-shared_document_list-detail2"
-#~ msgstr ""
-#~ "<p>Depending on your permissions, you can retrieve your consultation "
-#~ "file, modify it and possibly re-inject your corrections.</p><p>In "
-#~ "addition, the tool will store the user and the creation date of the "
-#~ "document and the information about the last change.</p>"
-
-#~ msgid "help-shared_document_search"
-#~ msgstr "Document search"
-
-#~ msgid "help-shared_document_search-detail"
-#~ msgstr ""
-#~ "<p>The menu <i>Office/Document management/Document search</i> allows you "
-#~ "to define a search criteria on a document.</p><p>Once validated, the tool "
-#~ "will search the database all relevant files to these criteria.</p>"
-
-#~ msgid "02_configuration.html"
-#~ msgstr "Configuration"
-
-#~ msgid "help-config_intro"
-#~ msgstr ""
-#~ "<p>The menu <i>Management/Modules (conf.) /Folders</i> you have at your "
-#~ "disposal a set of tools to configure document management. </p>"
-
-#~ msgid "help-configuration_folder"
-#~ msgstr "Folders"
-
-#~ msgid "help-configuration_folder-detail1"
-#~ msgstr ""
-#~ "<p>In this screen, you can create or edit folders to sort your documents."
-#~ "</p>"
-
-#~ msgid "help-configuration_folder-detail2"
-#~ msgstr ""
-#~ "<p>In combining some folders with other sub-folders, you can define you "
-#~ "in a ranking tree.</p><p>For each folder, you associate some permission "
-#~ "groups to the visualization and modification of files. Only users "
-#~ "belonging to group viewers can consult the documents of this category. "
-#~ "Only users belonging to group modifiers can change the documents of this "
-#~ "category. </p>"
-
-#~ msgid "Modify"
-#~ msgstr "Modify"
-
-#~ msgid "Print"
-#~ msgstr "Print"
