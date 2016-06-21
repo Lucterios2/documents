@@ -96,6 +96,6 @@ class DocumentEditor(LucteriosEditor):
         down.set_value(self.item.name)
         down.set_download(destination_file)
         down.set_action(xfer.request, ActionsManage.get_action_url('Document', 'AddModify', xfer),
-                        {'modal': FORMTYPE_MODAL, 'close': CLOSE_NO})
+                        modal=FORMTYPE_MODAL, close=CLOSE_NO)
         down.set_location(obj_cmt.col - 1, obj_cmt.row + 1, 4)
         xfer.add_component(down)

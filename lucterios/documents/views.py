@@ -250,13 +250,13 @@ class DocumentList(XferListEditor):
         btn = XferCompButton('btnFolder')
         btn.set_location(new_col, new_row + 2)
         btn.set_action(self.request, FolderAddModify.get_action(_('add'), "images/add.png"),
-                       {'modal': FORMTYPE_MODAL, 'close': CLOSE_NO})
+                       modal=FORMTYPE_MODAL, close=CLOSE_NO)
         self.add_component(btn)
         if self.current_folder > 0:
             btn = XferCompButton('btnEditFolder')
             btn.set_location(new_col + 1, new_row + 2, 1)
             btn.set_action(self.request, FolderAddModify.get_action(_('edit'), "images/edit.png"),
-                           {'modal': FORMTYPE_MODAL, 'close': CLOSE_NO, 'params': {'folder': six.text_type(self.current_folder)}})
+                           modal=FORMTYPE_MODAL, close=CLOSE_NO, params={'folder': six.text_type(self.current_folder)})
             self.add_component(btn)
 
     def fillresponse(self):
@@ -294,7 +294,7 @@ class DocumentList(XferListEditor):
         select.simple = True
         select.set_select(list_folders)
         select.set_location(new_col, new_row + 1, 2)
-        select.set_action(self.request, self.get_action(), {'modal': FORMTYPE_REFRESH, 'close': CLOSE_NO})
+        select.set_action(self.request, self.get_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         self.add_component(select)
 
         self.add_folder_buttons(new_col, new_row)

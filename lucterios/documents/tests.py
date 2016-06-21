@@ -23,17 +23,21 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from lucterios.framework.test import LucteriosTest, add_empty_user
-from lucterios.framework.xfergraphic import XferContainerAcknowledge
-from lucterios.documents.views import FolderList, FolderAddModify, FolderDel, \
-    DocumentList, DocumentAddModify, DocumentShow, DocumentDel, DocumentSearch
-from lucterios.CORE.models import LucteriosGroup, LucteriosUser
-from lucterios.documents.models import Folder, Document
 from os.path import join, dirname, exists
-from lucterios.framework.filetools import get_user_path, get_user_dir
 from shutil import rmtree, copyfile
+
 from django.utils import formats, timezone
 from django.contrib.auth.models import Permission
+
+from lucterios.framework.test import LucteriosTest, add_empty_user
+from lucterios.framework.xfergraphic import XferContainerAcknowledge
+from lucterios.framework.filetools import get_user_path, get_user_dir
+
+from lucterios.CORE.models import LucteriosGroup, LucteriosUser
+
+from lucterios.documents.models import Folder, Document
+from lucterios.documents.views import FolderList, FolderAddModify, FolderDel, \
+    DocumentList, DocumentAddModify, DocumentShow, DocumentDel, DocumentSearch
 
 
 class FolderTest(LucteriosTest):
