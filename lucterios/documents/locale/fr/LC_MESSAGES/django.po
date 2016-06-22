@@ -25,7 +25,7 @@ msgstr "Documents Lucterios "
 
 #: editors.py:90
 msgid "File not found!"
-msgstr "Ficher non trouvé!"
+msgstr "Ficher non trouvé !"
 
 #: editors.py:100 views.py:132
 msgid "edit"
@@ -93,7 +93,7 @@ msgstr "créateur"
 
 #: models.py:122
 msgid "date creation"
-msgstr "création de date"
+msgstr "date de création"
 
 #: models.py:152
 msgid "document"
@@ -121,11 +121,11 @@ msgstr "Ajouter un dossier"
 
 #: views.py:60
 msgid "Modify folder"
-msgstr "Modifier un dossier"
+msgstr "Modifier edossier"
 
 #: views.py:66
 msgid "Delete folder"
-msgstr "Supprimer un dossier"
+msgstr "Supprimer le dossier"
 
 #: views.py:72
 msgid "Office"
@@ -169,7 +169,7 @@ msgstr "Ajouter un document"
 
 #: views.py:193
 msgid "Modify document"
-msgstr "Modifier un document"
+msgstr "Modifier le document"
 
 #: views.py:210 views.py:253
 msgid "No allow to write!"
@@ -177,11 +177,11 @@ msgstr "Écriture non autorisée !"
 
 #: views.py:217
 msgid "Show document"
-msgstr "Affichage d'un document"
+msgstr "Afficher le document"
 
 #: views.py:240
 msgid "Delete document"
-msgstr "Supprimer un document"
+msgstr "Supprimer edocument"
 
 #: views.py:257
 msgid "To find a document following a set of criteria."
@@ -206,7 +206,7 @@ msgstr "un fichier actuellement accessible"
 #: views.py:294
 #, python-format
 msgid "%d files currently available"
-msgstr "%d fichiers actuellement accessible"
+msgstr "%d fichiers actuellement accessibles"
 
 #~ msgid "01_shared_document.html"
 #~ msgstr "Fichiers partagés"
@@ -238,7 +238,7 @@ msgstr "%d fichiers actuellement accessible"
 #~ msgstr ""
 #~ "<p>Le menu <i>Bureautique/Gestion documentaire/Recherche de document</i> "
 #~ "vous permet de définir un critère de recherche sur un document.</p><p>Une "
-#~ "fois validé, l'outil va rechercher dans la base toutes les fichiers "
+#~ "fois validé, l'outil va rechercher dans la base tous les fichiers "
 #~ "correspondants à ces critères.</p>"
 
 #~ msgid "02_configuration.html"
