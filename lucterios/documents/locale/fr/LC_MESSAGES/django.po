@@ -121,7 +121,7 @@ msgstr "Ajouter un dossier"
 
 #: views.py:60
 msgid "Modify folder"
-msgstr "Modifier edossier"
+msgstr "Modifier le dossier"
 
 #: views.py:66
 msgid "Delete folder"
@@ -181,7 +181,7 @@ msgstr "Afficher le document"
 
 #: views.py:240
 msgid "Delete document"
-msgstr "Supprimer edocument"
+msgstr "Supprimer le document"
 
 #: views.py:257
 msgid "To find a document following a set of criteria."
