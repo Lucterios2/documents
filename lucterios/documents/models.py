@@ -25,7 +25,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 from os import unlink, listdir, makedirs
 from os.path import isfile, isdir, join
-from zipfile import ZipFile
+from zipfile import ZipFile, BadZipFile
 
 from django.db import models
 from django.utils import six, timezone
@@ -130,8 +130,11 @@ class Folder(LucteriosModel):
             file_path = get_user_path(
                 "documents", "document_%s" % six.text_type(doc.id))
             if isfile(file_path):
-                with ZipFile(file_path, 'r') as zip_ref:
-                    zip_ref.extractall(dir_to_extract)
+                try:
+                    with ZipFile(file_path, 'r') as zip_ref:
+                        zip_ref.extractall(dir_to_extract)
+                except BadZipFile:
+                    pass
         for folder in Folder.objects.filter(parent_id=self.id):
             new_dir_to_extract = join(dir_to_extract, folder.name)
             if not isdir(new_dir_to_extract):
