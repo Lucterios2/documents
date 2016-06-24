@@ -25,7 +25,11 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 from os import unlink, listdir, makedirs
 from os.path import isfile, isdir, join
-from zipfile import ZipFile, BadZipFile
+from zipfile import ZipFile
+try:
+    from zipfile import BadZipFile
+except ImportError:
+    from zipfile import BadZipfile as BadZipFile
 
 from django.db import models
 from django.utils import six, timezone
