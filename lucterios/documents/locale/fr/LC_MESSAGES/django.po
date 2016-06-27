@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-20 17:14+0000\n"
+"POT-Creation-Date: 2016-06-27 08:42+0000\n"
 "PO-Revision-Date: 2016-01-14 21:49+0000\n"
 "Last-Translator: b'Paul ARULATEDA <paul531@orange.fr>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,77 +25,77 @@ msgstr "Documents Lucterios "
 
 #: editors.py:90
 msgid "File not found!"
-msgstr "Ficher non trouvé!"
+msgstr "Ficher non trouvé !"
 
-#: models.py:40 models.py:150
+#: models.py:44 models.py:157
 msgid "name"
 msgstr "nom"
 
-#: models.py:41 models.py:151
+#: models.py:45 models.py:158
 msgid "description"
 msgstr "description"
 
-#: models.py:43
+#: models.py:47
 msgid "parent"
 msgstr "parent"
 
-#: models.py:45
+#: models.py:49
 msgid "viewer"
 msgstr "visionneur"
 
-#: models.py:47 models.py:153
+#: models.py:51 models.py:160
 msgid "modifier"
 msgstr "modificateur"
 
-#: models.py:49
+#: models.py:53
 msgid "Available group viewers"
 msgstr "groupes de visionneurs disponibles"
 
-#: models.py:49
+#: models.py:53
 msgid "Chosen group viewers"
 msgstr "groupes de visionneurs choisis"
 
-#: models.py:51
+#: models.py:55
 msgid "Available group modifiers"
 msgstr "groupes de modificateurs disponibles"
 
-#: models.py:51
+#: models.py:55
 msgid "Chosen group modifiers"
 msgstr "groupes de modificateurs choisis"
 
-#: models.py:55 models.py:59
+#: models.py:59 models.py:63
 msgid "001@Info"
 msgstr "001@Info"
 
-#: models.py:55 models.py:59
+#: models.py:59 models.py:63
 msgid "001@Permission"
 msgstr "001@Permission"
 
-#: models.py:142 models.py:149
+#: models.py:149 models.py:156
 msgid "folder"
 msgstr "dossier"
 
-#: models.py:143
+#: models.py:150
 msgid "folders"
 msgstr "dossiers"
 
-#: models.py:155
+#: models.py:162
 msgid "date modification"
 msgstr "date de modification"
 
-#: models.py:157
+#: models.py:164
 msgid "creator"
 msgstr "créateur"
 
-#: models.py:159
+#: models.py:166
 msgid "date creation"
-msgstr "création de date"
+msgstr "date de création"
 
-#: models.py:189
+#: models.py:196
 msgid "document"
 msgstr "document"
 
-#: models.py:190
+#: models.py:197
 msgid "documents"
 msgstr "documents"
 
@@ -117,11 +117,11 @@ msgstr "Ajouter un dossier"
 
 #: views.py:73
 msgid "Modify folder"
-msgstr "Modifier un dossier"
+msgstr "Modifier le dossier"
 
 #: views.py:79
 msgid "Delete folder"
-msgstr "Supprimer un dossier"
+msgstr "Supprimer le dossier"
 
 #: views.py:124 views.py:127
 msgid "Import"
@@ -177,7 +177,7 @@ msgstr "Ajouter un document"
 
 #: views.py:334
 msgid "Modify document"
-msgstr "Modifier un document"
+msgstr "Modifier le document"
 
 #: views.py:350 views.py:379
 msgid "No allow to write!"
@@ -185,11 +185,11 @@ msgstr "Écriture non autorisée !"
 
 #: views.py:357
 msgid "Show document"
-msgstr "Affichage d'un document"
+msgstr "Afficher le document"
 
 #: views.py:366
 msgid "Delete document"
-msgstr "Supprimer un document"
+msgstr "Supprimer le document"
 
 #: views.py:383
 msgid "To find a document following a set of criteria."
@@ -214,4 +214,4 @@ msgstr "un fichier actuellement accessible"
 #: views.py:420
 #, python-format
 msgid "%d files currently available"
-msgstr "%d fichiers actuellement accessible"
+msgstr "%d fichiers actuellement accessibles"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-20 17:14+0000\n"
+"POT-Creation-Date: 2016-06-27 08:42+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,75 +25,75 @@ msgstr "Lucterios documents"
 msgid "File not found!"
 msgstr "File not found!"
 
-#: models.py:40 models.py:150
+#: models.py:44 models.py:157
 msgid "name"
 msgstr "name"
 
-#: models.py:41 models.py:151
+#: models.py:45 models.py:158
 msgid "description"
 msgstr "description"
 
-#: models.py:43
+#: models.py:47
 msgid "parent"
 msgstr "parent"
 
-#: models.py:45
+#: models.py:49
 msgid "viewer"
 msgstr "viewer"
 
-#: models.py:47 models.py:153
+#: models.py:51 models.py:160
 msgid "modifier"
 msgstr "modifier"
 
-#: models.py:49
+#: models.py:53
 msgid "Available group viewers"
 msgstr "Available group viewers"
 
-#: models.py:49
+#: models.py:53
 msgid "Chosen group viewers"
 msgstr "Chosen group viewers"
 
-#: models.py:51
+#: models.py:55
 msgid "Available group modifiers"
 msgstr "Available group modifiers"
 
-#: models.py:51
+#: models.py:55
 msgid "Chosen group modifiers"
 msgstr "Chosen group modifiers"
 
-#: models.py:55 models.py:59
+#: models.py:59 models.py:63
 msgid "001@Info"
 msgstr "001@Info"
 
-#: models.py:55 models.py:59
+#: models.py:59 models.py:63
 msgid "001@Permission"
 msgstr "001@Permission"
 
-#: models.py:142 models.py:149
+#: models.py:149 models.py:156
 msgid "folder"
 msgstr "folder"
 
-#: models.py:143
+#: models.py:150
 msgid "folders"
 msgstr "folders"
 
-#: models.py:155
+#: models.py:162
 msgid "date modification"
 msgstr "date modification"
 
-#: models.py:157
+#: models.py:164
 msgid "creator"
 msgstr "creator"
 
-#: models.py:159
+#: models.py:166
 msgid "date creation"
 msgstr "date creation"
 
-#: models.py:189
+#: models.py:196
 msgid "document"
 msgstr "document"
 
-#: models.py:190
+#: models.py:197
 msgid "documents"
 msgstr "documents"
 
