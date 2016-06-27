@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-27 08:42+0000\n"
+"POT-Creation-Date: 2016-06-27 08:55+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -47,19 +47,19 @@ msgstr "modifier"
 
 #: models.py:53
 msgid "Available group viewers"
-msgstr "Available group viewers"
+msgstr "Available viewers group"
 
 #: models.py:53
 msgid "Chosen group viewers"
-msgstr "Chosen group viewers"
+msgstr "Chosen viewers group"
 
 #: models.py:55
 msgid "Available group modifiers"
-msgstr "Available group modifiers"
+msgstr "Available modifiers group"
 
 #: models.py:55
 msgid "Chosen group modifiers"
-msgstr "Chosen group modifiers"
+msgstr "Chosen modifiers group"
 
 #: models.py:59 models.py:63
 msgid "001@Info"
@@ -79,7 +79,7 @@ msgstr "folders"
 
 #: models.py:162
 msgid "date modification"
-msgstr "date modification"
+msgstr "date of modification"
 
 #: models.py:164
 msgid "creator"
@@ -87,7 +87,7 @@ msgstr "creator"
 
 #: models.py:166
 msgid "date creation"
-msgstr "date creation"
+msgstr "date of creation"
 
 #: models.py:196
 msgid "document"
@@ -99,7 +99,7 @@ msgstr "documents"
 
 #: views.py:54
 msgid "Document"
-msgstr "Document management"
+msgstr "Document"
 
 #: views.py:57
 msgid "Management of document's folders"
@@ -167,7 +167,7 @@ msgstr "edit"
 
 #: views.py:311 views.py:320 views.py:348 views.py:377
 msgid "No allow to view!"
-msgstr "No allow to view!"
+msgstr "Not allowed to display !"
 
 #: views.py:333
 msgid "Add document"
@@ -179,7 +179,7 @@ msgstr "Modify document"
 
 #: views.py:350 views.py:379
 msgid "No allow to write!"
-msgstr "No allow to write!"
+msgstr "Not allowed to write !"
 
 #: views.py:357
 msgid "Show document"
