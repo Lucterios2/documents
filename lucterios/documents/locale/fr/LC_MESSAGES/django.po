@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-27 08:55+0000\n"
+"POT-Creation-Date: 2016-06-27 22:23+0000\n"
 "PO-Revision-Date: 2016-01-14 21:49+0000\n"
 "Last-Translator: b'Paul ARULATEDA <paul531@orange.fr>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -181,7 +181,7 @@ msgstr "Modifier le document"
 
 #: views.py:350 views.py:379
 msgid "No allow to write!"
-msgstr "Ecriture non autorisée !"
+msgstr "Écriture non autorisée !"
 
 #: views.py:357
 msgid "Show document"
