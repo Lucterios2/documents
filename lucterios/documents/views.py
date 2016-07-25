@@ -33,7 +33,8 @@ from django.db.models import Q
 from django.utils import six
 
 from lucterios.framework.xferadvance import XferListEditor, XferDelete, XferAddEditor, XferShowEditor,\
-    TITLE_ADD, TITLE_MODIFY, TITLE_DELETE, TITLE_EDIT, TITLE_CANCEL, TITLE_OK
+    TITLE_ADD, TITLE_MODIFY, TITLE_DELETE, TITLE_EDIT, TITLE_CANCEL, TITLE_OK,\
+    TEXT_TOTAL_NUMBER
 from lucterios.framework.xfersearch import XferSearchEditor
 from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, ActionsManage, \
     FORMTYPE_MODAL, CLOSE_NO, FORMTYPE_REFRESH, SELECT_SINGLE, SELECT_NONE, \
@@ -426,3 +427,23 @@ def summary_documents(xfer):
         return True
     else:
         return False
+
+
+@signal_and_lock.Signal.decorate('conf_wizard')
+def conf_wizard_document(wizard_ident, xfer):
+    if isinstance(wizard_ident, list) and (xfer is None):
+        wizard_ident.append(("document_params", 45))
+    elif (xfer is not None) and (wizard_ident == "document_params"):
+        xfer.add_title(_("Lucterios documents"), _("Parameters"))
+        lbl = XferCompLabelForm("nb_folder")
+        lbl.set_location(1, xfer.get_max_row() + 1)
+        lbl.set_value(TEXT_TOTAL_NUMBER % {'name': Folder._meta.verbose_name_plural, 'count': len(Folder.objects.all())})
+        xfer.add_component(lbl)
+        lbl = XferCompLabelForm("nb_doc")
+        lbl.set_location(1, xfer.get_max_row() + 1)
+        lbl.set_value(TEXT_TOTAL_NUMBER % {'name': Document._meta.verbose_name_plural, 'count': len(Document.objects.all())})
+        xfer.add_component(lbl)
+        btn = XferCompButton("btnconf")
+        btn.set_location(4, xfer.get_max_row() - 1, 1, 2)
+        btn.set_action(xfer.request, FolderList.get_action(TITLE_MODIFY, "images/edit.png"), close=CLOSE_NO)
+        xfer.add_component(btn)
