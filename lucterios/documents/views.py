@@ -432,7 +432,7 @@ def summary_documents(xfer):
 @signal_and_lock.Signal.decorate('conf_wizard')
 def conf_wizard_document(wizard_ident, xfer):
     if isinstance(wizard_ident, list) and (xfer is None):
-        wizard_ident.append(("document_params", 45))
+        wizard_ident.append(("document_params", 55))
     elif (xfer is not None) and (wizard_ident == "document_params"):
         xfer.add_title(_("Lucterios documents"), _("Parameters"))
         lbl = XferCompLabelForm("nb_folder")
