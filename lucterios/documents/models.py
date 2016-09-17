@@ -41,7 +41,7 @@ from lucterios.CORE.models import LucteriosGroup, LucteriosUser
 
 
 class Folder(LucteriosModel):
-    name = models.CharField(_('name'), max_length=50, blank=False)
+    name = models.CharField(_('name'), max_length=250, blank=False)
     description = models.TextField(_('description'), blank=False)
     parent = models.ForeignKey(
         'Folder', verbose_name=_('parent'), null=True, on_delete=models.CASCADE)
@@ -145,6 +145,10 @@ class Folder(LucteriosModel):
                 makedirs(new_dir_to_extract)
             folder.extract_files(new_dir_to_extract)
 
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        self.name = self.name[:250]
+        return LucteriosModel.save(self, force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
+
     class Meta(object):
         verbose_name = _('folder')
         verbose_name_plural = _('folders')
@@ -154,7 +158,7 @@ class Folder(LucteriosModel):
 class Document(LucteriosModel):
     folder = models.ForeignKey(
         'Folder', verbose_name=_('folder'), null=True, on_delete=models.CASCADE)
-    name = models.CharField(_('name'), max_length=50, blank=False)
+    name = models.CharField(_('name'), max_length=250, blank=False)
     description = models.TextField(_('description'), blank=False)
     modifier = models.ForeignKey(LucteriosUser, related_name="document_modifier", verbose_name=_(
         'modifier'), null=True, on_delete=models.CASCADE)
@@ -191,8 +195,11 @@ class Document(LucteriosModel):
         if isfile(file_path):
             unlink(file_path)
 
-    class Meta(object):
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        self.name = self.name[:250]
+        return LucteriosModel.save(self, force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
 
+    class Meta(object):
         verbose_name = _('document')
         verbose_name_plural = _('documents')
         ordering = ['folder__name', 'name']

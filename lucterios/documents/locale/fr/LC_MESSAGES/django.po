@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-07-26 11:59+0000\n"
+"POT-Creation-Date: 2016-09-17 18:09+0000\n"
 "PO-Revision-Date: 2016-01-14 21:49+0000\n"
 "Last-Translator: b'Paul ARULATEDA <paul531@orange.fr>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,11 +27,11 @@ msgstr "Documents Lucterios "
 msgid "File not found!"
 msgstr "Ficher non trouvé !"
 
-#: models.py:44 models.py:157
+#: models.py:44 models.py:161
 msgid "name"
 msgstr "nom"
 
-#: models.py:45 models.py:158
+#: models.py:45 models.py:162
 msgid "description"
 msgstr "description"
 
@@ -43,7 +43,7 @@ msgstr "parent"
 msgid "viewer"
 msgstr "visionneur"
 
-#: models.py:51 models.py:160
+#: models.py:51 models.py:164
 msgid "modifier"
 msgstr "modificateur"
 
@@ -71,31 +71,31 @@ msgstr "001@Info"
 msgid "001@Permission"
 msgstr "001@Permission"
 
-#: models.py:149 models.py:156
+#: models.py:153 models.py:160
 msgid "folder"
 msgstr "dossier"
 
-#: models.py:150
+#: models.py:154
 msgid "folders"
 msgstr "dossiers"
 
-#: models.py:162
+#: models.py:166
 msgid "date modification"
 msgstr "date de modification"
 
-#: models.py:164
+#: models.py:168
 msgid "creator"
 msgstr "créateur"
 
-#: models.py:166
+#: models.py:170
 msgid "date creation"
 msgstr "date de création"
 
-#: models.py:196
+#: models.py:203
 msgid "document"
 msgstr "document"
 
-#: models.py:197
+#: models.py:204
 msgid "documents"
 msgstr "documents"
 
