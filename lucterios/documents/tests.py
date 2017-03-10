@@ -55,47 +55,33 @@ class FolderTest(LucteriosTest):
     def test_list(self):
         self.factory.xfer = FolderList()
         self.call('/lucterios.documents/folderList', {}, False)
-        self.assert_observer(
-            'core.custom', 'lucterios.documents', 'folderList')
+        self.assert_observer('core.custom', 'lucterios.documents', 'folderList', 1)
         self.assert_xml_equal('TITLE', 'Dossiers')
         self.assert_count_equal('CONTEXT', 0)
         self.assert_count_equal('ACTIONS/ACTION', 1)
-        self.assert_action_equal(
-            'ACTIONS/ACTION', ('Fermer', 'images/close.png'))
+        self.assert_action_equal('ACTIONS/ACTION', ('Fermer', 'images/close.png'))
         self.assert_count_equal('COMPONENTS/*', 4)
-        self.assert_coordcomp_equal(
-            'COMPONENTS/GRID[@name="folder"]', (0, 1, 2, 1))
+        self.assert_coordcomp_equal('COMPONENTS/GRID[@name="folder"]', (0, 1, 2, 1))
         self.assert_count_equal('COMPONENTS/GRID[@name="folder"]/HEADER', 3)
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="folder"]/HEADER[@name="name"]', "nom")
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="folder"]/HEADER[@name="description"]', "description")
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="folder"]/HEADER[@name="parent"]', "parent")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="folder"]/HEADER[@name="name"]', "nom")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="folder"]/HEADER[@name="description"]', "description")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="folder"]/HEADER[@name="parent"]', "parent")
         self.assert_count_equal('COMPONENTS/GRID[@name="folder"]/RECORD', 0)
 
     def test_add(self):
         self.factory.xfer = FolderAddModify()
         self.call('/lucterios.documents/folderAddModify', {}, False)
-        self.assert_observer(
-            'core.custom', 'lucterios.documents', 'folderAddModify')
+        self.assert_observer('core.custom', 'lucterios.documents', 'folderAddModify', 1)
         self.assert_xml_equal('TITLE', 'Ajouter un dossier')
-        self.assert_count_equal('COMPONENTS/*', 27)
-        self.assert_comp_equal(
-            'COMPONENTS/EDIT[@name="name"]', None, (1, 0, 1, 1, 1))
-        self.assert_comp_equal(
-            'COMPONENTS/MEMO[@name="description"]', None, (1, 1, 1, 1, 1))
-        self.assert_comp_equal(
-            'COMPONENTS/SELECT[@name="parent"]', '0', (1, 2, 1, 1, 1))
+        self.assert_count_equal('COMPONENTS/*', 22)
+        self.assert_comp_equal('COMPONENTS/EDIT[@name="name"]', None, (0, 0, 1, 1, 1))
+        self.assert_comp_equal('COMPONENTS/MEMO[@name="description"]', None, (0, 1, 1, 1, 1))
+        self.assert_comp_equal('COMPONENTS/SELECT[@name="parent"]', '0', (0, 2, 1, 1, 1))
         self.assert_count_equal('COMPONENTS/SELECT[@name="parent"]/CASE', 1)
-        self.assert_coordcomp_equal(
-            'COMPONENTS/CHECKLIST[@name="viewer_available"]', (1, 1, 1, 5, 2))
-        self.assert_coordcomp_equal(
-            'COMPONENTS/CHECKLIST[@name="viewer_chosen"]', (3, 1, 1, 5, 2))
-        self.assert_coordcomp_equal(
-            'COMPONENTS/CHECKLIST[@name="modifier_available"]', (1, 6, 1, 5, 2))
-        self.assert_coordcomp_equal(
-            'COMPONENTS/CHECKLIST[@name="modifier_chosen"]', (3, 6, 1, 5, 2))
+        self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="viewer_available"]', (0, 1, 1, 5, 2))
+        self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="viewer_chosen"]', (2, 1, 1, 5, 2))
+        self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="modifier_available"]', (0, 6, 1, 5, 2))
+        self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="modifier_chosen"]', (2, 6, 1, 5, 2))
 
     def test_addsave(self):
 
@@ -105,8 +91,7 @@ class FolderTest(LucteriosTest):
         self.factory.xfer = FolderAddModify()
         self.call('/lucterios.documents/folderAddModify', {'SAVE': 'YES', 'name': 'newcat', 'description': 'new folder',
                                                            'parent': '0', 'viewer': '1;2', 'modifier': '2'}, False)
-        self.assert_observer(
-            'core.acknowledge', 'lucterios.documents', 'folderAddModify')
+        self.assert_observer('core.acknowledge', 'lucterios.documents', 'folderAddModify')
         self.assert_count_equal('CONTEXT/PARAM', 5)
 
         folder = Folder.objects.all()
@@ -114,47 +99,38 @@ class FolderTest(LucteriosTest):
         self.assertEqual(folder[0].name, "newcat")
         self.assertEqual(folder[0].description, "new folder")
         self.assertEqual(folder[0].parent, None)
-        grp = folder[0].viewer.all().order_by(
-            'id')
+        grp = folder[0].viewer.all().order_by('id')
         self.assertEqual(len(grp), 2)
         self.assertEqual(grp[0].id, 1)
         self.assertEqual(grp[1].id, 2)
-        grp = folder[0].modifier.all().order_by(
-            'id')
+        grp = folder[0].modifier.all().order_by('id')
         self.assertEqual(len(grp), 1)
         self.assertEqual(grp[0].id, 2)
 
         self.factory.xfer = FolderList()
         self.call('/lucterios.documents/folderList', {}, False)
-        self.assert_observer(
-            'core.custom', 'lucterios.documents', 'folderList')
+        self.assert_observer('core.custom', 'lucterios.documents', 'folderList', 1)
         self.assert_count_equal('COMPONENTS/GRID[@name="folder"]/RECORD', 1)
 
     def test_delete(self):
         folder = Folder.objects.create(
             name='truc', description='blabla')
-        folder.viewer = LucteriosGroup.objects.filter(
-            id__in=[1, 2])
-        folder.modifier = LucteriosGroup.objects.filter(
-            id__in=[2])
+        folder.viewer = LucteriosGroup.objects.filter(id__in=[1, 2])
+        folder.modifier = LucteriosGroup.objects.filter(id__in=[2])
         folder.save()
 
         self.factory.xfer = FolderList()
         self.call('/lucterios.documents/folderList', {}, False)
-        self.assert_observer(
-            'core.custom', 'lucterios.documents', 'folderList')
+        self.assert_observer('core.custom', 'lucterios.documents', 'folderList', 1)
         self.assert_count_equal('COMPONENTS/GRID[@name="folder"]/RECORD', 1)
 
         self.factory.xfer = FolderDel()
-        self.call('/lucterios.documents/folderDel',
-                  {'folder': '1', "CONFIRME": 'YES'}, False)
-        self.assert_observer(
-            'core.acknowledge', 'lucterios.documents', 'folderDel')
+        self.call('/lucterios.documents/folderDel', {'folder': '1', "CONFIRME": 'YES'}, False)
+        self.assert_observer('core.acknowledge', 'lucterios.documents', 'folderDel')
 
         self.factory.xfer = FolderList()
         self.call('/lucterios.documents/folderList', {}, False)
-        self.assert_observer(
-            'core.custom', 'lucterios.documents', 'folderList')
+        self.assert_observer('core.custom', 'lucterios.documents', 'folderList', 1)
         self.assert_count_equal('COMPONENTS/GRID[@name="folder"]/RECORD', 0)
 
 
@@ -168,41 +144,28 @@ class DocumentTest(LucteriosTest):
         current_user = add_empty_user()
         current_user.is_superuser = False
         current_user.save()
-        group = LucteriosGroup.objects.create(
-            name="my_group")
+        group = LucteriosGroup.objects.create(name="my_group")
         group.save()
-        group = LucteriosGroup.objects.create(
-            name="other_group")
+        group = LucteriosGroup.objects.create(name="other_group")
         group.save()
-        self.factory.user = LucteriosUser.objects.get(
-            username='empty')
-        self.factory.user.groups = LucteriosGroup.objects.filter(
-            id__in=[2])
+        self.factory.user = LucteriosUser.objects.get(username='empty')
+        self.factory.user.groups = LucteriosGroup.objects.filter(id__in=[2])
         self.factory.user.user_permissions = Permission.objects.all()
         self.factory.user.save()
 
-        folder1 = Folder.objects.create(
-            name='truc1', description='blabla')
-        folder1.viewer = LucteriosGroup.objects.filter(
-            id__in=[1, 2])
-        folder1.modifier = LucteriosGroup.objects.filter(
-            id__in=[1])
+        folder1 = Folder.objects.create(name='truc1', description='blabla')
+        folder1.viewer = LucteriosGroup.objects.filter(id__in=[1, 2])
+        folder1.modifier = LucteriosGroup.objects.filter(id__in=[1])
         folder1.save()
-        folder2 = Folder.objects.create(
-            name='truc2', description='bouuuuu!')
-        folder2.viewer = LucteriosGroup.objects.filter(
-            id__in=[2])
-        folder2.modifier = LucteriosGroup.objects.filter(
-            id__in=[2])
+        folder2 = Folder.objects.create(name='truc2', description='bouuuuu!')
+        folder2.viewer = LucteriosGroup.objects.filter(id__in=[2])
+        folder2.modifier = LucteriosGroup.objects.filter(id__in=[2])
         folder2.save()
-        folder3 = Folder.objects.create(
-            name='truc3', description='----')
+        folder3 = Folder.objects.create(name='truc3', description='----')
         folder3.parent = folder2
-        folder3.viewer = LucteriosGroup.objects.filter(
-            id__in=[2])
+        folder3.viewer = LucteriosGroup.objects.filter(id__in=[2])
         folder3.save()
-        folder4 = Folder.objects.create(
-            name='truc4', description='no')
+        folder4 = Folder.objects.create(name='truc4', description='no')
         folder4.parent = folder2
         folder4.save()
 
@@ -233,116 +196,74 @@ class DocumentTest(LucteriosTest):
 
         self.factory.xfer = DocumentList()
         self.call('/lucterios.documents/documentList', {}, False)
-        self.assert_observer(
-            'core.custom', 'lucterios.documents', 'documentList')
+        self.assert_observer('core.custom', 'lucterios.documents', 'documentList', 1)
         self.assert_xml_equal('TITLE', 'Documents')
         self.assert_count_equal('CONTEXT', 0)
         self.assert_count_equal('ACTIONS/ACTION', 1)
-        self.assert_action_equal(
-            'ACTIONS/ACTION', ('Fermer', 'images/close.png'))
+        self.assert_action_equal('ACTIONS/ACTION', ('Fermer', 'images/close.png'))
         self.assert_count_equal('COMPONENTS/*', 9)
-        self.assert_coordcomp_equal(
-            'COMPONENTS/GRID[@name="document"]', (2, 2, 2, 2))
+        self.assert_coordcomp_equal('COMPONENTS/GRID[@name="document"]', (2, 2, 2, 2))
         self.assert_count_equal('COMPONENTS/GRID[@name="document"]/HEADER', 4)
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="document"]/HEADER[@name="name"]', "nom")
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="document"]/HEADER[@name="description"]', "description")
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="document"]/HEADER[@name="date_modification"]', "date de modification")
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="document"]/HEADER[@name="modifier"]', "modificateur")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="document"]/HEADER[@name="name"]', "nom")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="document"]/HEADER[@name="description"]', "description")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="document"]/HEADER[@name="date_modification"]', "date de modification")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="document"]/HEADER[@name="modifier"]', "modificateur")
         self.assert_count_equal('COMPONENTS/GRID[@name="document"]/RECORD', 0)
-        self.assert_count_equal(
-            'COMPONENTS/GRID[@name="document"]/ACTIONS/ACTION', 3)
+        self.assert_count_equal('COMPONENTS/GRID[@name="document"]/ACTIONS/ACTION', 3)
 
-        self.assert_coordcomp_equal(
-            'COMPONENTS/CHECKLIST[@name="current_folder"]', (0, 2, 2, 1))
-        self.assert_count_equal(
-            'COMPONENTS/CHECKLIST[@name="current_folder"]/CASE', 2)
-        self.assert_xml_equal(
-            'COMPONENTS/CHECKLIST[@name="current_folder"]/CASE[@id="1"]', "truc1")
-        self.assert_xml_equal(
-            'COMPONENTS/CHECKLIST[@name="current_folder"]/CASE[@id="2"]', "truc2")
+        self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="current_folder"]', (0, 2, 2, 1))
+        self.assert_count_equal('COMPONENTS/CHECKLIST[@name="current_folder"]/CASE', 2)
+        self.assert_xml_equal('COMPONENTS/CHECKLIST[@name="current_folder"]/CASE[@id="1"]', "truc1")
+        self.assert_xml_equal('COMPONENTS/CHECKLIST[@name="current_folder"]/CASE[@id="2"]', "truc2")
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="lbltitlecat"]', ">")
-        self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="lbldesc"]', '{[center]}{[i]}{[/i]}{[/center]}')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="lbldesc"]', '{[center]}{[i]}{[/i]}{[/center]}')
 
         self.factory.xfer = DocumentList()
-        self.call(
-            '/lucterios.documents/documentList', {"current_folder": "1"}, False)
-        self.assert_observer(
-            'core.custom', 'lucterios.documents', 'documentList')
+        self.call('/lucterios.documents/documentList', {"current_folder": "1"}, False)
+        self.assert_observer('core.custom', 'lucterios.documents', 'documentList', 1)
         self.assert_count_equal('COMPONENTS/GRID[@name="document"]/RECORD', 0)
-        self.assert_count_equal(
-            'COMPONENTS/GRID[@name="document"]/ACTIONS/ACTION', 1)
-        self.assert_count_equal(
-            'COMPONENTS/CHECKLIST[@name="current_folder"]/CASE', 1)
-        self.assert_xml_equal(
-            'COMPONENTS/CHECKLIST[@name="current_folder"]/CASE[@id="0"]', "..")
-        self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="lbltitlecat"]', ">truc1")
-        self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="lbldesc"]', "{[center]}{[i]}blabla{[/i]}{[/center]}")
+        self.assert_count_equal('COMPONENTS/GRID[@name="document"]/ACTIONS/ACTION', 1)
+        self.assert_count_equal('COMPONENTS/CHECKLIST[@name="current_folder"]/CASE', 1)
+        self.assert_xml_equal('COMPONENTS/CHECKLIST[@name="current_folder"]/CASE[@id="0"]', "..")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="lbltitlecat"]', ">truc1")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="lbldesc"]', "{[center]}{[i]}blabla{[/i]}{[/center]}")
 
         self.factory.xfer = DocumentList()
-        self.call(
-            '/lucterios.documents/documentList', {"current_folder": "2"}, False)
-        self.assert_observer(
-            'core.custom', 'lucterios.documents', 'documentList')
+        self.call('/lucterios.documents/documentList', {"current_folder": "2"}, False)
+        self.assert_observer('core.custom', 'lucterios.documents', 'documentList', 1)
         self.assert_count_equal('COMPONENTS/GRID[@name="document"]/RECORD', 0)
-        self.assert_count_equal(
-            'COMPONENTS/GRID[@name="document"]/ACTIONS/ACTION', 3)
-        self.assert_count_equal(
-            'COMPONENTS/CHECKLIST[@name="current_folder"]/CASE', 2)
-        self.assert_xml_equal(
-            'COMPONENTS/CHECKLIST[@name="current_folder"]/CASE[@id="0"]', "..")
-        self.assert_xml_equal(
-            'COMPONENTS/CHECKLIST[@name="current_folder"]/CASE[@id="3"]', "truc3")
-        self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="lbltitlecat"]', ">truc2")
-        self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="lbldesc"]', "{[center]}{[i]}bouuuuu!{[/i]}{[/center]}")
+        self.assert_count_equal('COMPONENTS/GRID[@name="document"]/ACTIONS/ACTION', 3)
+        self.assert_count_equal('COMPONENTS/CHECKLIST[@name="current_folder"]/CASE', 2)
+        self.assert_xml_equal('COMPONENTS/CHECKLIST[@name="current_folder"]/CASE[@id="0"]', "..")
+        self.assert_xml_equal('COMPONENTS/CHECKLIST[@name="current_folder"]/CASE[@id="3"]', "truc3")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="lbltitlecat"]', ">truc2")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="lbldesc"]', "{[center]}{[i]}bouuuuu!{[/i]}{[/center]}")
 
         self.factory.xfer = DocumentList()
-        self.call(
-            '/lucterios.documents/documentList', {"current_folder": "3"}, False)
-        self.assert_observer(
-            'core.custom', 'lucterios.documents', 'documentList')
+        self.call('/lucterios.documents/documentList', {"current_folder": "3"}, False)
+        self.assert_observer('core.custom', 'lucterios.documents', 'documentList')
         self.assert_count_equal('COMPONENTS/GRID[@name="document"]/RECORD', 0)
-        self.assert_count_equal(
-            'COMPONENTS/GRID[@name="document"]/ACTIONS/ACTION', 1)
-        self.assert_count_equal(
-            'COMPONENTS/CHECKLIST[@name="current_folder"]/CASE', 1)
-        self.assert_xml_equal(
-            'COMPONENTS/CHECKLIST[@name="current_folder"]/CASE[@id="2"]', "..")
-        self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="lbltitlecat"]', ">truc2>truc3")
-        self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="lbldesc"]', "{[center]}{[i]}----{[/i]}{[/center]}")
+        self.assert_count_equal('COMPONENTS/GRID[@name="document"]/ACTIONS/ACTION', 1)
+        self.assert_count_equal('COMPONENTS/CHECKLIST[@name="current_folder"]/CASE', 1)
+        self.assert_xml_equal('COMPONENTS/CHECKLIST[@name="current_folder"]/CASE[@id="2"]', "..")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="lbltitlecat"]', ">truc2>truc3")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="lbldesc"]', "{[center]}{[i]}----{[/i]}{[/center]}")
 
     def test_add(self):
         self.factory.xfer = DocumentAddModify()
-        self.call('/lucterios.documents/documentAddModify',
-                  {"current_folder": "2"}, False)
-        self.assert_observer(
-            'core.custom', 'lucterios.documents', 'documentAddModify')
+        self.call('/lucterios.documents/documentAddModify', {"current_folder": "2"}, False)
+        self.assert_observer('core.custom', 'lucterios.documents', 'documentAddModify')
         self.assert_xml_equal('TITLE', 'Ajouter un document')
-        self.assert_count_equal('COMPONENTS/*', 7)
-        self.assert_comp_equal(
-            'COMPONENTS/LABELFORM[@name="folder"]', ">truc2", (2, 0, 1, 1))
-        self.assert_comp_equal(
-            'COMPONENTS/UPLOAD[@name="filename"]', None, (2, 1, 1, 1))
-        self.assert_comp_equal(
-            'COMPONENTS/MEMO[@name="description"]', None, (2, 2, 1, 1))
+        self.assert_count_equal('COMPONENTS/*', 4)
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="folder"]', ">truc2", (1, 0, 1, 1))
+        self.assert_comp_equal('COMPONENTS/UPLOAD[@name="filename"]', None, (1, 1, 1, 1))
+        self.assert_comp_equal('COMPONENTS/MEMO[@name="description"]', None, (1, 2, 1, 1))
 
     def test_addsave(self):
-        self.factory.user = LucteriosUser.objects.get(
-            username='empty')
+        self.factory.user = LucteriosUser.objects.get(username='empty')
 
         self.assertFalse(exists(get_user_path('documents', 'document_1')))
-        file_path = join(
-            dirname(__file__), 'static', 'lucterios.documents', 'images', 'documentFind.png')
+        file_path = join(dirname(__file__), 'static', 'lucterios.documents', 'images', 'documentFind.png')
 
         docs = Document.objects.all()
         self.assertEqual(len(docs), 0)
@@ -351,8 +272,7 @@ class DocumentTest(LucteriosTest):
         with open(file_path, 'rb') as file_to_load:
             self.call('/lucterios.documents/documentAddModify', {"current_folder": "2", 'SAVE': 'YES', 'description': 'new doc',
                                                                  'filename_FILENAME': 'doc.png', 'filename': file_to_load}, False)
-        self.assert_observer(
-            'core.acknowledge', 'lucterios.documents', 'documentAddModify')
+        self.assert_observer('core.acknowledge', 'lucterios.documents', 'documentAddModify')
         self.assert_count_equal('CONTEXT/PARAM', 3)
 
         docs = Document.objects.all()
@@ -369,33 +289,22 @@ class DocumentTest(LucteriosTest):
         current_date = self.create_doc()
 
         self.factory.xfer = DocumentShow()
-        self.call(
-            '/lucterios.documents/documentShow', {"document": "1"}, False)
-        self.assert_observer(
-            'core.custom', 'lucterios.documents', 'documentShow')
+        self.call('/lucterios.documents/documentShow', {"document": "1"}, False)
+        self.assert_observer('core.custom', 'lucterios.documents', 'documentShow')
         self.assert_xml_equal('TITLE', "Afficher le document")
-        self.assert_count_equal('COMPONENTS/*', 16)
-        self.assert_comp_equal(
-            'COMPONENTS/LABELFORM[@name="folder"]', ">truc2", (2, 0, 3, 1))
-        self.assert_comp_equal(
-            'COMPONENTS/LABELFORM[@name="name"]', "doc1.png", (2, 1, 3, 1))
-        self.assert_comp_equal(
-            'COMPONENTS/LABELFORM[@name="description"]', "doc 1", (2, 2, 3, 1))
-        self.assert_comp_equal(
-            'COMPONENTS/LABELFORM[@name="modifier"]', '---', (2, 3, 1, 1))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="date_modification"]', formats.date_format(
-            current_date, "DATETIME_FORMAT"), (4, 3, 1, 1))
-        self.assert_comp_equal(
-            'COMPONENTS/LABELFORM[@name="creator"]', "empty", (2, 4, 1, 1))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="date_creation"]', formats.date_format(
-            current_date, "DATETIME_FORMAT"), (4, 4, 1, 1))
+        self.assert_count_equal('COMPONENTS/*', 9)
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="folder"]', ">truc2", (1, 0, 3, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="name"]', "doc1.png", (1, 1, 3, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="description"]', "doc 1", (1, 2, 3, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="modifier"]', '---', (1, 3, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="date_modification"]', formats.date_format(current_date, "DATETIME_FORMAT"), (2, 3, 2, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="creator"]', "empty", (1, 4, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="date_creation"]', formats.date_format(current_date, "DATETIME_FORMAT"), (2, 4, 2, 1))
         self.assert_count_equal('ACTIONS/ACTION', 2)
 
         self.factory.xfer = DocumentAddModify()
-        self.call('/lucterios.documents/documentAddModify',
-                  {'SAVE': 'YES', "document": "1", 'description': 'old doc'}, False)
-        docs = Document.objects.all().order_by(
-            'id')
+        self.call('/lucterios.documents/documentAddModify', {'SAVE': 'YES', "document": "1", 'description': 'old doc'}, False)
+        docs = Document.objects.all().order_by('id')
         self.assertEqual(len(docs), 3)
         self.assertEqual(docs[0].folder.id, 2)
         self.assertEqual(docs[0].name, 'doc1.png')
@@ -408,26 +317,19 @@ class DocumentTest(LucteriosTest):
         current_date = self.create_doc()
 
         self.factory.xfer = DocumentList()
-        self.call(
-            '/lucterios.documents/documentList', {"current_folder": "2"}, False)
-        self.assert_observer(
-            'core.custom', 'lucterios.documents', 'documentList')
+        self.call('/lucterios.documents/documentList', {"current_folder": "2"}, False)
+        self.assert_observer('core.custom', 'lucterios.documents', 'documentList', 1)
         self.assert_count_equal('COMPONENTS/GRID[@name="document"]/RECORD', 1)
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="document"]/RECORD[@id="1"]/VALUE[@name="name"]', "doc1.png")
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="document"]/RECORD[@id="1"]/VALUE[@name="description"]', "doc 1")
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="document"]/RECORD[@id="1"]/VALUE[@name="date_modification"]', formats.date_format(current_date, "DATETIME_FORMAT"))
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="document"]/RECORD[@id="1"]/VALUE[@name="modifier"]', "---")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="document"]/RECORD[@id="1"]/VALUE[@name="name"]', "doc1.png")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="document"]/RECORD[@id="1"]/VALUE[@name="description"]', "doc 1")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="document"]/RECORD[@id="1"]/VALUE[@name="date_modification"]', formats.date_format(current_date, "DATETIME_FORMAT"))
+        self.assert_xml_equal('COMPONENTS/GRID[@name="document"]/RECORD[@id="1"]/VALUE[@name="modifier"]', "---")
         self.assertTrue(exists(get_user_path('documents', 'document_1')))
 
         self.factory.xfer = DocumentDel()
         self.call('/lucterios.documents/documentDel',
                   {"document": "1", "CONFIRME": 'YES'}, False)
-        self.assert_observer(
-            'core.acknowledge', 'lucterios.documents', 'documentDel')
+        self.assert_observer('core.acknowledge', 'lucterios.documents', 'documentDel')
 
         self.factory.xfer = DocumentList()
         self.call(
@@ -439,74 +341,54 @@ class DocumentTest(LucteriosTest):
         current_date = self.create_doc()
 
         self.factory.xfer = DocumentShow()
-        self.call(
-            '/lucterios.documents/documentShow', {"document": "2"}, False)
-        self.assert_observer(
-            'core.custom', 'lucterios.documents', 'documentShow')
+        self.call('/lucterios.documents/documentShow', {"document": "2"}, False)
+        self.assert_observer('core.custom', 'lucterios.documents', 'documentShow')
         self.assert_xml_equal('TITLE', "Afficher le document")
-        self.assert_count_equal('COMPONENTS/*', 16)
-        self.assert_comp_equal(
-            'COMPONENTS/LABELFORM[@name="folder"]', ">truc1", (2, 0, 3, 1))
-        self.assert_comp_equal(
-            'COMPONENTS/LABELFORM[@name="name"]', "doc2.png", (2, 1, 3, 1))
-        self.assert_comp_equal(
-            'COMPONENTS/LABELFORM[@name="description"]', "doc 2", (2, 2, 3, 1))
-        self.assert_comp_equal(
-            'COMPONENTS/LABELFORM[@name="modifier"]', '---', (2, 3, 1, 1))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="date_modification"]', formats.date_format(
-            current_date, "DATETIME_FORMAT"), (4, 3, 1, 1))
-        self.assert_comp_equal(
-            'COMPONENTS/LABELFORM[@name="creator"]', "empty", (2, 4, 1, 1))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="date_creation"]', formats.date_format(
-            current_date, "DATETIME_FORMAT"), (4, 4, 1, 1))
+        self.assert_count_equal('COMPONENTS/*', 9)
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="folder"]', ">truc1", (1, 0, 3, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="name"]', "doc2.png", (1, 1, 3, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="description"]', "doc 2", (1, 2, 3, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="modifier"]', '---', (1, 3, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="date_modification"]', formats.date_format(current_date, "DATETIME_FORMAT"), (2, 3, 2, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="creator"]', "empty", (1, 4, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="date_creation"]', formats.date_format(current_date, "DATETIME_FORMAT"), (2, 4, 2, 1))
         self.assert_count_equal('ACTIONS/ACTION', 1)
 
         self.factory.xfer = DocumentAddModify()
-        self.call(
-            '/lucterios.documents/documentAddModify', {"document": "2"}, False)
-        self.assert_observer(
-            'core.exception', 'lucterios.documents', 'documentAddModify')
+        self.call('/lucterios.documents/documentAddModify', {"document": "2"}, False)
+        self.assert_observer('core.exception', 'lucterios.documents', 'documentAddModify')
         self.assert_xml_equal('EXCEPTION/MESSAGE', "Écriture non autorisée !")
 
         self.factory.xfer = DocumentDel()
         self.call('/lucterios.documents/documentDel', {"document": "2"}, False)
-        self.assert_observer(
-            'core.exception', 'lucterios.documents', 'documentDel')
+        self.assert_observer('core.exception', 'lucterios.documents', 'documentDel')
         self.assert_xml_equal('EXCEPTION/MESSAGE', "Écriture non autorisée !")
 
     def test_cannot_view(self):
         self.create_doc()
 
         self.factory.xfer = DocumentShow()
-        self.call(
-            '/lucterios.documents/documentShow', {"document": "3"}, False)
-        self.assert_observer(
-            'core.exception', 'lucterios.documents', 'documentShow')
+        self.call('/lucterios.documents/documentShow', {"document": "3"}, False)
+        self.assert_observer('core.exception', 'lucterios.documents', 'documentShow')
         self.assert_xml_equal('EXCEPTION/MESSAGE', "Visualisation non autorisée !")
 
         self.factory.xfer = DocumentAddModify()
-        self.call(
-            '/lucterios.documents/documentAddModify', {"document": "3"}, False)
-        self.assert_observer(
-            'core.exception', 'lucterios.documents', 'documentAddModify')
+        self.call('/lucterios.documents/documentAddModify', {"document": "3"}, False)
+        self.assert_observer('core.exception', 'lucterios.documents', 'documentAddModify')
         self.assert_xml_equal('EXCEPTION/MESSAGE', "Visualisation non autorisée !")
 
         self.factory.xfer = DocumentDel()
         self.call('/lucterios.documents/documentDel', {"document": "3"}, False)
-        self.assert_observer(
-            'core.exception', 'lucterios.documents', 'documentDel')
+        self.assert_observer('core.exception', 'lucterios.documents', 'documentDel')
         self.assert_xml_equal('EXCEPTION/MESSAGE', "Visualisation non autorisée !")
 
     def test_search(self):
         self.create_doc()
 
-        docs = Document.objects.filter(
-            name__endswith='.png')
+        docs = Document.objects.filter(name__endswith='.png')
         self.assertEqual(len(docs), 3)
 
         self.factory.xfer = DocumentSearch()
-        self.call('/lucterios.documents/documentSearch',
-                  {'CRITERIA': 'name||7||.png'}, False)
-        self.assert_observer(
-            'core.custom', 'lucterios.documents', 'documentSearch')
+        self.call('/lucterios.documents/documentSearch', {'CRITERIA': 'name||7||.png'}, False)
+        self.assert_observer('core.custom', 'lucterios.documents', 'documentSearch')
         self.assert_count_equal('COMPONENTS/GRID[@name="document"]/RECORD', 2)

@@ -129,15 +129,12 @@ class FolderImport(FolderImportExport):
 
     def add_components(self, dlg):
         dlg.fill_from_model(1, 2, False, desc_fields=['viewer', 'modifier'])
-        lbl = XferCompLabelForm('lbl_file')
-        lbl.set_value_as_name(_('zip file'))
-        lbl.set_location(1, 15)
-        dlg.add_component(lbl)
         zipfile = XferCompUpLoad('zipfile')
         zipfile.http_file = True
+        zipfile.description = _('zip file')
         zipfile.maxsize = 1024 * 1024 * 1024  # 1Go
         zipfile.add_filter('.zip')
-        zipfile.set_location(2, 15)
+        zipfile.set_location(1, 15)
         dlg.add_component(zipfile)
 
     def run_archive(self):
@@ -204,8 +201,7 @@ class FolderExtract(FolderImportExport):
                 rmtree(tmp_dir)
         self.open_zipfile('extract.zip')
 
-MenuManage.add_sub(
-    "office", None, "lucterios.documents/images/office.png", _("Office"), _("Office tools"), 70)
+MenuManage.add_sub("office", None, "lucterios.documents/images/office.png", _("Office"), _("Office tools"), 70)
 
 MenuManage.add_sub("documents.actions", "office", "lucterios.documents/images/document.png",
                    _("Documents"), _("Documents storage tools"), 80)

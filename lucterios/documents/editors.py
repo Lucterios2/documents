@@ -79,8 +79,7 @@ class DocumentEditor(LucteriosEditor):
         file_name.http_file = True
         file_name.compress = True
         file_name.set_value('')
-        file_name.set_location(
-            obj_cmt.col, obj_cmt.row, obj_cmt.colspan, obj_cmt.rowspan)
+        file_name.set_location(obj_cmt.col, obj_cmt.row, obj_cmt.colspan, obj_cmt.rowspan)
         xfer.add_component(file_name)
 
     def show(self, xfer):

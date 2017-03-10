@@ -41,6 +41,8 @@ from lucterios.CORE.models import LucteriosGroup, LucteriosUser
 
 
 class Folder(LucteriosModel):
+    is_simple_gui = True
+
     name = models.CharField(_('name'), max_length=250, blank=False)
     description = models.TextField(_('description'), blank=False)
     parent = models.ForeignKey(
@@ -156,6 +158,8 @@ class Folder(LucteriosModel):
 
 
 class Document(LucteriosModel):
+    is_simple_gui = True
+
     folder = models.ForeignKey(
         'Folder', verbose_name=_('folder'), null=True, on_delete=models.CASCADE)
     name = models.CharField(_('name'), max_length=250, blank=False)
