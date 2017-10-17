@@ -72,11 +72,13 @@ class Folder(LucteriosModel):
     def get_default_fields(cls):
         return ["name", "description", "parent"]
 
-    def get_title(self):
+    def get_title(self, num=0):
         title = ">" + self.name
         if self.parent is not None:
-            title = self.parent.get_title() + \
-                title
+            if num < 10:
+                title = self.parent.get_title(num + 1) + title
+            else:
+                title = " !! "
         return title
 
     def __str__(self):
