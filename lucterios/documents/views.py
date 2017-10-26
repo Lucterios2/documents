@@ -112,8 +112,8 @@ class FolderImportExport(XferContainerAcknowledge):
             parent.colspan = 3
 
             self.add_components(dlg)
-            dlg.add_action(self.get_action(TITLE_OK, "images/ok.png"), {'close': CLOSE_YES, 'params': {'SAVE': 'YES'}})
-            dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'), {})
+            dlg.add_action(self.get_action(TITLE_OK, "images/ok.png"), close=CLOSE_YES, params={'SAVE': 'YES'})
+            dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
         else:
             if self.getparam("parent", 0) != 0:
                 self.item = Folder.objects.get(id=self.getparam("parent", 0))
@@ -200,6 +200,7 @@ class FolderExtract(FolderImportExport):
             if exists(tmp_dir):
                 rmtree(tmp_dir)
         self.open_zipfile('extract.zip')
+
 
 MenuManage.add_sub("office", None, "lucterios.documents/images/office.png", _("Office"), _("Office tools"), 70)
 
