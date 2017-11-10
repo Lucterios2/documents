@@ -73,15 +73,13 @@ class FolderTest(LucteriosTest):
         self.call('/lucterios.documents/folderAddModify', {}, False)
         self.assert_observer('core.custom', 'lucterios.documents', 'folderAddModify', 1)
         self.assert_xml_equal('TITLE', 'Ajouter un dossier')
-        self.assert_count_equal('COMPONENTS/*', 22)
+        self.assert_count_equal('COMPONENTS/*', 8)
         self.assert_comp_equal('COMPONENTS/EDIT[@name="name"]', None, (0, 0, 1, 1, 1))
         self.assert_comp_equal('COMPONENTS/MEMO[@name="description"]', None, (0, 1, 1, 1, 1))
         self.assert_comp_equal('COMPONENTS/SELECT[@name="parent"]', '0', (0, 2, 1, 1, 1))
         self.assert_count_equal('COMPONENTS/SELECT[@name="parent"]/CASE', 1)
-        self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="viewer_available"]', (0, 1, 1, 5, 2))
-        self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="viewer_chosen"]', (2, 1, 1, 5, 2))
-        self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="modifier_available"]', (0, 6, 1, 5, 2))
-        self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="modifier_chosen"]', (2, 6, 1, 5, 2))
+        self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="viewer"]', (0, 0, 3, 1, 2))
+        self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="modifier"]', (0, 1, 3, 1, 2))
 
     def test_addsave(self):
 
