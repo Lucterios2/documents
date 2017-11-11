@@ -55,7 +55,7 @@ class FolderTest(LucteriosTest):
     def test_list(self):
         self.factory.xfer = FolderList()
         self.call('/lucterios.documents/folderList', {}, False)
-        self.assert_observer('core.custom', 'lucterios.documents', 'folderList', 1)
+        self.assert_observer('core.custom', 'lucterios.documents', 'folderList')
         self.assert_xml_equal('TITLE', 'Dossiers')
         self.assert_count_equal('CONTEXT', 0)
         self.assert_count_equal('ACTIONS/ACTION', 1)
@@ -71,7 +71,7 @@ class FolderTest(LucteriosTest):
     def test_add(self):
         self.factory.xfer = FolderAddModify()
         self.call('/lucterios.documents/folderAddModify', {}, False)
-        self.assert_observer('core.custom', 'lucterios.documents', 'folderAddModify', 1)
+        self.assert_observer('core.custom', 'lucterios.documents', 'folderAddModify')
         self.assert_xml_equal('TITLE', 'Ajouter un dossier')
         self.assert_count_equal('COMPONENTS/*', 8)
         self.assert_comp_equal('COMPONENTS/EDIT[@name="name"]', None, (0, 0, 1, 1, 1))
@@ -107,7 +107,7 @@ class FolderTest(LucteriosTest):
 
         self.factory.xfer = FolderList()
         self.call('/lucterios.documents/folderList', {}, False)
-        self.assert_observer('core.custom', 'lucterios.documents', 'folderList', 1)
+        self.assert_observer('core.custom', 'lucterios.documents', 'folderList')
         self.assert_count_equal('COMPONENTS/GRID[@name="folder"]/RECORD', 1)
 
     def test_delete(self):
@@ -119,7 +119,7 @@ class FolderTest(LucteriosTest):
 
         self.factory.xfer = FolderList()
         self.call('/lucterios.documents/folderList', {}, False)
-        self.assert_observer('core.custom', 'lucterios.documents', 'folderList', 1)
+        self.assert_observer('core.custom', 'lucterios.documents', 'folderList')
         self.assert_count_equal('COMPONENTS/GRID[@name="folder"]/RECORD', 1)
 
         self.factory.xfer = FolderDel()
@@ -128,7 +128,7 @@ class FolderTest(LucteriosTest):
 
         self.factory.xfer = FolderList()
         self.call('/lucterios.documents/folderList', {}, False)
-        self.assert_observer('core.custom', 'lucterios.documents', 'folderList', 1)
+        self.assert_observer('core.custom', 'lucterios.documents', 'folderList')
         self.assert_count_equal('COMPONENTS/GRID[@name="folder"]/RECORD', 0)
 
 
@@ -194,7 +194,7 @@ class DocumentTest(LucteriosTest):
 
         self.factory.xfer = DocumentList()
         self.call('/lucterios.documents/documentList', {}, False)
-        self.assert_observer('core.custom', 'lucterios.documents', 'documentList', 1)
+        self.assert_observer('core.custom', 'lucterios.documents', 'documentList')
         self.assert_xml_equal('TITLE', 'Documents')
         self.assert_count_equal('CONTEXT', 0)
         self.assert_count_equal('ACTIONS/ACTION', 1)
@@ -218,7 +218,7 @@ class DocumentTest(LucteriosTest):
 
         self.factory.xfer = DocumentList()
         self.call('/lucterios.documents/documentList', {"current_folder": "1"}, False)
-        self.assert_observer('core.custom', 'lucterios.documents', 'documentList', 1)
+        self.assert_observer('core.custom', 'lucterios.documents', 'documentList')
         self.assert_count_equal('COMPONENTS/GRID[@name="document"]/RECORD', 0)
         self.assert_count_equal('COMPONENTS/GRID[@name="document"]/ACTIONS/ACTION', 1)
         self.assert_count_equal('COMPONENTS/CHECKLIST[@name="current_folder"]/CASE', 1)
@@ -228,7 +228,7 @@ class DocumentTest(LucteriosTest):
 
         self.factory.xfer = DocumentList()
         self.call('/lucterios.documents/documentList', {"current_folder": "2"}, False)
-        self.assert_observer('core.custom', 'lucterios.documents', 'documentList', 1)
+        self.assert_observer('core.custom', 'lucterios.documents', 'documentList')
         self.assert_count_equal('COMPONENTS/GRID[@name="document"]/RECORD', 0)
         self.assert_count_equal('COMPONENTS/GRID[@name="document"]/ACTIONS/ACTION', 3)
         self.assert_count_equal('COMPONENTS/CHECKLIST[@name="current_folder"]/CASE', 2)
@@ -316,7 +316,7 @@ class DocumentTest(LucteriosTest):
 
         self.factory.xfer = DocumentList()
         self.call('/lucterios.documents/documentList', {"current_folder": "2"}, False)
-        self.assert_observer('core.custom', 'lucterios.documents', 'documentList', 1)
+        self.assert_observer('core.custom', 'lucterios.documents', 'documentList')
         self.assert_count_equal('COMPONENTS/GRID[@name="document"]/RECORD', 1)
         self.assert_xml_equal('COMPONENTS/GRID[@name="document"]/RECORD[@id="1"]/VALUE[@name="name"]', "doc1.png")
         self.assert_xml_equal('COMPONENTS/GRID[@name="document"]/RECORD[@id="1"]/VALUE[@name="description"]', "doc 1")
