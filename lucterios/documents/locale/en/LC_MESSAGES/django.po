@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-17 18:14+0000\n"
+"POT-Creation-Date: 2017-11-12 18:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,59 +17,59 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: __init__.py:42 views.py:433
+#: __init__.py:42 views.py:434
 msgid "Lucterios documents"
 msgstr "Lucterios documents"
 
-#: editors.py:89
+#: editors.py:90
 msgid "File not found!"
 msgstr "File not found!"
 
-#: models.py:46 models.py:165
+#: models.py:44 models.py:163
 msgid "name"
 msgstr "name"
 
-#: models.py:47 models.py:166
+#: models.py:45 models.py:164
 msgid "description"
 msgstr "description"
 
-#: models.py:49
+#: models.py:47
 msgid "parent"
 msgstr "parent"
 
-#: models.py:51
+#: models.py:49
 msgid "viewer"
 msgstr "viewer"
 
-#: models.py:53 models.py:168
+#: models.py:51 models.py:166
 msgid "modifier"
 msgstr "modifier"
 
-#: models.py:55
+#: models.py:53
 msgid "Available group viewers"
 msgstr "Available viewers group"
 
-#: models.py:55
+#: models.py:53
 msgid "Chosen group viewers"
 msgstr "Chosen viewers group"
 
-#: models.py:57
+#: models.py:55
 msgid "Available group modifiers"
 msgstr "Available modifiers group"
 
-#: models.py:57
+#: models.py:55
 msgid "Chosen group modifiers"
 msgstr "Chosen modifiers group"
 
-#: models.py:61 models.py:65
+#: models.py:59 models.py:63
 msgid "001@Info"
 msgstr "001@Info"
 
-#: models.py:61 models.py:65
+#: models.py:59 models.py:63
 msgid "001@Permission"
 msgstr "001@Permission"
 
-#: models.py:155 models.py:164
+#: models.py:155 models.py:162
 msgid "folder"
 msgstr "folder"
 
@@ -77,23 +77,23 @@ msgstr "folder"
 msgid "folders"
 msgstr "folders"
 
-#: models.py:170
+#: models.py:168
 msgid "date modification"
 msgstr "date of modification"
 
-#: models.py:172
+#: models.py:170
 msgid "creator"
 msgstr "creator"
 
-#: models.py:174
+#: models.py:172
 msgid "date creation"
 msgstr "date of creation"
 
-#: models.py:207
+#: models.py:205
 msgid "document"
 msgstr "document"
 
-#: models.py:208
+#: models.py:206
 msgid "documents"
 msgstr "documents"
 
@@ -133,87 +133,87 @@ msgstr "zip file"
 msgid "Extract"
 msgstr "Extract"
 
-#: views.py:204
+#: views.py:205
 msgid "Office"
 msgstr "Office"
 
-#: views.py:204
+#: views.py:205
 msgid "Office tools"
 msgstr "Office tools"
 
-#: views.py:207 views.py:212
+#: views.py:208 views.py:213
 msgid "Documents"
 msgstr "Document management"
 
-#: views.py:207
+#: views.py:208
 msgid "Documents storage tools"
 msgstr "Documents storage tools"
 
-#: views.py:210
+#: views.py:211
 msgid "Management of documents"
 msgstr "Management of documents"
 
-#: views.py:226
+#: views.py:227
 msgid "current folder:"
 msgstr "current folder:"
 
-#: views.py:249
+#: views.py:250
 msgid "add"
 msgstr "add"
 
-#: views.py:255
+#: views.py:256
 msgid "edit"
 msgstr "edit"
 
-#: views.py:308 views.py:317 views.py:345 views.py:374
+#: views.py:309 views.py:318 views.py:346 views.py:375
 msgid "No allow to view!"
 msgstr "Not allowed to display !"
 
-#: views.py:330
+#: views.py:331
 msgid "Add document"
 msgstr "Add document"
 
-#: views.py:331
+#: views.py:332
 msgid "Modify document"
 msgstr "Modify document"
 
-#: views.py:347 views.py:376
+#: views.py:348 views.py:377
 msgid "No allow to write!"
 msgstr "Not allowed to write !"
 
-#: views.py:354
+#: views.py:355
 msgid "Show document"
 msgstr "Show document"
 
-#: views.py:363
+#: views.py:364
 msgid "Delete document"
 msgstr "Delete document"
 
-#: views.py:380
+#: views.py:381
 msgid "To find a document following a set of criteria."
 msgstr "To find a document following a set of criteria."
 
-#: views.py:382
+#: views.py:383
 msgid "Document search"
 msgstr "Document search"
 
-#: views.py:401
+#: views.py:402
 msgid "Document management"
 msgstr "Document management"
 
-#: views.py:413
+#: views.py:414
 msgid "no file currently available"
 msgstr "no file currently available"
 
-#: views.py:415
+#: views.py:416
 msgid "one file currently available"
 msgstr "one file currently available"
 
-#: views.py:417
+#: views.py:418
 #, python-format
 msgid "%d files currently available"
 msgstr "%d files currently available"
 
-#: views.py:433
+#: views.py:434
 msgid "Parameters"
 msgstr "Parameters"
