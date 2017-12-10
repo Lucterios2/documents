@@ -392,7 +392,9 @@ class DocumentSearch(XferSearchEditor):
 
 @signal_and_lock.Signal.decorate('summary')
 def summary_documents(xfer):
-    if WrapAction.is_permission(xfer.request, 'documents.change_document'):
+    if not hasattr(xfer, 'add_component'):
+        return WrapAction.is_permission(xfer, 'documents.change_document')
+    elif WrapAction.is_permission(xfer.request, 'documents.change_document'):
         row = xfer.get_max_row() + 1
         lab = XferCompLabelForm('documenttitle')
         lab.set_value_as_infocenter(_('Document management'))
@@ -400,10 +402,8 @@ def summary_documents(xfer):
         xfer.add_component(lab)
         filter_result = Q()
         if notfree_mode_connect():
-            filter_result = filter_result & (
-                Q(folder=None) | Q(folder__viewer__in=xfer.request.user.groups.all()))
-        nb_doc = len(Document.objects.filter(
-            *[filter_result]))
+            filter_result = filter_result & (Q(folder=None) | Q(folder__viewer__in=xfer.request.user.groups.all()))
+        nb_doc = len(Document.objects.filter(*[filter_result]))
         lbl_doc = XferCompLabelForm('lbl_nbdocument')
         lbl_doc.set_location(0, row + 1, 4)
         if nb_doc == 0:
