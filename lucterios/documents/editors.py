@@ -50,10 +50,10 @@ class DocumentEditor(LucteriosEditor):
                 self.item.folder = None
         if xfer.getparam('filename_FILENAME') is not None:
             self.item.name = xfer.getparam('filename_FILENAME')
-        if (self.item.creator is None) and xfer.request.user.is_authenticated():
+        if (self.item.creator is None) and xfer.request.user.is_authenticated:
             self.item.creator = LucteriosUser.objects.get(
                 pk=xfer.request.user.id)
-        if xfer.request.user.is_authenticated():
+        if xfer.request.user.is_authenticated:
             self.item.modifier = LucteriosUser.objects.get(
                 pk=xfer.request.user.id)
         else:

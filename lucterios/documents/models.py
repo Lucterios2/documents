@@ -113,7 +113,7 @@ class Folder(LucteriosModel):
             if isfile(complet_path):
                 new_doc = Document(
                     name=filename, description=filename, folder_id=self.id)
-                if user.is_authenticated():
+                if user.is_authenticated:
                     new_doc.creator = LucteriosUser.objects.get(pk=user.id)
                     new_doc.modifier = new_doc.creator
                 new_doc.date_modification = timezone.now()

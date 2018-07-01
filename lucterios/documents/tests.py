@@ -107,10 +107,9 @@ class FolderTest(LucteriosTest):
         self.assert_count_equal('folder', 1)
 
     def test_delete(self):
-        folder = Folder.objects.create(
-            name='truc', description='blabla')
-        folder.viewer = LucteriosGroup.objects.filter(id__in=[1, 2])
-        folder.modifier = LucteriosGroup.objects.filter(id__in=[2])
+        folder = Folder.objects.create(name='truc', description='blabla')
+        folder.viewer.set(LucteriosGroup.objects.filter(id__in=[1, 2]))
+        folder.modifier.set(LucteriosGroup.objects.filter(id__in=[2]))
         folder.save()
 
         self.factory.xfer = FolderList()
@@ -143,21 +142,21 @@ class DocumentTest(LucteriosTest):
         group = LucteriosGroup.objects.create(name="other_group")
         group.save()
         self.factory.user = LucteriosUser.objects.get(username='empty')
-        self.factory.user.groups = LucteriosGroup.objects.filter(id__in=[2])
-        self.factory.user.user_permissions = Permission.objects.all()
+        self.factory.user.groups.set(LucteriosGroup.objects.filter(id__in=[2]))
+        self.factory.user.user_permissions.set(Permission.objects.all())
         self.factory.user.save()
 
         folder1 = Folder.objects.create(name='truc1', description='blabla')
-        folder1.viewer = LucteriosGroup.objects.filter(id__in=[1, 2])
-        folder1.modifier = LucteriosGroup.objects.filter(id__in=[1])
+        folder1.viewer.set(LucteriosGroup.objects.filter(id__in=[1, 2]))
+        folder1.modifier.set(LucteriosGroup.objects.filter(id__in=[1]))
         folder1.save()
         folder2 = Folder.objects.create(name='truc2', description='bouuuuu!')
-        folder2.viewer = LucteriosGroup.objects.filter(id__in=[2])
-        folder2.modifier = LucteriosGroup.objects.filter(id__in=[2])
+        folder2.viewer.set(LucteriosGroup.objects.filter(id__in=[2]))
+        folder2.modifier.set(LucteriosGroup.objects.filter(id__in=[2]))
         folder2.save()
         folder3 = Folder.objects.create(name='truc3', description='----')
         folder3.parent = folder2
-        folder3.viewer = LucteriosGroup.objects.filter(id__in=[2])
+        folder3.viewer.set(LucteriosGroup.objects.filter(id__in=[2]))
         folder3.save()
         folder4 = Folder.objects.create(name='truc4', description='no')
         folder4.parent = folder2
