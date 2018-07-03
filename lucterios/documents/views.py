@@ -402,7 +402,7 @@ def summary_documents(xfer):
         xfer.add_component(lab)
         filter_result = Q()
         if notfree_mode_connect():
-            filter_result = filter_result & (Q(folder=None) | Q(folder__viewer__in=xfer.request.user.groups.all()))
+            filter_result = filter_result & (Q(folder=None) | Q(folder__viewer__in=xfer.request.user.groups.all() if xfer.request.user.id is not None else []))
         nb_doc = len(Document.objects.filter(*[filter_result]))
         lbl_doc = XferCompLabelForm('lbl_nbdocument')
         lbl_doc.set_location(0, row + 1, 4)

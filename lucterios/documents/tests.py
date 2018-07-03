@@ -43,7 +43,6 @@ from lucterios.documents.views import FolderList, FolderAddModify, FolderDel, \
 class FolderTest(LucteriosTest):
 
     def setUp(self):
-        self.xfer_class = XferContainerAcknowledge
         LucteriosTest.setUp(self)
         group = LucteriosGroup.objects.create(
             name="my_group")
@@ -130,7 +129,6 @@ class FolderTest(LucteriosTest):
 class DocumentTest(LucteriosTest):
 
     def setUp(self):
-        self.xfer_class = XferContainerAcknowledge
         LucteriosTest.setUp(self)
 
         rmtree(get_user_dir(), True)
