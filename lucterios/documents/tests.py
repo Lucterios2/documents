@@ -30,7 +30,6 @@ from django.utils import formats, timezone, six
 from django.contrib.auth.models import Permission
 
 from lucterios.framework.test import LucteriosTest, add_empty_user
-from lucterios.framework.xfergraphic import XferContainerAcknowledge
 from lucterios.framework.filetools import get_user_path, get_user_dir
 
 from lucterios.CORE.models import LucteriosGroup, LucteriosUser
@@ -38,6 +37,34 @@ from lucterios.CORE.models import LucteriosGroup, LucteriosUser
 from lucterios.documents.models import Folder, Document
 from lucterios.documents.views import FolderList, FolderAddModify, FolderDel, \
     DocumentList, DocumentAddModify, DocumentShow, DocumentDel, DocumentSearch
+from zipfile import ZipFile
+
+
+def create_doc(user, with_folder=True):
+    root_path = join(dirname(__file__), 'static', 'lucterios.documents', 'images')
+    with ZipFile(get_user_path('documents', 'document_1'), 'w') as zip_ref:
+        zip_ref.write(join(root_path, 'documentFind.png'), arcname='doc1.png')
+    with ZipFile(get_user_path('documents', 'document_2'), 'w') as zip_ref:
+        zip_ref.write(join(root_path, 'documentConf.png'), arcname='doc2.png')
+    with ZipFile(get_user_path('documents', 'document_3'), 'w') as zip_ref:
+        zip_ref.write(join(root_path, 'document.png'), arcname='doc3.png')
+    current_date = timezone.now()
+    new_doc1 = Document.objects.create(name='doc1.png', description="doc 1", creator=user,
+                                       date_creation=current_date, date_modification=current_date)
+    if with_folder:
+        new_doc1.folder = Folder.objects.get(id=2)
+    new_doc1.save()
+    new_doc2 = Document.objects.create(name='doc2.png', description="doc 2", creator=user,
+                                       date_creation=current_date, date_modification=current_date)
+    if with_folder:
+        new_doc2.folder = Folder.objects.get(id=1)
+    new_doc2.save()
+    new_doc3 = Document.objects.create(name='doc3.png', description="doc 3", creator=user,
+                                       date_creation=current_date, date_modification=current_date)
+    if with_folder:
+        new_doc3.folder = Folder.objects.get(id=4)
+    new_doc3.save()
+    return current_date
 
 
 class FolderTest(LucteriosTest):
@@ -160,27 +187,6 @@ class DocumentTest(LucteriosTest):
         folder4.parent = folder2
         folder4.save()
 
-    def create_doc(self):
-        file_path = join(dirname(__file__), 'static',
-                         'lucterios.documents', 'images', 'documentFind.png')
-        copyfile(file_path, get_user_path('documents', 'document_1'))
-        copyfile(file_path, get_user_path('documents', 'document_2'))
-        copyfile(file_path, get_user_path('documents', 'document_3'))
-        current_date = timezone.now()
-        new_doc1 = Document.objects.create(name='doc1.png', description="doc 1", creator=self.factory.user,
-                                           date_creation=current_date, date_modification=current_date)
-        new_doc1.folder = Folder.objects.get(id=2)
-        new_doc1.save()
-        new_doc2 = Document.objects.create(name='doc2.png', description="doc 2", creator=self.factory.user,
-                                           date_creation=current_date, date_modification=current_date)
-        new_doc2.folder = Folder.objects.get(id=1)
-        new_doc2.save()
-        new_doc3 = Document.objects.create(name='doc3.png', description="doc 3", creator=self.factory.user,
-                                           date_creation=current_date, date_modification=current_date)
-        new_doc3.folder = Folder.objects.get(id=4)
-        new_doc3.save()
-        return current_date
-
     def test_list(self):
         folder = Folder.objects.all()
         self.assertEqual(len(folder), 4)
@@ -235,7 +241,7 @@ class DocumentTest(LucteriosTest):
         self.assert_observer('core.custom', 'lucterios.documents', 'documentAddModify')
         self.assertEqual(self.json_meta['title'], 'Ajouter un document')
         self.assert_count_equal('', 4)
-        self.assert_comp_equal(('LABELFORM', 'folder'), ">truc2", (1, 0, 1, 1))
+        self.assert_comp_equal(('SELECT', 'folder'), "2", (1, 0, 1, 1))
         self.assert_comp_equal(('UPLOAD', 'filename'), '', (1, 1, 1, 1))
         self.assert_comp_equal(('MEMO', 'description'), '', (1, 2, 1, 1))
 
@@ -266,15 +272,15 @@ class DocumentTest(LucteriosTest):
         self.assertTrue(exists(get_user_path('documents', 'document_1')))
 
     def test_saveagain(self):
-        current_date = self.create_doc()
+        current_date = create_doc(self.factory.user)
 
         self.factory.xfer = DocumentShow()
         self.calljson('/lucterios.documents/documentShow', {"document": "1"}, False)
         self.assert_observer('core.custom', 'lucterios.documents', 'documentShow')
         self.assertEqual(self.json_meta['title'], "Afficher le document")
         self.assert_count_equal('', 9)
-        self.assert_comp_equal(('LABELFORM', 'folder'), ">truc2", (1, 0, 2, 1))
-        self.assert_comp_equal(('LABELFORM', 'name'), "doc1.png", (1, 1, 2, 1))
+        self.assert_comp_equal(('LABELFORM', 'name'), "doc1.png", (1, 0, 2, 1))
+        self.assert_comp_equal(('LABELFORM', 'folder'), ">truc2", (1, 1, 2, 1))
         self.assert_comp_equal(('LABELFORM', 'description'), "doc 1", (1, 2, 2, 1))
         self.assert_comp_equal(('LABELFORM', 'modifier'), '---', (1, 3, 1, 1))
         self.assert_comp_equal(('LABELFORM', 'date_modification'), formats.date_format(current_date, "DATETIME_FORMAT"), (2, 3, 1, 1))
@@ -294,7 +300,7 @@ class DocumentTest(LucteriosTest):
         self.assertNotEqual(docs[0].date_creation, docs[0].date_modification)
 
     def test_delete(self):
-        current_date = self.create_doc()
+        current_date = create_doc(self.factory.user)
 
         self.factory.xfer = DocumentList()
         self.calljson('/lucterios.documents/documentList', {"current_folder": "2"}, False)
@@ -317,15 +323,15 @@ class DocumentTest(LucteriosTest):
         self.assertFalse(exists(get_user_path('documents', 'document_1')))
 
     def test_readonly(self):
-        current_date = self.create_doc()
+        current_date = create_doc(self.factory.user)
 
         self.factory.xfer = DocumentShow()
         self.calljson('/lucterios.documents/documentShow', {"document": "2"}, False)
         self.assert_observer('core.custom', 'lucterios.documents', 'documentShow')
         self.assertEqual(self.json_meta['title'], "Afficher le document")
         self.assert_count_equal('', 9)
-        self.assert_comp_equal(('LABELFORM', 'folder'), ">truc1", (1, 0, 2, 1))
-        self.assert_comp_equal(('LABELFORM', 'name'), "doc2.png", (1, 1, 2, 1))
+        self.assert_comp_equal(('LABELFORM', 'name'), "doc2.png", (1, 0, 2, 1))
+        self.assert_comp_equal(('LABELFORM', 'folder'), ">truc1", (1, 1, 2, 1))
         self.assert_comp_equal(('LABELFORM', 'description'), "doc 2", (1, 2, 2, 1))
         self.assert_comp_equal(('LABELFORM', 'modifier'), '---', (1, 3, 1, 1))
         self.assert_comp_equal(('LABELFORM', 'date_modification'), formats.date_format(current_date, "DATETIME_FORMAT"), (2, 3, 1, 1))
@@ -344,7 +350,7 @@ class DocumentTest(LucteriosTest):
         self.assert_json_equal('', 'message', "Écriture non autorisée !")
 
     def test_cannot_view(self):
-        self.create_doc()
+        current_date = create_doc(self.factory.user)
 
         self.factory.xfer = DocumentShow()
         self.calljson('/lucterios.documents/documentShow', {"document": "3"}, False)
@@ -362,7 +368,7 @@ class DocumentTest(LucteriosTest):
         self.assert_json_equal('', 'message', "Visualisation non autorisée !")
 
     def test_search(self):
-        self.create_doc()
+        current_date = create_doc(self.factory.user)
 
         docs = Document.objects.filter(name__endswith='.png')
         self.assertEqual(len(docs), 3)

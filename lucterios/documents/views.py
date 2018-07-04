@@ -50,6 +50,7 @@ from lucterios.CORE.parameters import notfree_mode_connect
 from lucterios.CORE.models import LucteriosGroup
 
 from lucterios.documents.models import Folder, Document
+from lucterios.CORE.editors import XferSavedCriteriaSearchEditor
 
 MenuManage.add_sub(
     "documents.conf", "core.extensions", "", _("Document"), "", 10)
@@ -375,19 +376,28 @@ class DocumentDel(XferDelete):
 
 
 @MenuManage.describ('documents.change_document', FORMTYPE_NOMODAL, 'documents.actions', _('To find a document following a set of criteria.'))
-class DocumentSearch(XferSearchEditor):
+class DocumentSearch(XferSavedCriteriaSearchEditor):
     caption = _("Document search")
     icon = "documentFind.png"
     model = Document
     field_id = 'document'
+    mode_select = SELECT_SINGLE
+    select_class = None
 
     def get_text_search(self):
-        criteria_desc = XferSearchEditor.get_text_search(self)
-        if notfree_mode_connect():
+        criteria_desc = XferSavedCriteriaSearchEditor.get_text_search(self)
+        if notfree_mode_connect() and not self.request.user.is_superuser:
             if self.filter is None:
                 self.filter = Q()
             self.filter = self.filter & (Q(folder=None) | Q(folder__viewer__in=self.request.user.groups.all()))
         return criteria_desc
+
+    def fillresponse(self):
+        XferSearchEditor.fillresponse(self)
+        if self.select_class is not None:
+            grid = self.get_components(self.field_id)
+            grid.add_action(self.request, self.select_class.get_action(_("Select"), "images/ok.png"),
+                            close=CLOSE_YES, unique=self.mode_select, pos_act=0)
 
 
 @signal_and_lock.Signal.decorate('summary')

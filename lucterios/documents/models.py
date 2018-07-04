@@ -26,6 +26,7 @@ from __future__ import unicode_literals
 from os import unlink, listdir, makedirs
 from os.path import isfile, isdir, join
 from zipfile import ZipFile
+from lucterios.CORE.parameters import notfree_mode_connect
 try:
     from zipfile import BadZipFile
 except ImportError:
@@ -173,7 +174,7 @@ class Document(LucteriosModel):
 
     @classmethod
     def get_show_fields(cls):
-        return ["folder", "name", "description", ("modifier", "date_modification"), ("creator", "date_creation")]
+        return ["name", "folder", "description", ("modifier", "date_modification"), ("creator", "date_creation")]
 
     @classmethod
     def get_edit_fields(cls):
@@ -187,15 +188,37 @@ class Document(LucteriosModel):
     def get_default_fields(cls):
         return ["name", "description", "date_modification", "modifier"]
 
+    def __init__(self, *args, **kwargs):
+        LucteriosModel.__init__(self, *args, **kwargs)
+        self.filter = models.Q()
+
     def __str__(self):
         return '[%s] %s' % (self.folder, self.name)
 
     def delete(self):
-        file_path = get_user_path("documents", "document_%s" % six.text_type(
-            self.id))
+        file_path = get_user_path("documents", "document_%s" % six.text_type(self.id))
         LucteriosModel.delete(self)
         if isfile(file_path):
             unlink(file_path)
+
+    def set_context(self, xfer):
+        if notfree_mode_connect() and not xfer.request.user.is_superuser:
+            self.filter = models.Q(folder=None) | models.Q(folder__viewer__in=xfer.request.user.groups.all())
+
+    @property
+    def folder_query(self):
+        return Folder.objects.filter(self.filter)
+
+    @property
+    def content(self):
+        from _io import BytesIO
+        file_path = get_user_path("documents", "document_%s" % six.text_type(self.id))
+        with ZipFile(file_path, 'r') as zip_ref:
+            file_list = zip_ref.namelist()
+            if len(file_list) > 0:
+                doc_file = zip_ref.open(file_list[0])
+                return BytesIO(doc_file.read())
+        return BytesIO(b'')
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         self.name = self.name[:250]

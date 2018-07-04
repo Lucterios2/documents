@@ -72,7 +72,6 @@ class DocumentEditor(LucteriosEditor):
                 file_tmp.write(tmp_file.read())  # write the tmp file
 
     def edit(self, xfer):
-        xfer.change_to_readonly("folder")
         obj_cmt = xfer.get_components('name')
         xfer.remove_component('name')
         file_name = XferCompUpLoad('filename')
