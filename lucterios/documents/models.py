@@ -27,6 +27,8 @@ from os import unlink, listdir, makedirs
 from os.path import isfile, isdir, join
 from zipfile import ZipFile
 from lucterios.CORE.parameters import notfree_mode_connect
+from django.db.models.lookups import IsNull
+from datetime import datetime
 try:
     from zipfile import BadZipFile
 except ImportError:
@@ -37,7 +39,7 @@ from django.utils import six, timezone
 from django.utils.translation import ugettext_lazy as _
 
 from lucterios.framework.models import LucteriosModel
-from lucterios.framework.filetools import get_user_path
+from lucterios.framework.filetools import get_user_path, md5sum
 from lucterios.CORE.models import LucteriosGroup, LucteriosUser
 
 
@@ -171,6 +173,7 @@ class Document(LucteriosModel):
         'creator'), null=True, on_delete=models.CASCADE)
     date_creation = models.DateTimeField(
         verbose_name=_('date creation'), null=False)
+    sharekey = models.CharField('sharekey', max_length=100, null=True)
 
     @classmethod
     def get_show_fields(cls):
@@ -191,6 +194,7 @@ class Document(LucteriosModel):
     def __init__(self, *args, **kwargs):
         LucteriosModel.__init__(self, *args, **kwargs)
         self.filter = models.Q()
+        self.shared_link = None
 
     def __str__(self):
         return '[%s] %s' % (self.folder, self.name)
@@ -204,6 +208,13 @@ class Document(LucteriosModel):
     def set_context(self, xfer):
         if notfree_mode_connect() and not xfer.request.user.is_superuser:
             self.filter = models.Q(folder=None) | models.Q(folder__viewer__in=xfer.request.user.groups.all())
+        if self.sharekey is not None:
+            import urllib.parse
+            abs_url = xfer.request.META.get('HTTP_REFERER', xfer.request.build_absolute_uri()).split('/')
+            root_url = '/'.join(abs_url[:-2])
+            self.shared_link = "%s/%s?shared=%s&filename=%s" % (root_url, 'lucterios.documents/downloadFile', self.sharekey, urllib.parse.quote(self.name))
+        else:
+            self.shared_link = None
 
     @property
     def folder_query(self):
@@ -219,6 +230,16 @@ class Document(LucteriosModel):
                 doc_file = zip_ref.open(file_list[0])
                 return BytesIO(doc_file.read())
         return BytesIO(b'')
+
+    def change_sharekey(self, clear):
+        if clear:
+            self.sharekey = None
+        else:
+            from hashlib import md5
+            phrase = "%s %s %s" % (self.name, self.date_creation, datetime.now())
+            md5res = md5()
+            md5res.update(phrase.encode())
+            self.sharekey = md5res.hexdigest()
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         self.name = self.name[:250]

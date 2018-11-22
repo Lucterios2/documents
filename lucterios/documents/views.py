@@ -51,6 +51,8 @@ from lucterios.CORE.models import LucteriosGroup
 
 from lucterios.documents.models import Folder, Document
 from lucterios.CORE.editors import XferSavedCriteriaSearchEditor
+from logging import getLogger
+
 
 MenuManage.add_sub(
     "documents.conf", "core.extensions", "", _("Document"), "", 10)
@@ -398,6 +400,44 @@ class DocumentSearch(XferSavedCriteriaSearchEditor):
             grid = self.get_components(self.field_id)
             grid.add_action(self.request, self.select_class.get_action(_("Select"), "images/ok.png"),
                             close=CLOSE_YES, unique=self.mode_select, pos_act=0)
+
+
+@ActionsManage.affect_show(_('delete shared link'), "images/permissions.png", condition=lambda xfer: xfer.item.sharekey is not None)
+@ActionsManage.affect_show(_('create shared link'), "images/permissions.png", condition=lambda xfer: xfer.item.sharekey is None)
+@MenuManage.describ('documents.add_document')
+class DocumentChangeShared(XferContainerAcknowledge):
+    icon = "document.png"
+    model = Document
+    field_id = 'document'
+
+    def fillresponse(self):
+        self.item.change_sharekey(self.item.sharekey is not None)
+        self.item.save()
+
+
+@MenuManage.describ('')
+class DownloadFile(XferContainerAcknowledge):
+    icon = "document.png"
+    model = Document
+    field_id = 'document'
+    caption = _("Download document")
+
+    def get_post(self, request, *args, **kwargs):
+        from django.http.response import StreamingHttpResponse, HttpResponse
+        getLogger("lucterios.documents.DownloadFile").debug(">> get %s [%s]", request.path, request.user)
+        try:
+            self._initialize(request, *args, **kwargs)
+            shared = self.getparam('shared', '')
+            filename = self.getparam('filename', '')
+            try:
+                doc = Document.objects.get(name=filename, sharekey=shared)
+                response = StreamingHttpResponse(doc.content, content_type='application/octet-stream')
+                response['Content-Disposition'] = 'attachment; filename=%s' % doc.name
+            except Document.DoesNotExist:
+                response = HttpResponse(_("File not found !"))
+            return response
+        finally:
+            getLogger("lucterios.documents.DownloadFile").debug("<< get %s [%s]", request.path, request.user)
 
 
 @signal_and_lock.Signal.decorate('summary')

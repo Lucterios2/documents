@@ -24,7 +24,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 from os.path import join, dirname, exists
-from shutil import rmtree, copyfile
+from shutil import rmtree
 
 from django.utils import formats, timezone, six
 from django.contrib.auth.models import Permission
@@ -36,7 +36,8 @@ from lucterios.CORE.models import LucteriosGroup, LucteriosUser
 
 from lucterios.documents.models import Folder, Document
 from lucterios.documents.views import FolderList, FolderAddModify, FolderDel, \
-    DocumentList, DocumentAddModify, DocumentShow, DocumentDel, DocumentSearch
+    DocumentList, DocumentAddModify, DocumentShow, DocumentDel, DocumentSearch,\
+    DocumentChangeShared, DownloadFile
 from zipfile import ZipFile
 
 
@@ -286,7 +287,7 @@ class DocumentTest(LucteriosTest):
         self.assert_comp_equal(('LABELFORM', 'date_modification'), formats.date_format(current_date, "DATETIME_FORMAT"), (2, 3, 1, 1))
         self.assert_comp_equal(('LABELFORM', 'creator'), "empty", (1, 4, 1, 1))
         self.assert_comp_equal(('LABELFORM', 'date_creation'), formats.date_format(current_date, "DATETIME_FORMAT"), (2, 4, 1, 1))
-        self.assertEqual(len(self.json_actions), 2)
+        self.assertEqual(len(self.json_actions), 3)
 
         self.factory.xfer = DocumentAddModify()
         self.calljson('/lucterios.documents/documentAddModify', {'SAVE': 'YES', "document": "1", 'description': 'old doc'}, False)
@@ -337,7 +338,7 @@ class DocumentTest(LucteriosTest):
         self.assert_comp_equal(('LABELFORM', 'date_modification'), formats.date_format(current_date, "DATETIME_FORMAT"), (2, 3, 1, 1))
         self.assert_comp_equal(('LABELFORM', 'creator'), "empty", (1, 4, 1, 1))
         self.assert_comp_equal(('LABELFORM', 'date_creation'), formats.date_format(current_date, "DATETIME_FORMAT"), (2, 4, 1, 1))
-        self.assertEqual(len(self.json_actions), 1)
+        self.assertEqual(len(self.json_actions), 2)
 
         self.factory.xfer = DocumentAddModify()
         self.calljson('/lucterios.documents/documentAddModify', {"document": "2"}, False)
@@ -350,7 +351,7 @@ class DocumentTest(LucteriosTest):
         self.assert_json_equal('', 'message', "Écriture non autorisée !")
 
     def test_cannot_view(self):
-        current_date = create_doc(self.factory.user)
+        create_doc(self.factory.user)
 
         self.factory.xfer = DocumentShow()
         self.calljson('/lucterios.documents/documentShow', {"document": "3"}, False)
@@ -368,7 +369,7 @@ class DocumentTest(LucteriosTest):
         self.assert_json_equal('', 'message', "Visualisation non autorisée !")
 
     def test_search(self):
-        current_date = create_doc(self.factory.user)
+        create_doc(self.factory.user)
 
         docs = Document.objects.filter(name__endswith='.png')
         self.assertEqual(len(docs), 3)
@@ -377,3 +378,52 @@ class DocumentTest(LucteriosTest):
         self.calljson('/lucterios.documents/documentSearch', {'CRITERIA': 'name||7||.png'}, False)
         self.assert_observer('core.custom', 'lucterios.documents', 'documentSearch')
         self.assert_count_equal('document', 2)
+
+    def test_shared(self):
+        create_doc(self.factory.user)
+
+        self.factory.xfer = DocumentShow()
+        self.calljson('/lucterios.documents/documentShow', {"document": "1"}, False)
+        self.assert_observer('core.custom', 'lucterios.documents', 'documentShow')
+        self.assert_count_equal('', 9)
+        self.assert_json_equal('LABELFORM', 'name', "doc1.png")
+        self.assertEqual(len(self.json_actions), 3)
+
+        self.factory.xfer = DocumentChangeShared()
+        self.calljson('/lucterios.documents/documentChangeShared', {"document": "1"}, False)
+        self.assert_observer('core.acknowledge', 'lucterios.documents', 'documentChangeShared')
+
+        self.factory.xfer = DocumentShow()
+        self.calljson('/lucterios.documents/documentShow', {"document": "1"}, False)
+        self.assert_observer('core.custom', 'lucterios.documents', 'documentShow')
+        self.assert_count_equal('', 10)
+        self.assert_json_equal('LABELFORM', 'name', "doc1.png")
+        self.assert_json_equal('EDIT', 'shared_link', "http://testserver/lucterios.documents/downloadFile?", True)
+        self.assertEqual(len(self.json_actions), 3)
+
+        shared_link = self.get_json_path('shared_link').split('?')[-1].split('&')
+        self.assertEqual(len(shared_link), 2)
+        self.assertEqual(shared_link[0][:7], 'shared=')
+        shared_key = shared_link[0][7:]
+        self.assertEqual(shared_link[1], 'filename=doc1.png')
+
+        self.factory.xfer = DownloadFile()
+        self.call_ex('/lucterios.documents/downloadFile', {"shared": shared_key, "filename": "doc1.png"}, False)
+        file_content = self.response.getvalue()
+        self.assertEqual(file_content[:4], b'\x89PNG')
+
+        self.factory.xfer = DocumentChangeShared()
+        self.calljson('/lucterios.documents/documentChangeShared', {"document": "1"}, False)
+        self.assert_observer('core.acknowledge', 'lucterios.documents', 'documentChangeShared')
+
+        self.factory.xfer = DocumentShow()
+        self.calljson('/lucterios.documents/documentShow', {"document": "1"}, False)
+        self.assert_observer('core.custom', 'lucterios.documents', 'documentShow')
+        self.assert_count_equal('', 9)
+        self.assert_json_equal('LABELFORM', 'name', "doc1.png")
+        self.assertEqual(len(self.json_actions), 3)
+
+        self.factory.xfer = DownloadFile()
+        self.call_ex('/lucterios.documents/downloadFile', {"shared": shared_key, "filename": "doc1.png"}, False)
+        file_content = self.response.getvalue().decode()
+        self.assertEqual(file_content, 'Fichier non trouvé !')

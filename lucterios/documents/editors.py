@@ -31,7 +31,8 @@ from django.utils import six, timezone
 from lucterios.framework.filetools import get_user_path, get_user_dir
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.tools import ActionsManage, CLOSE_NO, FORMTYPE_MODAL
-from lucterios.framework.xfercomponents import XferCompUpLoad, XferCompDownLoad
+from lucterios.framework.xfercomponents import XferCompUpLoad, XferCompDownLoad,\
+    XferCompEdit, XferCompButton
 from lucterios.framework.editors import LucteriosEditor
 
 from lucterios.CORE.models import LucteriosUser
@@ -98,3 +99,10 @@ class DocumentEditor(LucteriosEditor):
                         modal=FORMTYPE_MODAL, close=CLOSE_NO)
         down.set_location(obj_cmt.col, obj_cmt.row + 1, 4)
         xfer.add_component(down)
+        link = self.item.shared_link
+        if link is not None:
+            shared_link = XferCompEdit('shared_link')
+            shared_link.description = _('shared link')
+            shared_link.set_value(link)
+            shared_link.set_location(obj_cmt.col, obj_cmt.row + 2, 4)
+            xfer.add_component(shared_link)
