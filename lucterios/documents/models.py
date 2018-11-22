@@ -206,12 +206,15 @@ class Document(LucteriosModel):
             unlink(file_path)
 
     def set_context(self, xfer):
-        if notfree_mode_connect() and not xfer.request.user.is_superuser:
+        if notfree_mode_connect() and not isinstance(xfer, six.text_type) and not xfer.request.user.is_superuser:
             self.filter = models.Q(folder=None) | models.Q(folder__viewer__in=xfer.request.user.groups.all())
         if self.sharekey is not None:
             import urllib.parse
-            abs_url = xfer.request.META.get('HTTP_REFERER', xfer.request.build_absolute_uri()).split('/')
-            root_url = '/'.join(abs_url[:-2])
+            if isinstance(xfer, six.text_type):
+                root_url = xfer
+            else:
+                abs_url = xfer.request.META.get('HTTP_REFERER', xfer.request.build_absolute_uri()).split('/')
+                root_url = '/'.join(abs_url[:-2])
             self.shared_link = "%s/%s?shared=%s&filename=%s" % (root_url, 'lucterios.documents/downloadFile', self.sharekey, urllib.parse.quote(self.name))
         else:
             self.shared_link = None
