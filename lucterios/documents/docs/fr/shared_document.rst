@@ -14,7 +14,11 @@ Suivant vos permissions, vous pouvez extraire votre fichier pour le consulter, l
 
 De plus, l'outil mémorisera l'utilisateur et la date de création du document ainsi que les informations relatives à la dernière modification.
 
-.. image:: shared_document.png
+.. image:: showdoc.png
+
+Depuis la fiche du document, il vous est possible d'activer un lien de téléchargement.
+Ce lien web peut être transmis à une personne tiers, n'ayant aucun droit d'accès à votre logiciel, afin de télécharger le document.
+**Attention:** Votre instance doit être accessible sur internet pour que le lien puisse fonctionner depuis n'importe où.
 
 Recherche de documents
 ----------------------
