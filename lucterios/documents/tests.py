@@ -290,10 +290,10 @@ class DocumentTest(LucteriosTest):
         self.assertEqual(len(self.json_actions), 3)
 
         self.factory.xfer = DocumentAddModify()
-        self.calljson('/lucterios.documents/documentAddModify', {'SAVE': 'YES', "document": "1", 'description': 'old doc'}, False)
+        self.calljson('/lucterios.documents/documentAddModify', {'SAVE': 'YES', "document": "1", 'description': 'old doc', 'folder': 3}, False)
         docs = Document.objects.all().order_by('id')
         self.assertEqual(len(docs), 3)
-        self.assertEqual(docs[0].folder.id, 2)
+        self.assertEqual(docs[0].folder.id, 3)
         self.assertEqual(docs[0].name, 'doc1.png')
         self.assertEqual(docs[0].description, "old doc")
         self.assertEqual(docs[0].creator.username, "empty")

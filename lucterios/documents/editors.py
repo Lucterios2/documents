@@ -31,8 +31,7 @@ from django.utils import six, timezone
 from lucterios.framework.filetools import get_user_path, get_user_dir
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.tools import ActionsManage, CLOSE_NO, FORMTYPE_MODAL
-from lucterios.framework.xfercomponents import XferCompUpLoad, XferCompDownLoad,\
-    XferCompEdit, XferCompButton
+from lucterios.framework.xfercomponents import XferCompUpLoad, XferCompDownLoad, XferCompEdit
 from lucterios.framework.editors import LucteriosEditor
 
 from lucterios.CORE.models import LucteriosUser
@@ -43,20 +42,17 @@ class DocumentEditor(LucteriosEditor):
 
     def before_save(self, xfer):
         current_folder = xfer.getparam('current_folder')
-        if current_folder is not None:
+        if (current_folder is not None) and (self.item.folder_id is None):
             if current_folder != 0:
-                self.item.folder = Folder.objects.get(
-                    id=current_folder)
+                self.item.folder = Folder.objects.get(id=current_folder)
             else:
                 self.item.folder = None
         if xfer.getparam('filename_FILENAME') is not None:
             self.item.name = xfer.getparam('filename_FILENAME')
         if (self.item.creator is None) and xfer.request.user.is_authenticated:
-            self.item.creator = LucteriosUser.objects.get(
-                pk=xfer.request.user.id)
+            self.item.creator = LucteriosUser.objects.get(pk=xfer.request.user.id)
         if xfer.request.user.is_authenticated:
-            self.item.modifier = LucteriosUser.objects.get(
-                pk=xfer.request.user.id)
+            self.item.modifier = LucteriosUser.objects.get(pk=xfer.request.user.id)
         else:
             self.item.modifier = None
         self.item.date_modification = timezone.now()
@@ -82,10 +78,11 @@ class DocumentEditor(LucteriosEditor):
         file_name.set_value('')
         file_name.set_location(obj_cmt.col, obj_cmt.row, obj_cmt.colspan, obj_cmt.rowspan)
         xfer.add_component(file_name)
+        obj_folder = xfer.get_components('folder')
+        obj_folder.select_list.sort(key=lambda item: six.text_type(item[1]))
 
     def show(self, xfer):
-        destination_file = join("documents", "document_%s" % six.text_type(
-            self.item.id))
+        destination_file = join("documents", "document_%s" % six.text_type(self.item.id))
         if not isfile(join(get_user_dir(), destination_file)):
             raise LucteriosException(IMPORTANT, _("File not found!"))
         obj_cmt = xfer.get_components('creator')
