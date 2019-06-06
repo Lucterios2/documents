@@ -23,28 +23,27 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from os.path import isfile, join
+from os.path import isfile
 
 from django.utils.translation import ugettext_lazy as _
 from django.utils import six, timezone
 
-from lucterios.framework.filetools import get_user_path, get_user_dir
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.tools import ActionsManage, CLOSE_NO, FORMTYPE_MODAL
 from lucterios.framework.xfercomponents import XferCompUpLoad, XferCompDownLoad, XferCompEdit
 from lucterios.framework.editors import LucteriosEditor
 
 from lucterios.CORE.models import LucteriosUser
-from lucterios.documents.models import Folder
+from lucterios.documents.models import FolderContainer
 
 
-class DocumentEditor(LucteriosEditor):
+class DocumentContainerEditor(LucteriosEditor):
 
     def before_save(self, xfer):
         current_folder = xfer.getparam('current_folder')
-        if (current_folder is not None) and (self.item.folder_id is None):
+        if (current_folder is not None) and (self.item.parent_id is None):
             if current_folder != 0:
-                self.item.folder = Folder.objects.get(id=current_folder)
+                self.item.folder = FolderContainer.objects.get(id=current_folder)
             else:
                 self.item.folder = None
         if xfer.getparam('filename_FILENAME') is not None:
@@ -63,10 +62,7 @@ class DocumentEditor(LucteriosEditor):
     def saving(self, xfer):
         if 'filename' in xfer.request.FILES.keys():
             tmp_file = xfer.request.FILES['filename']
-            file_path = get_user_path("documents", "document_%s" % six.text_type(
-                self.item.id))
-            with open(file_path, "wb") as file_tmp:
-                file_tmp.write(tmp_file.read())  # write the tmp file
+            self.item.content = tmp_file.read()
 
     def edit(self, xfer):
         obj_cmt = xfer.get_components('name')
@@ -78,12 +74,11 @@ class DocumentEditor(LucteriosEditor):
         file_name.set_value('')
         file_name.set_location(obj_cmt.col, obj_cmt.row, obj_cmt.colspan, obj_cmt.rowspan)
         xfer.add_component(file_name)
-        obj_folder = xfer.get_components('folder')
+        obj_folder = xfer.get_components('parent')
         obj_folder.select_list.sort(key=lambda item: six.text_type(item[1]))
 
     def show(self, xfer):
-        destination_file = join("documents", "document_%s" % six.text_type(self.item.id))
-        if not isfile(join(get_user_dir(), destination_file)):
+        if not isfile(self.item.file_path):
             raise LucteriosException(IMPORTANT, _("File not found!"))
         obj_cmt = xfer.get_components('creator')
         down = XferCompDownLoad('filename')
@@ -91,8 +86,8 @@ class DocumentEditor(LucteriosEditor):
         down.http_file = True
         down.maxsize = 0
         down.set_value(self.item.name)
-        down.set_download(destination_file)
-        down.set_action(xfer.request, ActionsManage.get_action_url('documents.Document', 'AddModify', xfer),
+        down.set_download(self.item.file_path)
+        down.set_action(xfer.request, ActionsManage.get_action_url('documents.DocumentContainer', 'AddModify', xfer),
                         modal=FORMTYPE_MODAL, close=CLOSE_NO)
         down.set_location(obj_cmt.col, obj_cmt.row + 1, 4)
         xfer.add_component(down)
