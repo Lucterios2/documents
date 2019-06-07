@@ -153,7 +153,6 @@ class Folder(LucteriosModel):
     class Meta(object):
         verbose_name = _('folder')
         verbose_name_plural = _('folders')
-        default_permissions = []
         ordering = ['parent__name', 'name']
 
 
@@ -248,5 +247,4 @@ class Document(LucteriosModel):
     class Meta(object):
         verbose_name = _('document')
         verbose_name_plural = _('documents')
-        default_permissions = []
         ordering = ['folder__name', 'name']

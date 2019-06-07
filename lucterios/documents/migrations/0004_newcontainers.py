@@ -34,6 +34,7 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name': 'document',
                 'verbose_name_plural': 'documents',
+                'default_permissions': [],
                 'ordering': ['parent__name', 'name'],
             },
             bases=('documents.abstractcontainer',),
@@ -48,6 +49,7 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name': 'folder',
                 'verbose_name_plural': 'folders',
+                'default_permissions': [],
                 'ordering': ['parent__name', 'name'],
             },
             bases=('documents.abstractcontainer',),
@@ -57,13 +59,4 @@ class Migration(migrations.Migration):
             name='parent',
             field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='documents.FolderContainer', verbose_name='parent'),
         ),
-        migrations.AlterModelOptions(
-            name='document',
-            options={'default_permissions': [], 'ordering': ['folder__name', 'name'], 'verbose_name': 'document', 'verbose_name_plural': 'documents'},
-        ),
-        migrations.AlterModelOptions(
-            name='folder',
-            options={'default_permissions': [], 'ordering': ['parent__name', 'name'], 'verbose_name': 'folder', 'verbose_name_plural': 'folders'},
-        ),
-       
     ]

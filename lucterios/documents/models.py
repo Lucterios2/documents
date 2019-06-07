@@ -188,6 +188,7 @@ class FolderContainer(AbstractContainer):
     class Meta(object):
         verbose_name = _('folder')
         verbose_name_plural = _('folders')
+        default_permissions = []
         ordering = ['parent__name', 'name']
 
 
@@ -284,6 +285,7 @@ class DocumentContainer(AbstractContainer):
     class Meta(object):
         verbose_name = _('document')
         verbose_name_plural = _('documents')
+        default_permissions = []
         ordering = ['parent__name', 'name']
 
 
@@ -302,6 +304,8 @@ def migrate_containers(old_parent, new_parent):
 
     for old_folder in Folder.objects.filter(parent=old_parent):
         new_folder = FolderContainer.objects.create(parent=new_parent, name=old_folder.name, description=old_folder.description)
+        new_folder.viewer.set(old_folder.viewer.all())
+        new_folder.modifier.set(old_folder.modifier.all())
         sub_nb_folder, sub_nb_doc = migrate_containers(old_folder, new_folder)
         old_folder.delete()
         nb_folder += sub_nb_folder

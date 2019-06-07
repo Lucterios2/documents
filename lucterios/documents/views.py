@@ -27,9 +27,12 @@ from os.path import join, exists
 from os import makedirs, walk
 from shutil import rmtree
 from zipfile import ZipFile
+from logging import getLogger
 
 from django.utils.translation import ugettext_lazy as _
+from django.apps.registry import apps
 from django.db.models import Q
+from django.db.models.query import QuerySet
 
 from lucterios.framework.xferadvance import XferListEditor, XferDelete, XferAddEditor, XferShowEditor,\
     TITLE_ADD, TITLE_MODIFY, TITLE_DELETE, TITLE_EDIT, TITLE_CANCEL, TITLE_OK,\
@@ -49,14 +52,12 @@ from lucterios.CORE.models import LucteriosGroup
 from lucterios.CORE.editors import XferSavedCriteriaSearchEditor
 
 from lucterios.documents.models import FolderContainer, DocumentContainer, AbstractContainer
-from logging import getLogger
-from django.db.models.query import QuerySet
 
 
 MenuManage.add_sub("documents.conf", "core.extensions", "", _("Document"), "", 10)
 
 
-@MenuManage.describ('documents.change_foldercontainer', FORMTYPE_NOMODAL, 'documents.conf', _("Management of document's folders"))
+@MenuManage.describ('documents.change_folder', FORMTYPE_NOMODAL, 'documents.conf', _("Management of document's folders"))
 class FolderList(XferListEditor):
     caption = _("Folders")
     icon = "documentConf.png"
@@ -66,7 +67,7 @@ class FolderList(XferListEditor):
 
 @ActionsManage.affect_grid(TITLE_ADD, "images/add.png")
 @ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE)
-@MenuManage.describ('documents.add_foldercontainer')
+@MenuManage.describ('documents.add_folder')
 class FolderAddModify(XferAddEditor):
     icon = "documentConf.png"
     model = FolderContainer
@@ -76,7 +77,7 @@ class FolderAddModify(XferAddEditor):
 
 
 @ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI)
-@MenuManage.describ('documents.delete_foldercontainer')
+@MenuManage.describ('documents.delete_folder')
 class FolderDel(XferDelete):
     caption = _("Delete folder")
     icon = "documentConf.png"
@@ -124,7 +125,7 @@ class FolderImportExport(XferContainerAcknowledge):
 
 
 @ActionsManage.affect_grid(_("Import"), "zip.png", unique=SELECT_NONE)
-@MenuManage.describ('documents.add_foldercontainer')
+@MenuManage.describ('documents.add_folder')
 class FolderImport(FolderImportExport):
     caption = _("Import")
 
@@ -160,7 +161,7 @@ class FolderImport(FolderImportExport):
 
 
 @ActionsManage.affect_grid(_("Extract"), "zip.png", unique=SELECT_NONE)
-@MenuManage.describ('documents.add_foldercontainer')
+@MenuManage.describ('documents.add_folder')
 class FolderExtract(FolderImportExport):
     caption = _("Extract")
 
@@ -203,7 +204,8 @@ class FolderExtract(FolderImportExport):
         self.open_zipfile('extract.zip')
 
 
-MenuManage.add_sub("office", None, "lucterios.documents/images/office.png", _("Office"), _("Office tools"), 70)
+if not apps.is_installed("lucterios.contacts"):
+    MenuManage.add_sub("office", None, "lucterios.documents/images/office.png", _("Office"), _("Office tools"), 70)
 
 MenuManage.add_sub("documents.actions", "office", "lucterios.documents/images/document.png",
                    _("Documents"), _("Documents storage tools"), 80)
@@ -219,18 +221,19 @@ def docshow_modify_condition(xfer):
 
 
 def folder_notreadonly_condition(xfer, gridname=''):
-    if (xfer.item is not None) and (xfer.item.id is not None) and notfree_mode_connect() and not xfer.request.user.is_superuser:
-        item = xfer.item.get_final_child()
-        if item.cannot_view(xfer.request.user):
-            raise LucteriosException(IMPORTANT, _("No allow to view!"))
-        if item.is_readonly(xfer.request.user):
-            return False
+    if notfree_mode_connect() and not xfer.request.user.is_superuser:
+        if xfer.current_folder > 0:
+            folder = FolderContainer.objects.get(id=xfer.current_folder)
+            if folder.cannot_view(xfer.request.user):
+                raise LucteriosException(IMPORTANT, _("No allow to view!"))
+            if folder.is_readonly(xfer.request.user):
+                return False
     return True
 
 
 @ActionsManage.affect_grid(TITLE_ADD, "images/add.png")
 @ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", close=CLOSE_YES, condition=docshow_modify_condition)
-@MenuManage.describ('documents.add_documentcontainer')
+@MenuManage.describ('documents.add_document')
 class DocumentAddModify(XferAddEditor):
     icon = "document.png"
     model = DocumentContainer
@@ -245,7 +248,7 @@ class DocumentAddModify(XferAddEditor):
 
 
 @ActionsManage.affect_grid(TITLE_EDIT, "images/show.png", unique=SELECT_SINGLE)
-@MenuManage.describ('documents.change_documentcontainer')
+@MenuManage.describ('documents.change_document')
 class DocumentShow(XferShowEditor):
     caption = _("Show document")
     icon = "document.png"
@@ -254,7 +257,7 @@ class DocumentShow(XferShowEditor):
 
 
 @ActionsManage.affect_grid(_('Folder'), "images/add.png")
-@MenuManage.describ('documents.add_foldercontainer')
+@MenuManage.describ('documents.add_folder')
 class ContainerAddFolder(XferContainerAcknowledge):
     caption = _("Add folder")
     icon = "document.png"
@@ -266,7 +269,7 @@ class ContainerAddFolder(XferContainerAcknowledge):
 
 
 @ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI, condition=folder_notreadonly_condition)
-@MenuManage.describ('documents.delete_documentcontainer')
+@MenuManage.describ('documents.delete_document')
 class ContainerDel(XferDelete):
     caption = _("Delete document")
     icon = "document.png"
@@ -277,7 +280,7 @@ class ContainerDel(XferDelete):
         parent = None
         if len(self.items) > 0:
             parent = self.items[0].parent
-        if not WrapAction.is_permission(self.request, 'documents.delete_foldercontainer'):
+        if not WrapAction.is_permission(self.request, 'documents.delete_folder'):
             for item in self.items:
                 if isinstance(item.get_final_child(), FolderContainer):
                     raise LucteriosException(IMPORTANT, _("No allow to delete folder!"))
@@ -290,7 +293,7 @@ class ContainerDel(XferDelete):
 
 
 @ActionsManage.affect_grid(TITLE_EDIT, "images/edit.png", close=CLOSE_NO, modal=FORMTYPE_REFRESH, unique=SELECT_SINGLE)
-@MenuManage.describ('documents.change_documentcontainer', FORMTYPE_NOMODAL, 'documents.actions', _("Management of documents"))
+@MenuManage.describ('documents.change_document', FORMTYPE_NOMODAL, 'documents.actions', _("Management of documents"))
 class ContainerList(XferListEditor):
     caption = _("Documents")
     icon = "document.png"
@@ -299,7 +302,7 @@ class ContainerList(XferListEditor):
 
     def get_items_from_filter(self):
         items = XferListEditor.get_items_from_filter(self)
-        if (self.current_folder > 0) and notfree_mode_connect() and not self.request.user.is_superuser:
+        if notfree_mode_connect() and not self.request.user.is_superuser:
             new_items = []
             for item in items:
                 item = item.get_final_child()
@@ -312,7 +315,7 @@ class ContainerList(XferListEditor):
     def fillresponse_header(self):
         if 'container' in self.params:
             del self.params['container']
-        if (self.item is not None) and isinstance(self.item, FolderContainer):
+        if (self.item is not None) and (self.item.id is not None) and isinstance(self.item, FolderContainer):
             self.params['current_folder'] = self.item.id
         self.current_folder = self.getparam('current_folder', 0)
         if self.current_folder > 0:
@@ -378,6 +381,17 @@ class ContainerList(XferListEditor):
         self.model = AbstractContainer
         self.item = old_item
 
+    def fillresponse_body(self):
+        containerorder = self.getparam('GRID_ORDER%container', ())
+        self.params['GRID_ORDER%container'] = ','.join([item.replace('icon', 'foldercontainer__isnull') for item in containerorder])
+        XferListEditor.fillresponse_body(self)
+        grid = self.get_components('container')
+        grid.get_header('icon').orderable = 1
+        grid.order_list = list(set(containerorder))
+        self.params['GRID_ORDER%container'] = ','.join(grid.order_list)
+        if self.params['GRID_ORDER%container'] == '':
+            del self.params['GRID_ORDER%container']
+
     def fillresponse(self):
         XferListEditor.fillresponse(self)
         obj_doc = self.get_components('container')
@@ -400,7 +414,7 @@ class ContainerList(XferListEditor):
             self.add_document()
 
 
-@MenuManage.describ('documents.change_documentcontainer', FORMTYPE_NOMODAL, 'documents.actions', _('To find a document following a set of criteria.'))
+@MenuManage.describ('documents.change_document', FORMTYPE_NOMODAL, 'documents.actions', _('To find a document following a set of criteria.'))
 class DocumentSearch(XferSavedCriteriaSearchEditor):
     caption = _("Document search")
     icon = "documentFind.png"
@@ -427,7 +441,7 @@ class DocumentSearch(XferSavedCriteriaSearchEditor):
 
 @ActionsManage.affect_show(_('delete shared link'), "images/permissions.png", condition=lambda xfer: xfer.item.sharekey is not None)
 @ActionsManage.affect_show(_('create shared link'), "images/permissions.png", condition=lambda xfer: xfer.item.sharekey is None)
-@MenuManage.describ('documents.add_documentcontainer')
+@MenuManage.describ('documents.add_document')
 class DocumentChangeShared(XferContainerAcknowledge):
     icon = "document.png"
     model = DocumentContainer

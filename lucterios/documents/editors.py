@@ -42,6 +42,7 @@ class DocumentContainerEditor(LucteriosEditor):
     def before_save(self, xfer):
         current_folder = xfer.getparam('current_folder')
         if (current_folder is not None) and (self.item.parent_id is None):
+            current_folder = int(current_folder)
             if current_folder != 0:
                 self.item.folder = FolderContainer.objects.get(id=current_folder)
             else:
