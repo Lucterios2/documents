@@ -223,11 +223,12 @@ class Document(LucteriosModel):
     def content(self):
         from _io import BytesIO
         file_path = get_user_path("documents", "document_%s" % six.text_type(self.id))
-        with ZipFile(file_path, 'r') as zip_ref:
-            file_list = zip_ref.namelist()
-            if len(file_list) > 0:
-                doc_file = zip_ref.open(file_list[0])
-                return BytesIO(doc_file.read())
+        if isfile(file_path):
+            with ZipFile(file_path, 'r') as zip_ref:
+                file_list = zip_ref.namelist()
+                if len(file_list) > 0:
+                    doc_file = zip_ref.open(file_list[0])
+                    return BytesIO(doc_file.read())
         return BytesIO(b'')
 
     def change_sharekey(self, clear):

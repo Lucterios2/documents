@@ -256,11 +256,12 @@ class DocumentContainer(AbstractContainer):
     @property
     def content(self):
         from _io import BytesIO
-        with ZipFile(self.file_path, 'r') as zip_ref:
-            file_list = zip_ref.namelist()
-            if len(file_list) > 0:
-                doc_file = zip_ref.open(file_list[0])
-                return BytesIO(doc_file.read())
+        if isfile(self.file_path):
+            with ZipFile(self.file_path, 'r') as zip_ref:
+                file_list = zip_ref.namelist()
+                if len(file_list) > 0:
+                    doc_file = zip_ref.open(file_list[0])
+                    return BytesIO(doc_file.read())
         return BytesIO(b'')
 
     @content.setter
