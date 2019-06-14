@@ -40,6 +40,7 @@ from lucterios.framework.signal_and_lock import Signal
 
 from lucterios.CORE.models import LucteriosGroup, LucteriosUser
 from lucterios.documents.models_legacy import Folder, Document
+from lucterios.documents.doc_editors import DocEditor
 
 
 class AbstractContainer(LucteriosModel):
@@ -221,6 +222,7 @@ class DocumentContainer(AbstractContainer):
         AbstractContainer.__init__(self, *args, **kwargs)
         self.filter = models.Q()
         self.shared_link = None
+        self.root_url = None
 
     def __str__(self):
         return '[%s] %s' % (self.parent, self.name)
@@ -238,14 +240,14 @@ class DocumentContainer(AbstractContainer):
     def set_context(self, xfer):
         if notfree_mode_connect() and not isinstance(xfer, six.text_type) and not xfer.request.user.is_superuser:
             self.filter = models.Q(parent=None) | models.Q(parent__viewer__in=xfer.request.user.groups.all())
+        if isinstance(xfer, six.text_type):
+            self.root_url = xfer
+        else:
+            abs_url = xfer.request.META.get('HTTP_REFERER', xfer.request.build_absolute_uri()).split('/')
+            self.root_url = '/'.join(abs_url[:-2])
         if self.sharekey is not None:
             import urllib.parse
-            if isinstance(xfer, six.text_type):
-                root_url = xfer
-            else:
-                abs_url = xfer.request.META.get('HTTP_REFERER', xfer.request.build_absolute_uri()).split('/')
-                root_url = '/'.join(abs_url[:-2])
-            self.shared_link = "%s/%s?shared=%s&filename=%s" % (root_url, 'lucterios.documents/downloadFile', self.sharekey, urllib.parse.quote(self.name))
+            self.shared_link = "%s/%s?shared=%s&filename=%s" % (self.root_url, 'lucterios.documents/downloadFile', self.sharekey, urllib.parse.quote(self.name))
         else:
             self.shared_link = None
 
@@ -267,11 +269,17 @@ class DocumentContainer(AbstractContainer):
     @content.setter
     def content(self, content):
         from _io import BytesIO
-        with ZipFile(self.file_path, 'w') as zip_ref:
-            if isinstance(content, BytesIO):
-                content = content.read()
-            if isinstance(content, six.binary_type):
-                zip_ref.writestr(zinfo_or_arcname=self.name, data=content)
+        if not isinstance(content, BytesIO) and hasattr(content, 'read'):
+            with open(self.file_path, "wb") as file_tmp:
+                file_tmp.write(content.read())
+        else:
+            with ZipFile(self.file_path, 'w') as zip_ref:
+                if isinstance(content, BytesIO):
+                    content = content.read()
+                if isinstance(content, six.text_type):
+                    content = content.encode()
+                if isinstance(content, six.binary_type):
+                    zip_ref.writestr(zinfo_or_arcname=self.name, data=content)
 
     def change_sharekey(self, clear):
         if clear:
@@ -282,6 +290,13 @@ class DocumentContainer(AbstractContainer):
             md5res = md5()
             md5res.update(phrase.encode())
             self.sharekey = md5res.hexdigest()
+
+    def get_doc_editors(self):
+        for editor_class in DocEditor.get_all_editor():
+            editor_obj = editor_class(self.root_url, self)
+            if editor_obj.is_manage():
+                return editor_obj
+        return None
 
     class Meta(object):
         verbose_name = _('document')

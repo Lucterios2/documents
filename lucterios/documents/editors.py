@@ -63,7 +63,9 @@ class DocumentContainerEditor(LucteriosEditor):
     def saving(self, xfer):
         if 'filename' in xfer.request.FILES.keys():
             tmp_file = xfer.request.FILES['filename']
-            self.item.content = tmp_file.read()
+            self.item.content = tmp_file
+        elif not isfile(xfer.item.file_path):
+            raise LucteriosException(IMPORTANT, _("File not found!"))
 
     def edit(self, xfer):
         obj_cmt = xfer.get_components('name')

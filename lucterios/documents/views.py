@@ -36,13 +36,13 @@ from django.db.models.query import QuerySet
 
 from lucterios.framework.xferadvance import XferListEditor, XferDelete, XferAddEditor, XferShowEditor,\
     TITLE_ADD, TITLE_MODIFY, TITLE_DELETE, TITLE_EDIT, TITLE_CANCEL, TITLE_OK,\
-    TEXT_TOTAL_NUMBER
+    TEXT_TOTAL_NUMBER, TITLE_CLOSE, TITLE_SAVE
 from lucterios.framework.xfersearch import XferSearchEditor
 from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, ActionsManage, \
     CLOSE_NO, FORMTYPE_REFRESH, SELECT_SINGLE, SELECT_NONE, \
     WrapAction, CLOSE_YES, SELECT_MULTI
 from lucterios.framework.xfercomponents import XferCompButton, XferCompLabelForm, \
-    XferCompImage, XferCompUpLoad, XferCompDownLoad
+    XferCompImage, XferCompUpLoad, XferCompDownLoad, XferCompSelect
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework import signal_and_lock
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
@@ -52,6 +52,7 @@ from lucterios.CORE.models import LucteriosGroup
 from lucterios.CORE.editors import XferSavedCriteriaSearchEditor
 
 from lucterios.documents.models import FolderContainer, DocumentContainer, AbstractContainer
+from lucterios.documents.doc_editors import DocEditor
 
 
 MenuManage.add_sub("documents.conf", "core.extensions", "", _("Document"), "", 10)
@@ -256,6 +257,35 @@ class DocumentShow(XferShowEditor):
     field_id = 'document'
 
 
+@ActionsManage.affect_show(_('Editor'), "file.png", modal=FORMTYPE_NOMODAL,
+                           close=CLOSE_YES, condition=lambda xfer: xfer.item.get_doc_editors() is not None)
+@MenuManage.describ('documents.add_document')
+class DocumentEditor(XferContainerAcknowledge):
+    caption = _("Edit document")
+    icon = "document.png"
+    model = DocumentContainer
+    field_id = 'document'
+
+    def fillresponse(self):
+        editor = self.item.get_doc_editors()
+        if self.getparam('SAVE', '') == 'YES':
+            editor.save_content()
+        elif self.getparam('CLOSE', '') == 'YES':
+            editor.close()
+        else:
+            editor.send_content()
+            dlg = self.create_custom(self.model)
+            dlg.item = self.item
+            dlg.fill_from_model(0, 0, True, [('parent', 'name')])
+            frame = XferCompLabelForm('frame')
+            frame.set_value(editor.get_iframe())
+            frame.set_location(0, 2, 2, 0)
+            dlg.add_component(frame)
+            dlg.add_action(self.get_action(TITLE_SAVE, 'images/save.png'), close=CLOSE_NO, params={'SAVE': 'YES'})
+            dlg.add_action(WrapAction(TITLE_CLOSE, 'images/close.png'))
+            dlg.set_close_action(self.get_action(), params={'CLOSE': 'YES'})
+
+
 @ActionsManage.affect_grid(_('Folder'), "images/add.png")
 @MenuManage.describ('documents.add_folder')
 class ContainerAddFolder(XferContainerAcknowledge):
@@ -266,6 +296,62 @@ class ContainerAddFolder(XferContainerAcknowledge):
 
     def fillresponse(self, current_folder=0):
         self.redirect_action(FolderAddModify.get_action(), close=CLOSE_YES, params={'parent': current_folder})
+
+
+def file_createnew_condition(xfer, gridname=''):
+    if folder_notreadonly_condition(xfer, gridname):
+        return (len(DocEditor.get_all_extension_supported()) > 0)
+    else:
+        return False
+
+
+@ActionsManage.affect_grid(_('File'), "images/add.png", condition=file_createnew_condition)
+@MenuManage.describ('documents.add_document')
+class ContainerAddFile(XferContainerAcknowledge):
+    caption = _("Create document")
+    icon = "document.png"
+    model = AbstractContainer
+    field_id = 'container'
+
+    def _initialize(self, request, *_, **kwargs):
+        self.model = DocumentContainer
+        self.field_id = 'document'
+        XferContainerAcknowledge._initialize(self, request, *_, **kwargs)
+
+    def fillresponse(self, current_folder=0, docext=""):
+        if current_folder == 0:
+            self.item.parent_id = None
+        else:
+            self.item.parent_id = current_folder
+        if self.getparam('CONFIRME', '') == 'YES':
+            self.params = {}
+            filename_spited = self.item.name.split('.')
+            if len(filename_spited) > 1:
+                filename_spited = filename_spited[:-1]
+            self.item.name = "%s.%s" % (".".join(filename_spited), docext)
+            self.item.editor.before_save(self)
+            self.item.save()
+            self.item.content = ""
+            self.redirect_action(DocumentEditor.get_action(), modal=FORMTYPE_NOMODAL, close=CLOSE_YES, params={'document': self.item.id})
+        else:
+            dlg = self.create_custom(self.model)
+            max_row = dlg.get_max_row() + 1
+            img = XferCompImage('img')
+            img.set_value(self.icon_path())
+            img.set_location(0, 0, 1, 6)
+            dlg.add_component(img)
+            dlg.fill_from_model(1, max_row, True, ['parent'])
+            dlg.fill_from_model(1, max_row + 1, False, ['name', 'description'])
+
+            max_row = dlg.get_max_row() + 1
+            select = XferCompSelect('docext')
+            select.set_select([(item, item) for item in DocEditor.get_all_extension_supported()])
+            select.set_value(select.select_list[0][1])
+            select.set_location(1, max_row)
+            select.description = _('document type')
+            dlg.add_component(select)
+            dlg.add_action(self.get_action(TITLE_OK, 'images/ok.png'), close=CLOSE_YES, params={'CONFIRME': 'YES'})
+            dlg.add_action(WrapAction(TITLE_CLOSE, 'images/close.png'))
 
 
 @ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI, condition=folder_notreadonly_condition)
@@ -368,16 +454,20 @@ class ContainerList(XferListEditor):
         lbl.set_value("{[center]}{[hr/]}{[/center]}")
         self.add_component(lbl)
         lbl = XferCompLabelForm('sep2')
-        lbl.set_location(0, last_row + 1)
+        lbl.set_location(0, last_row + 1, 2)
         lbl.set_value_as_infocenter(_("Add document"))
         self.add_component(lbl)
-        self.fill_from_model(0, last_row + 2, False)
+
+        self.fill_from_model(0, last_row + 3, False)
         self.remove_component('parent')
+        self.remove_component('description')
+
         btn_doc = XferCompButton('adddoc')
-        btn_doc.set_location(1, last_row + 1, 0, 2)
+        btn_doc.set_location(1, last_row + 4)
         btn_doc.set_action(self.request, DocumentAddModify.get_action(TITLE_ADD, 'images/add.png'),
                            params={'parent': self.current_folder, 'SAVE': 'YES'}, close=CLOSE_NO)
         self.add_component(btn_doc)
+
         self.model = AbstractContainer
         self.item = old_item
 

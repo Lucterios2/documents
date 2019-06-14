@@ -25,11 +25,13 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 from os.path import join, dirname, exists
 from shutil import rmtree
+import json
 
-from django.utils import formats, timezone, six
+from django.utils import formats, six
 from django.contrib.auth.models import Permission
+from django.conf import settings
 
-from lucterios.framework.test import LucteriosTest, add_empty_user
+from lucterios.framework.test import LucteriosTest
 from lucterios.framework.filetools import get_user_path, get_user_dir
 
 from lucterios.CORE.models import LucteriosGroup, LucteriosUser
@@ -37,48 +39,16 @@ from lucterios.CORE.models import LucteriosGroup, LucteriosUser
 from lucterios.documents.models import FolderContainer, DocumentContainer
 from lucterios.documents.views import FolderList, FolderAddModify, FolderDel, \
     ContainerList, DocumentAddModify, DocumentShow, ContainerDel, DocumentSearch,\
-    DocumentChangeShared, DownloadFile
-from zipfile import ZipFile
-
-
-def create_doc(user, with_folder=True):
-    root_path = join(dirname(__file__), 'static', 'lucterios.documents', 'images')
-    current_date = timezone.now()
-    new_doc1 = DocumentContainer.objects.create(name='doc1.png', description="doc 1", creator=user,
-                                                date_creation=current_date, date_modification=current_date)
-    if with_folder:
-        new_doc1.parent = FolderContainer.objects.get(id=2)
-    new_doc1.save()
-    with ZipFile(get_user_path('documents', 'container_%d' % new_doc1.id), 'w') as zip_ref:
-        zip_ref.write(join(root_path, 'documentFind.png'), arcname='doc1.png')
-
-    new_doc2 = DocumentContainer.objects.create(name='doc2.png', description="doc 2", creator=user,
-                                                date_creation=current_date, date_modification=current_date)
-    if with_folder:
-        new_doc2.parent = FolderContainer.objects.get(id=1)
-    new_doc2.save()
-    with ZipFile(get_user_path('documents', 'container_%d' % new_doc2.id), 'w') as zip_ref:
-        zip_ref.write(join(root_path, 'documentConf.png'), arcname='doc2.png')
-
-    new_doc3 = DocumentContainer.objects.create(name='doc3.png', description="doc 3", creator=user,
-                                                date_creation=current_date, date_modification=current_date)
-    if with_folder:
-        new_doc3.parent = FolderContainer.objects.get(id=4)
-    new_doc3.save()
-    with ZipFile(get_user_path('documents', 'container_%d' % new_doc3.id), 'w') as zip_ref:
-        zip_ref.write(join(root_path, 'document.png'), arcname='doc3.png')
-
-    return current_date
+    DocumentChangeShared, DownloadFile, ContainerAddFile, DocumentEditor
+from lucterios.documents.test_tools import default_groups, default_folders,\
+    create_doc, TestHTTPServer, TestMoke
 
 
 class FolderTest(LucteriosTest):
 
     def setUp(self):
         LucteriosTest.setUp(self)
-        group = LucteriosGroup.objects.create(name="my_group")
-        group.save()
-        group = LucteriosGroup.objects.create(name="other_group")
-        group.save()
+        default_groups()
 
     def test_list(self):
         self.factory.xfer = FolderList()
@@ -160,35 +130,16 @@ class DocumentTest(LucteriosTest):
 
     def setUp(self):
         LucteriosTest.setUp(self)
+        if hasattr(settings, "ETHERPAD"):
+            settings.ETHERPAD = {}
 
         rmtree(get_user_dir(), True)
-        current_user = add_empty_user()
-        current_user.is_superuser = False
-        current_user.save()
-        group = LucteriosGroup.objects.create(name="my_group")
-        group.save()
-        group = LucteriosGroup.objects.create(name="other_group")
-        group.save()
+        default_groups()
+        default_folders()
         self.factory.user = LucteriosUser.objects.get(username='empty')
         self.factory.user.groups.set(LucteriosGroup.objects.filter(id__in=[2]))
         self.factory.user.user_permissions.set(Permission.objects.all())
         self.factory.user.save()
-
-        folder1 = FolderContainer.objects.create(name='truc1', description='blabla')
-        folder1.viewer.set(LucteriosGroup.objects.filter(id__in=[1, 2]))
-        folder1.modifier.set(LucteriosGroup.objects.filter(id__in=[1]))
-        folder1.save()
-        folder2 = FolderContainer.objects.create(name='truc2', description='bouuuuu!')
-        folder2.viewer.set(LucteriosGroup.objects.filter(id__in=[2]))
-        folder2.modifier.set(LucteriosGroup.objects.filter(id__in=[2]))
-        folder2.save()
-        folder3 = FolderContainer.objects.create(name='truc3', description='----')
-        folder3.parent = folder2
-        folder3.viewer.set(LucteriosGroup.objects.filter(id__in=[2]))
-        folder3.save()
-        folder4 = FolderContainer.objects.create(name='truc4', description='no')
-        folder4.parent = folder2
-        folder4.save()
 
     def test_list(self):
         folder = FolderContainer.objects.all()
@@ -201,7 +152,7 @@ class DocumentTest(LucteriosTest):
         self.assertEqual(len(self.json_context), 0)
         self.assertEqual(len(self.json_actions), 1)
         self.assert_action_equal(self.json_actions[0], ('Fermer', 'images/close.png'))
-        self.assert_count_equal('', 10)
+        self.assert_count_equal('', 9)
         self.assert_coordcomp_equal('container', (0, 3, 2, 1))
         self.assert_grid_equal('container', {'icon': '', "name": "nom", "description": "description", "date_modif": "date de modification", "modif": "modificateur"}, 2)
         self.assert_count_equal("#container/actions", 3)
@@ -221,7 +172,7 @@ class DocumentTest(LucteriosTest):
         self.factory.xfer = ContainerList()
         self.calljson('/lucterios.documents/containerList', {"container": "2"}, False)
         self.assert_observer('core.custom', 'lucterios.documents', 'containerList')
-        self.assert_count_equal('', 12)
+        self.assert_count_equal('', 11)
         self.assert_count_equal('container', 1)
         self.assert_count_equal("#container/actions", 3)
         self.assert_json_equal('LABELFORM', 'title_folder', ">truc2")
@@ -291,14 +242,98 @@ class DocumentTest(LucteriosTest):
 
         self.factory.xfer = DocumentAddModify()
         self.calljson('/lucterios.documents/documentAddModify', {'SAVE': 'YES', "document": "5", 'description': 'old doc', 'parent': 3}, False)
+        self.assert_observer('core.acknowledge', 'lucterios.documents', 'documentAddModify')
         docs = DocumentContainer.objects.all().order_by('id')
         self.assertEqual(len(docs), 3)
+        self.assertEqual(docs[0].id, 5)
         self.assertEqual(docs[0].parent.id, 3)
         self.assertEqual(docs[0].name, 'doc1.png')
         self.assertEqual(docs[0].description, "old doc")
         self.assertEqual(docs[0].creator.username, "empty")
         self.assertEqual(docs[0].modifier.username, "empty")
         self.assertNotEqual(docs[0].date_creation, docs[0].date_modification)
+
+    def test_create_pad(self):
+        settings.ETHERPAD = {'url': 'http://localhost:8080', 'apikey': 'abc123'}
+        TestMoke.content_type = "application/json"
+        httpd = TestHTTPServer(('localhost', 8080))
+        httpd.start()
+        try:
+            self.factory.xfer = ContainerList()
+            self.calljson('/lucterios.documents/containerList', {}, False)
+            self.assert_observer('core.custom', 'lucterios.documents', 'containerList')
+            self.assert_count_equal('', 9)
+            self.assert_count_equal('container', 2)
+            self.assert_count_equal("#container/actions", 4)
+
+            self.factory.xfer = ContainerAddFile()
+            self.calljson('/lucterios.documents/containerAddFile', {}, False)
+            self.assert_observer('core.custom', 'lucterios.documents', 'containerAddFile')
+            self.assert_count_equal('', 5)
+            self.assert_select_equal('docext', {'txt': 'txt', 'html': 'html'})  # nb=2
+
+            self.factory.xfer = ContainerAddFile()
+            self.calljson('/lucterios.documents/containerAddFile', {'name': 'aa.bb.cc', 'docext': 'txt', 'description': 'blablabla', 'CONFIRME': 'YES'}, False)
+            self.assert_observer('core.acknowledge', 'lucterios.documents', 'containerAddFile')
+            self.assertEqual(self.response_json['action']['id'], "lucterios.documents/documentEditor")
+            self.assertEqual(len(self.response_json['action']['params']), 1)
+            self.assertEqual(self.response_json['action']['params']['document'], 5)
+
+            self.factory.xfer = ContainerList()
+            self.calljson('/lucterios.documents/containerList', {}, False)
+            self.assert_observer('core.custom', 'lucterios.documents', 'containerList')
+            self.assert_count_equal('container', 3)
+
+            new_doc = DocumentContainer.objects.get(id=5)
+            self.assertEqual(new_doc.parent_id, None)
+            self.assertEqual(new_doc.name, 'aa.bb.txt')
+            self.assertEqual(new_doc.description, "blablabla")
+            self.assertTrue(exists(get_user_path('documents', 'container_5')))
+
+            TestMoke.initial(['{"code": 0, "message":"ok", "data": null}'])
+            editor = new_doc.get_doc_editors()
+            editor.root_url = 'http://testserver'
+            self.assertEqual(editor.padid, 'edb6edba72798a8d49e95bf2f107ea10-aa.bb.txt')
+            json_test = editor.load_export('txt').decode('utf-8')
+            self.assertEqual(json_test, '{"code": 0, "message":"ok", "data": null}')
+            self.assertEqual(json.loads(json_test), {'code': 0, 'message': "ok", 'data': None})
+            self.assertEqual(TestMoke.results, [])
+            self.assertEqual(len(TestMoke.requests), 1)
+            self.assertEqual(TestMoke.requests[0], '/p/edb6edba72798a8d49e95bf2f107ea10-aa.bb.txt/export/txt')
+
+            TestMoke.initial(['{"code": 0, "message":"ok", "data": {"padIDs":[]}}',
+                              '{"code": 0, "message":"ok", "data": null}'])
+            self.factory.xfer = DocumentEditor()
+            self.calljson('/lucterios.documents/documentEditor', {'document': 5}, False)
+            self.assert_observer('core.custom', 'lucterios.documents', 'documentEditor')
+            self.assertEqual(TestMoke.results, [])
+            self.assertEqual(len(TestMoke.requests), 2)
+            self.assertEqual(TestMoke.requests[0], ('/api/1.2.13/listAllPads', {'apikey': ['abc123']}))
+            self.assertEqual(TestMoke.requests[1], ('/api/1.2.13/createPad', {'apikey': ['abc123'],
+                                                                              'padName': ['aa.bb.txt'],
+                                                                              'padID': ['edb6edba72798a8d49e95bf2f107ea10-aa.bb.txt']}))
+
+            TestMoke.initial(['{"code": 0, "message":"ok", "data": {"text":"blablabla"}}'])
+            self.factory.xfer = DocumentEditor()
+            self.calljson('/lucterios.documents/documentEditor', {'document': 5, 'SAVE': 'YES'}, False)
+            self.assert_observer('core.acknowledge', 'lucterios.documents', 'documentEditor')
+            self.assertEqual(TestMoke.results, [])
+            self.assertEqual(len(TestMoke.requests), 1)
+            self.assertEqual(TestMoke.requests[0], ('/api/1.2.13/getText', {'apikey': ['abc123'],
+                                                                            'padID': ['edb6edba72798a8d49e95bf2f107ea10-aa.bb.txt']}))
+
+            TestMoke.initial(['{"code": 0, "message":"ok", "data": {"padIDs":["edb6edba72798a8d49e95bf2f107ea10-aa.bb.txt"]}}',
+                              '{"code": 0, "message":"ok", "data": null}'])
+            self.factory.xfer = DocumentEditor()
+            self.calljson('/lucterios.documents/documentEditor', {'document': 5, 'CLOSE': 'YES'}, False)
+            self.assert_observer('core.acknowledge', 'lucterios.documents', 'documentEditor')
+            self.assertEqual(TestMoke.results, [])
+            self.assertEqual(len(TestMoke.requests), 2)
+            self.assertEqual(TestMoke.requests[0], ('/api/1.2.13/listAllPads', {'apikey': ['abc123']}))
+            self.assertEqual(TestMoke.requests[1], ('/api/1.2.13/deletePad', {'apikey': ['abc123'],
+                                                                              'padID': ['edb6edba72798a8d49e95bf2f107ea10-aa.bb.txt']}))
+        finally:
+            httpd.shutdown()
 
     def test_delete(self):
         current_date = create_doc(self.factory.user)
