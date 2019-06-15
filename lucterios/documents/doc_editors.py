@@ -25,7 +25,8 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 from hashlib import md5
 from urllib.request import urlopen
-from etherpad_lite import EtherpadLiteClient
+from urllib.error import URLError
+from etherpad_lite import EtherpadLiteClient, EtherpadException
 
 from django.conf import settings
 
@@ -91,9 +92,12 @@ class EtherPadEditor(DocEditor):
     @classmethod
     def extension_supported(cls):
         if hasattr(settings, 'ETHERPAD') and ('url' in settings.ETHERPAD) and ('apikey' in settings.ETHERPAD):
-            return ('txt', 'html')
-        else:
-            return ()
+            try:
+                cls('', None).client.checkToken()
+                return ('txt', 'html')
+            except (URLError, EtherpadException):
+                pass
+        return ()
 
     @property
     def client(self):
