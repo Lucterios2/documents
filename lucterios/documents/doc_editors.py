@@ -26,16 +26,26 @@ from __future__ import unicode_literals
 from hashlib import md5
 from urllib.request import urlopen
 from urllib.error import URLError
-from etherpad_lite import EtherpadLiteClient, EtherpadException
+from requests.exceptions import ConnectionError
 
 from django.conf import settings
+
+from etherpad_lite import EtherpadLiteClient, EtherpadException
+from lucterios.documents.ethercalc import EtherCalc
 
 
 class DocEditor(object):
 
+    SETTING_NAME = "XXX"
+
     def __init__(self, root_url, doccontainer):
         self.root_url = root_url
         self.doccontainer = doccontainer
+        self._client = None
+        if hasattr(settings, self.SETTING_NAME):
+            self.params = getattr(settings, self.SETTING_NAME)
+        else:
+            self.params = None
 
     @classmethod
     def get_all_editor(cls):
@@ -47,17 +57,30 @@ class DocEditor(object):
     def get_all_extension_supported(cls):
         res = ()
         for cls in cls.get_all_editor():
-            res += cls.extension_supported()
+            if hasattr(settings, cls.SETTING_NAME):
+                res += cls.extension_supported()
         return set(res)
 
     @classmethod
     def extension_supported(cls):
         return ()
 
+    @property
+    def docid(self):
+        md5res = md5()
+        md5res.update(self.root_url.encode())
+        return '%s-%d' % (md5res.hexdigest(), self.doccontainer.id)
+
     def is_manage(self):
-        for ext_item in self.extension_supported():
-            if self.doccontainer.name.endswith('.' + ext_item):
-                return True
+        if hasattr(settings, self.SETTING_NAME):
+            for ext_item in self.extension_supported():
+                if self.doccontainer.name.endswith('.' + ext_item):
+                    return True
+        return False
+
+    @property
+    def client(self):
+        return self._client
 
     def get_iframe(self):
         return "{[iframe]}{[/iframe]}"
@@ -74,24 +97,11 @@ class DocEditor(object):
 
 class EtherPadEditor(DocEditor):
 
-    def __init__(self, root_url, doccontainer):
-        DocEditor.__init__(self, root_url, doccontainer)
-        self._client = None
-        self._groupid = None
-        if hasattr(settings, 'ETHERPAD'):
-            self.params = settings.ETHERPAD
-        else:
-            self.params = None
-
-    @property
-    def padid(self):
-        md5res = md5()
-        md5res.update(self.root_url.encode())
-        return '%s-%s' % (md5res.hexdigest(), self.doccontainer.name)
+    SETTING_NAME = "ETHERPAD"
 
     @classmethod
     def extension_supported(cls):
-        if hasattr(settings, 'ETHERPAD') and ('url' in settings.ETHERPAD) and ('apikey' in settings.ETHERPAD):
+        if ('url' in settings.ETHERPAD) and ('apikey' in settings.ETHERPAD):
             try:
                 cls('', None).client.checkToken()
                 return ('txt', 'html')
@@ -107,27 +117,27 @@ class EtherPadEditor(DocEditor):
         return self._client
 
     def get_iframe(self):
-        return '{[iframe name="embed_readwrite" src="%s/p/%s" width="100%%" height="450"]}{[/iframe]}' % (self.params['url'], self.padid)
+        return '{[iframe name="embed_readwrite" src="%s/p/%s" width="100%%" height="450"]}{[/iframe]}' % (self.params['url'], self.docid)
 
     def close(self):
-        if self.padid in self.client.listAllPads()['padIDs']:
-            self.client.deletePad(padID=self.padid)
+        if self.docid in self.client.listAllPads()['padIDs']:
+            self.client.deletePad(padID=self.docid)
 
     def send_content(self):
         pad_ids = self.client.listAllPads()['padIDs']
-        if not (self.padid in pad_ids):
-            self.client.createPad(padID=self.padid, padName=self.doccontainer.name)
+        if not (self.docid in pad_ids):
+            self.client.createPad(padID=self.docid, padName=self.doccontainer.name)
         file_ext = self.doccontainer.name.split('.')[-1]
 
         content = self.doccontainer.content.read()
         if content != b'':
             if file_ext == 'html':
-                self.client.setHTML(padID=self.padid, html=content.decode())
+                self.client.setHTML(padID=self.docid, html=content.decode())
             else:
-                self.client.setText(padID=self.padid, text=content.decode())
+                self.client.setText(padID=self.docid, text=content.decode())
 
     def load_export(self, export_type):
-        url = "%s/p/%s/export/%s" % (self.params['url'], self.padid, export_type)
+        url = "%s/p/%s/export/%s" % (self.params['url'], self.docid, export_type)
         return urlopen(url, timeout=self.client.timeout).read()
 
     def save_content(self):
@@ -135,6 +145,55 @@ class EtherPadEditor(DocEditor):
         if file_ext == 'etherpad':
             self.doccontainer.content = self.load_export('etherpad')
         elif file_ext == 'html':
-            self.doccontainer.content = self.client.getHTML(padID=self.padid)['html']
+            self.doccontainer.content = self.client.getHTML(padID=self.docid)['html']
         else:  # text
-            self.doccontainer.content = self.client.getText(padID=self.padid)['text']
+            self.doccontainer.content = self.client.getText(padID=self.docid)['text']
+
+
+class EtherCalcEditor(DocEditor):
+
+    SETTING_NAME = "ETHERCALC"
+
+    @classmethod
+    def extension_supported(cls):
+        if hasattr(settings, 'ETHERCALC') and ('url' in settings.ETHERCALC):
+            try:
+                cls('', None).client.get('')
+                return ('csv', 'xlsx', 'ods')
+            except ConnectionError:
+                pass
+        return ()
+
+    @property
+    def client(self):
+        if self._client is None:
+            self._client = EtherCalc(url_root='%s' % self.params['url'])
+        return self._client
+
+    @property
+    def docid(self):
+        doc_id = super(EtherCalcEditor, self).docid
+        file_ext = self.doccontainer.name.split('.')[-1]
+        if file_ext in ('xlsx', 'ods'):
+            doc_id = "=" + doc_id
+        return doc_id
+
+    def get_iframe(self):
+        return '{[iframe name="embed_readwrite" src="%s/%s" width="100%%" height="450"]}{[/iframe]}' % (self.params['url'], self.docid)
+
+    def send_content(self):
+        file_ext = self.doccontainer.name.split('.')[-1]
+        if not self.client.is_exist(self.docid):
+            self.client.new(self.docid)
+        content = self.doccontainer.content.read()
+        if content != b'':
+            self.client.update(content, file_ext, self.docid)
+
+    def close(self):
+        if self.client.is_exist(self.docid):
+            self.client.delete(self.docid)
+
+    def save_content(self):
+        if self.client.is_exist(self.docid):
+            file_ext = self.doccontainer.name.split('.')[-1]
+            self.doccontainer.content = self.client.export(self.docid, file_ext)

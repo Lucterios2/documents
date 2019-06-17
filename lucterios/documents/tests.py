@@ -132,6 +132,8 @@ class DocumentTest(LucteriosTest):
         LucteriosTest.setUp(self)
         if hasattr(settings, "ETHERPAD"):
             settings.ETHERPAD = {}
+        if hasattr(settings, "ETHERCALC"):
+            settings.ETHERCALC = {}
 
         rmtree(get_user_dir(), True)
         default_groups()
@@ -316,14 +318,14 @@ class DocumentTest(LucteriosTest):
                               '{"code": 0, "message":"ok", "data": null}'])
             editor = new_doc.get_doc_editors()
             editor.root_url = 'http://testserver'
-            self.assertEqual(editor.padid, 'edb6edba72798a8d49e95bf2f107ea10-aa.bb.txt')
+            self.assertEqual(editor.docid, 'edb6edba72798a8d49e95bf2f107ea10-5')
             json_test = editor.load_export('txt').decode('utf-8')
             self.assertEqual(json_test, '{"code": 0, "message":"ok", "data": null}')
             self.assertEqual(json.loads(json_test), {'code': 0, 'message': "ok", 'data': None})
             self.assertEqual(TestMoke.results, [])
             self.assertEqual(len(TestMoke.requests), 2)
             self.assertEqual(TestMoke.requests[0], ('/api/1.2.13/checkToken', {'apikey': ['abc123']}))
-            self.assertEqual(TestMoke.requests[1], '/p/edb6edba72798a8d49e95bf2f107ea10-aa.bb.txt/export/txt')
+            self.assertEqual(TestMoke.requests[1], '/p/edb6edba72798a8d49e95bf2f107ea10-5/export/txt')
 
             TestMoke.initial(['{"code": 0, "message":"ok", "data": null}',
                               '{"code": 0, "message":"ok", "data": {"padIDs":[]}}',
@@ -337,7 +339,7 @@ class DocumentTest(LucteriosTest):
             self.assertEqual(TestMoke.requests[1], ('/api/1.2.13/listAllPads', {'apikey': ['abc123']}))
             self.assertEqual(TestMoke.requests[2], ('/api/1.2.13/createPad', {'apikey': ['abc123'],
                                                                               'padName': ['aa.bb.txt'],
-                                                                              'padID': ['edb6edba72798a8d49e95bf2f107ea10-aa.bb.txt']}))
+                                                                              'padID': ['edb6edba72798a8d49e95bf2f107ea10-5']}))
 
             TestMoke.initial(['{"code": 0, "message":"ok", "data": null}',
                               '{"code": 0, "message":"ok", "data": {"text":"blablabla"}}'])
@@ -348,10 +350,10 @@ class DocumentTest(LucteriosTest):
             self.assertEqual(len(TestMoke.requests), 2)
             self.assertEqual(TestMoke.requests[0], ('/api/1.2.13/checkToken', {'apikey': ['abc123']}))
             self.assertEqual(TestMoke.requests[1], ('/api/1.2.13/getText', {'apikey': ['abc123'],
-                                                                            'padID': ['edb6edba72798a8d49e95bf2f107ea10-aa.bb.txt']}))
+                                                                            'padID': ['edb6edba72798a8d49e95bf2f107ea10-5']}))
 
             TestMoke.initial(['{"code": 0, "message":"ok", "data": null}',
-                              '{"code": 0, "message":"ok", "data": {"padIDs":["edb6edba72798a8d49e95bf2f107ea10-aa.bb.txt"]}}',
+                              '{"code": 0, "message":"ok", "data": {"padIDs":["edb6edba72798a8d49e95bf2f107ea10-5"]}}',
                               '{"code": 0, "message":"ok", "data": null}'])
             self.factory.xfer = DocumentEditor()
             self.calljson('/lucterios.documents/documentEditor', {'document': 5, 'CLOSE': 'YES'}, False)
@@ -361,7 +363,88 @@ class DocumentTest(LucteriosTest):
             self.assertEqual(TestMoke.requests[0], ('/api/1.2.13/checkToken', {'apikey': ['abc123']}))
             self.assertEqual(TestMoke.requests[1], ('/api/1.2.13/listAllPads', {'apikey': ['abc123']}))
             self.assertEqual(TestMoke.requests[2], ('/api/1.2.13/deletePad', {'apikey': ['abc123'],
-                                                                              'padID': ['edb6edba72798a8d49e95bf2f107ea10-aa.bb.txt']}))
+                                                                              'padID': ['edb6edba72798a8d49e95bf2f107ea10-5']}))
+        finally:
+            httpd.shutdown()
+
+    def test_create_calc(self):
+        port = find_free_port()
+        settings.ETHERCALC = {'url': 'http://localhost:%d' % port}
+
+        self.factory.xfer = ContainerList()
+        self.calljson('/lucterios.documents/containerList', {}, False)
+        self.assert_observer('core.custom', 'lucterios.documents', 'containerList')
+        self.assert_count_equal('', 9)
+        self.assert_count_equal('container', 2)
+        self.assert_count_equal("#container/actions", 3)
+
+        TestMoke.content_type = "application/json"
+        httpd = TestHTTPServer(('localhost', port))
+        httpd.start()
+        try:
+            TestMoke.initial([''])
+            self.factory.xfer = ContainerList()
+            self.calljson('/lucterios.documents/containerList', {}, False)
+            self.assert_observer('core.custom', 'lucterios.documents', 'containerList')
+            self.assert_count_equal('', 9)
+            self.assert_count_equal('container', 2)
+            self.assert_count_equal("#container/actions", 4)
+            self.assertEqual(TestMoke.results, [])
+            self.assertEqual(len(TestMoke.requests), 1)
+            self.assertEqual(TestMoke.requests[0], '/')
+
+            TestMoke.initial([''])
+            self.factory.xfer = ContainerAddFile()
+            self.calljson('/lucterios.documents/containerAddFile', {}, False)
+            self.assert_observer('core.custom', 'lucterios.documents', 'containerAddFile')
+            self.assert_count_equal('', 5)
+            self.assert_select_equal('docext', {'csv': 'csv', 'xlsx': 'xlsx', 'ods': 'ods'})  # nb=3
+            self.assertEqual(TestMoke.results, [])
+            self.assertEqual(len(TestMoke.requests), 1)
+            self.assertEqual(TestMoke.requests[0], '/')
+
+            self.factory.xfer = ContainerAddFile()
+            self.calljson('/lucterios.documents/containerAddFile', {'name': 'aa.bb.cc', 'docext': 'csv', 'description': 'blablabla', 'CONFIRME': 'YES'}, False)
+            self.assert_observer('core.acknowledge', 'lucterios.documents', 'containerAddFile')
+            self.assertEqual(self.response_json['action']['id'], "lucterios.documents/documentEditor")
+            self.assertEqual(len(self.response_json['action']['params']), 1)
+            self.assertEqual(self.response_json['action']['params']['document'], 5)
+
+            new_doc = DocumentContainer.objects.get(id=5)
+            self.assertEqual(new_doc.parent_id, None)
+            self.assertEqual(new_doc.name, 'aa.bb.csv')
+            self.assertEqual(new_doc.description, "blablabla")
+            self.assertTrue(exists(get_user_path('documents', 'container_5')))
+
+            TestMoke.initial(['', 'false', ''])
+            self.factory.xfer = DocumentEditor()
+            self.calljson('/lucterios.documents/documentEditor', {'document': 5}, False)
+            self.assert_observer('core.custom', 'lucterios.documents', 'documentEditor')
+            self.assertEqual(TestMoke.results, [])
+            self.assertEqual(len(TestMoke.requests), 3)
+            self.assertEqual(TestMoke.requests[0], '/')
+            self.assertEqual(TestMoke.requests[1], '/_exists/edb6edba72798a8d49e95bf2f107ea10-5')
+            self.assertEqual(TestMoke.requests[2], ('PUT', '/_/edb6edba72798a8d49e95bf2f107ea10-5', {}))
+
+            TestMoke.initial(['', 'true', ''])
+            self.factory.xfer = DocumentEditor()
+            self.calljson('/lucterios.documents/documentEditor', {'document': 5, 'SAVE': 'YES'}, False)
+            self.assert_observer('core.acknowledge', 'lucterios.documents', 'documentEditor')
+            self.assertEqual(TestMoke.results, [])
+            self.assertEqual(len(TestMoke.requests), 3)
+            self.assertEqual(TestMoke.requests[0], '/')
+            self.assertEqual(TestMoke.requests[1], '/_exists/edb6edba72798a8d49e95bf2f107ea10-5')
+            self.assertEqual(TestMoke.requests[2], '/edb6edba72798a8d49e95bf2f107ea10-5.csv')
+
+            TestMoke.initial(['', 'true', ''])
+            self.factory.xfer = DocumentEditor()
+            self.calljson('/lucterios.documents/documentEditor', {'document': 5, 'CLOSE': 'YES'}, False)
+            self.assert_observer('core.acknowledge', 'lucterios.documents', 'documentEditor')
+            self.assertEqual(TestMoke.results, [])
+            self.assertEqual(len(TestMoke.requests), 3)
+            self.assertEqual(TestMoke.requests[0], '/')
+            self.assertEqual(TestMoke.requests[1], '/_exists/edb6edba72798a8d49e95bf2f107ea10-5')
+            self.assertEqual(TestMoke.requests[2], ('DELETE', '/_/edb6edba72798a8d49e95bf2f107ea10-5'))
         finally:
             httpd.shutdown()
 

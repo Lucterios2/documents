@@ -120,24 +120,39 @@ class TestMoke(BaseHTTPRequestHandler):
         TestMoke.requests.append(self.path)
         self.response()
 
-    def do_POST(self):
-        """Respond to a POST request."""
+    def do_DELETE(self):
+        """Respond to a DELETE request."""
+        TestMoke.requests.append(('DELETE', self.path))
+        self.response()
+
+    def get_request_fields(self):
         ctype, pdict = parse_header(self.headers['content-type'])
         if ctype == 'multipart/form-data':
-            postvars = parse_multipart(self.rfile, pdict)
+            requestvars = parse_multipart(self.rfile, pdict)
         elif ctype == 'application/x-www-form-urlencoded':
             length = int(self.headers['content-length'])
-            postvars = parse_qs(self.rfile.read(length), keep_blank_values=1)
+            requestvars = parse_qs(self.rfile.read(length), keep_blank_values=1)
         else:
-            postvars = {}
-        post_field = {}
-        for key, value in postvars.items():
+            requestvars = {}
+        request_field = {}
+        for key, value in requestvars.items():
             if isinstance(value, six.binary_type):
                 value = value.decode()
             elif isinstance(value, list):
                 value = [item.decode() for item in value]
-            post_field[key.decode()] = value
+            request_field[key.decode()] = value
+        return request_field
+
+    def do_POST(self):
+        """Respond to a POST request."""
+        post_field = self.get_request_fields()
         TestMoke.requests.append((self.path, post_field))
+        self.response()
+
+    def do_PUT(self):
+        """Respond to a PUT request."""
+        put_field = self.get_request_fields()
+        TestMoke.requests.append(('PUT', self.path, put_field))
         self.response()
 
     def response(self):
