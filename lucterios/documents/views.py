@@ -460,7 +460,6 @@ class ContainerList(XferListEditor):
 
         self.fill_from_model(0, last_row + 3, False)
         self.remove_component('parent')
-        self.remove_component('description')
 
         btn_doc = XferCompButton('adddoc')
         btn_doc.set_location(1, last_row + 4)
