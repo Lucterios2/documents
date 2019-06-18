@@ -170,14 +170,6 @@ class EtherCalcEditor(DocEditor):
             self._client = EtherCalc(url_root='%s' % self.params['url'])
         return self._client
 
-    @property
-    def docid(self):
-        doc_id = super(EtherCalcEditor, self).docid
-        file_ext = self.doccontainer.name.split('.')[-1]
-        if file_ext in ('xlsx', 'ods'):
-            doc_id = "=" + doc_id
-        return doc_id
-
     def get_iframe(self):
         return '{[iframe name="embed_readwrite" src="%s/%s" width="100%%" height="450"]}{[/iframe]}' % (self.params['url'], self.docid)
 
