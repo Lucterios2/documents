@@ -8,5 +8,6 @@ Aide relative aux fonctionnalités de gestion documentaire.
 
    shared_document.rst
    configuration.rst
+   editor.rst
 
 
