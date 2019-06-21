@@ -24,9 +24,10 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 from hashlib import md5
-from urllib.request import urlopen
 from urllib.error import URLError
+from urllib import request
 from requests.exceptions import ConnectionError
+from logging import getLogger
 
 from django.conf import settings
 
@@ -95,18 +96,41 @@ class DocEditor(object):
         pass
 
 
+def disabled_ssl():
+    def decorator(fn):
+        def wrapper(*args, **kw):
+            request._opener = EtherPadEditor.OPENER
+            try:
+                return fn(*args, **kw)
+            finally:
+                request._opener = None
+        return wrapper
+    return decorator
+
+
 class EtherPadEditor(DocEditor):
 
     SETTING_NAME = "ETHERPAD"
+
+    OPENER = None
+
+    @classmethod
+    def init_no_ssl(cls):
+        from ssl import create_default_context
+        from _ssl import CERT_NONE
+        no_check_ssl = create_default_context()
+        no_check_ssl.check_hostname = False
+        no_check_ssl.verify_mode = CERT_NONE
+        EtherPadEditor.OPENER = request.build_opener(request.HTTPSHandler(context=no_check_ssl))
 
     @classmethod
     def extension_supported(cls):
         if ('url' in settings.ETHERPAD) and ('apikey' in settings.ETHERPAD):
             try:
-                cls('', None).client.checkToken()
+                cls('', None).check_token()
                 return ('txt', 'html')
-            except (URLError, EtherpadException):
-                pass
+            except (URLError, EtherpadException) as con_err:
+                getLogger('lucterios.documents').debug('extension_supported error=%s', con_err)
         return ()
 
     @property
@@ -119,10 +143,16 @@ class EtherPadEditor(DocEditor):
     def get_iframe(self):
         return '{[iframe name="embed_readwrite" src="%s/p/%s" width="100%%" height="450"]}{[/iframe]}' % (self.params['url'], self.docid)
 
+    @disabled_ssl()
+    def check_token(self):
+        return self.client.checkToken()
+
+    @disabled_ssl()
     def close(self):
         if self.docid in self.client.listAllPads()['padIDs']:
             self.client.deletePad(padID=self.docid)
 
+    @disabled_ssl()
     def send_content(self):
         pad_ids = self.client.listAllPads()['padIDs']
         if not (self.docid in pad_ids):
@@ -136,10 +166,12 @@ class EtherPadEditor(DocEditor):
             else:
                 self.client.setText(padID=self.docid, text=content.decode())
 
+    @disabled_ssl()
     def load_export(self, export_type):
         url = "%s/p/%s/export/%s" % (self.params['url'], self.docid, export_type)
-        return urlopen(url, timeout=self.client.timeout).read()
+        return request.urlopen(url, timeout=self.client.timeout).read()
 
+    @disabled_ssl()
     def save_content(self):
         file_ext = self.doccontainer.name.split('.')[-1]
         if file_ext == 'etherpad':
@@ -148,6 +180,10 @@ class EtherPadEditor(DocEditor):
             self.doccontainer.content = self.client.getHTML(padID=self.docid)['html']
         else:  # text
             self.doccontainer.content = self.client.getText(padID=self.docid)['text']
+
+
+if EtherPadEditor.OPENER is None:
+    EtherPadEditor.init_no_ssl()
 
 
 class EtherCalcEditor(DocEditor):
@@ -160,8 +196,8 @@ class EtherCalcEditor(DocEditor):
             try:
                 cls('', None).client.get('')
                 return ('csv', 'xlsx', 'ods')
-            except ConnectionError:
-                pass
+            except ConnectionError as con_err:
+                getLogger('lucterios.documents').debug('extension_supported error=%s', con_err)
         return ()
 
     @property

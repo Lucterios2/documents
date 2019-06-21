@@ -44,26 +44,26 @@ class EtherCalc(object):
         self.root = url_root
 
     def get(self, cmd):
-        r = requests.get(self.root + "/" + cmd)
+        r = requests.get(self.root + "/" + cmd, verify=False)
         r.raise_for_status()
         getLogger('ethercalc').debug('GET %s -> %s', r.url, r.content)
         return r
 
     def post(self, calc_id, data, content_type):
-        r = requests.post(self.root + "/_" + calc_id, data=data, headers={"Content-Type": content_type})
+        r = requests.post(self.root + "/_" + calc_id, data=data, headers={"Content-Type": content_type}, verify=False)
         r.raise_for_status()
         getLogger('ethercalc').debug('POST %s (%s) -> %s', r.url, content_type, r.content)
         return r
 
     def put(self, calc_id, data, content_type):
         r = requests.put(self.root + "/_" + calc_id, data=data,
-                         headers={"Content-Type": content_type})
+                         headers={"Content-Type": content_type}, verify=False)
         r.raise_for_status()
         getLogger('ethercalc').debug('PUT %s (%s) -> %s', r.url, content_type, r.content)
         return r
 
     def delete(self, calc_id):
-        r = requests.delete(self.root + "/_/" + calc_id)
+        r = requests.delete(self.root + "/_/" + calc_id, verify=False)
         r.raise_for_status()
         getLogger('ethercalc').debug('DELETE %s -> %s', r.url, r.content)
         return r
