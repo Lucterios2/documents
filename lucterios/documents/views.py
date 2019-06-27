@@ -305,7 +305,7 @@ def file_createnew_condition(xfer, gridname=''):
         return False
 
 
-@ActionsManage.affect_grid(_('File'), "images/add.png", condition=file_createnew_condition)
+@ActionsManage.affect_grid(_('File'), "images/new.png", condition=file_createnew_condition)
 @MenuManage.describ('documents.add_document')
 class ContainerAddFile(XferContainerAcknowledge):
     caption = _("Create document")
