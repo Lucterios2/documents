@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-14 15:40+0000\n"
+"POT-Creation-Date: 2019-07-01 13:52+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,11 +17,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: __init__.py:42 views.py:604
+#: __init__.py:42 views.py:606
 msgid "Lucterios documents"
 msgstr "Lucterios documents"
 
-#: editors.py:53 editors.py:85
+#: editors.py:68 editors.py:85
 msgid "File not found!"
 msgstr "File not found!"
 
@@ -154,19 +154,21 @@ msgstr "Office"
 msgid "Office tools"
 msgstr "Office tools"
 
-#: views.py:212 views.py:381
-msgid "Documents"
+#: views.py:212
+#, fuzzy
+#| msgid "Document management"
+msgid "Documents management"
 msgstr "Document management"
 
 #: views.py:212
 msgid "Documents storage tools"
 msgstr "Documents storage tools"
 
-#: views.py:218 views.py:229 views.py:372
+#: views.py:218 views.py:229 views.py:375
 msgid "No allow to view!"
 msgstr "Not allowed to display !"
 
-#: views.py:242 views.py:455
+#: views.py:242 views.py:458
 msgid "Add document"
 msgstr "Add document"
 
@@ -174,7 +176,7 @@ msgstr "Add document"
 msgid "Modify document"
 msgstr "Modify document"
 
-#: views.py:247 views.py:374
+#: views.py:247 views.py:377
 msgid "No allow to write!"
 msgstr "Not allowed to write !"
 
@@ -202,71 +204,75 @@ msgstr "File"
 msgid "Create document"
 msgstr "Create document"
 
-#: views.py:348
+#: views.py:351
 msgid "document type"
 msgstr "document type"
 
-#: views.py:357
+#: views.py:360
 msgid "Delete document"
 msgstr "Delete document"
 
-#: views.py:369
+#: views.py:372
 msgid "No allow to delete folder!"
 msgstr "No allow to delete folder!"
 
-#: views.py:379
+#: views.py:382
 msgid "Management of documents"
 msgstr "Management of documents"
 
-#: views.py:420
+#: views.py:384
+msgid "Documents"
+msgstr "Document management"
+
+#: views.py:423
 msgid "current folder:"
 msgstr "current folder:"
 
-#: views.py:504
+#: views.py:506
 msgid "To find a document following a set of criteria."
 msgstr "To find a document following a set of criteria."
 
-#: views.py:506
+#: views.py:508
 msgid "Document search"
 msgstr "Document search"
 
-#: views.py:525
+#: views.py:527
 msgid "Select"
 msgstr "Select"
 
-#: views.py:529
+#: views.py:531
 msgid "delete shared link"
 msgstr "delete shared link"
 
-#: views.py:530
+#: views.py:532
 msgid "create shared link"
 msgstr "create shared link"
 
-#: views.py:547
+#: views.py:549
 msgid "Download document"
 msgstr "Download document"
 
-#: views.py:561
+#: views.py:563
 msgid "File not found !"
 msgstr "File not found !"
 
-#: views.py:574
+#: views.py:576
 msgid "Document management"
 msgstr "Document management"
 
-#: views.py:584
+#: views.py:586
 msgid "no file currently available"
 msgstr "no file currently available"
 
-#: views.py:586
+#: views.py:588
 msgid "one file currently available"
 msgstr "one file currently available"
 
-#: views.py:588
+#: views.py:590
 #, python-format
 msgid "%d files currently available"
 msgstr "%d files currently available"
 
-#: views.py:604
+#: views.py:606
 msgid "Parameters"
 msgstr "Parameters"

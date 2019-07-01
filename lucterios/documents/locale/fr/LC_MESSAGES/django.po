@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-14 15:40+0000\n"
+"POT-Creation-Date: 2019-07-01 13:52+0000\n"
 "PO-Revision-Date: 2016-01-14 21:49+0000\n"
 "Last-Translator: b'Paul ARULATEDA <paul531@orange.fr>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,11 +19,11 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Translated-Using: django-rosetta 0.7.8\n"
 
-#: __init__.py:42 views.py:604
+#: __init__.py:42 views.py:606
 msgid "Lucterios documents"
 msgstr "Documents Lucterios "
 
-#: editors.py:53 editors.py:85
+#: editors.py:68 editors.py:85
 msgid "File not found!"
 msgstr "Fichier non trouvé !"
 
@@ -154,21 +154,24 @@ msgstr "Bureautique"
 
 #: views.py:209
 msgid "Office tools"
-msgstr "Outils bureautiques"
+msgstr "Ensemble d'outils de gestion génériques"
 
-#: views.py:212 views.py:381
-msgid "Documents"
-msgstr "Documents"
+#: views.py:212
+msgid "Documents management"
+msgstr "Gestion de fichiers et de documents"
 
 #: views.py:212
 msgid "Documents storage tools"
-msgstr "Outils de stockage de documents"
+msgstr ""
+"Ensemble d'actions permettant une gestion documentaire électronique.{[br/]}"
+"Vous avez la possibilité ici de stocker de façon centraliser des fichiers, "
+"de les consulter et de les modifier."
 
-#: views.py:218 views.py:229 views.py:372
+#: views.py:218 views.py:229 views.py:375
 msgid "No allow to view!"
 msgstr "Visualisation non autorisée !"
 
-#: views.py:242 views.py:455
+#: views.py:242 views.py:458
 msgid "Add document"
 msgstr "Ajouter un document"
 
@@ -176,7 +179,7 @@ msgstr "Ajouter un document"
 msgid "Modify document"
 msgstr "Modifier le document"
 
-#: views.py:247 views.py:374
+#: views.py:247 views.py:377
 msgid "No allow to write!"
 msgstr "Écriture non autorisée !"
 
@@ -204,71 +207,75 @@ msgstr "Fichier"
 msgid "Create document"
 msgstr "Créer un document"
 
-#: views.py:348
+#: views.py:351
 msgid "document type"
 msgstr "type de document"
 
-#: views.py:357
+#: views.py:360
 msgid "Delete document"
 msgstr "Supprimer le document"
 
-#: views.py:369
+#: views.py:372
 msgid "No allow to delete folder!"
 msgstr "Suppression de dossier non autorisée !"
 
-#: views.py:379
+#: views.py:382
 msgid "Management of documents"
 msgstr "Gestion de documents"
 
-#: views.py:420
+#: views.py:384
+msgid "Documents"
+msgstr "Documents"
+
+#: views.py:423
 msgid "current folder:"
 msgstr "dossier courant"
 
-#: views.py:504
+#: views.py:506
 msgid "To find a document following a set of criteria."
 msgstr "Pour trouver un document suivant un ensemble de critères."
 
-#: views.py:506
+#: views.py:508
 msgid "Document search"
 msgstr "Recherche de document"
 
-#: views.py:525
+#: views.py:527
 msgid "Select"
 msgstr "Sélection"
 
-#: views.py:529
+#: views.py:531
 msgid "delete shared link"
 msgstr "supprimer le lien partagé"
 
-#: views.py:530
+#: views.py:532
 msgid "create shared link"
 msgstr "créer le lien partagé"
 
-#: views.py:547
+#: views.py:549
 msgid "Download document"
 msgstr "Télécharger le document"
 
-#: views.py:561
+#: views.py:563
 msgid "File not found !"
 msgstr "Fichier non trouvé !"
 
-#: views.py:574
+#: views.py:576
 msgid "Document management"
 msgstr "Gestion documentaire"
 
-#: views.py:584
+#: views.py:586
 msgid "no file currently available"
 msgstr "aucun fichier actuellement accessible"
 
-#: views.py:586
+#: views.py:588
 msgid "one file currently available"
 msgstr "un fichier actuellement accessible"
 
-#: views.py:588
+#: views.py:590
 #, python-format
 msgid "%d files currently available"
 msgstr "%d fichiers actuellement accessibles"
 
-#: views.py:604
+#: views.py:606
 msgid "Parameters"
 msgstr "Paramètres"

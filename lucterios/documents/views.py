@@ -209,7 +209,7 @@ if not apps.is_installed("lucterios.contacts"):
     MenuManage.add_sub("office", None, "lucterios.documents/images/office.png", _("Office"), _("Office tools"), 70)
 
 MenuManage.add_sub("documents.actions", "office", "lucterios.documents/images/document.png",
-                   _("Documents"), _("Documents storage tools"), 80)
+                   _("Documents management"), _("Documents storage tools"), 80)
 
 
 def docshow_modify_condition(xfer):
