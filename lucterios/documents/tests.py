@@ -160,7 +160,7 @@ class DocumentTest(LucteriosTest):
         self.assert_count_equal("#container/actions", 3)
 
         self.assert_json_equal('LABELFORM', 'title_folder', ">")
-        self.assert_json_equal('LABELFORM', 'desc_folder', '{[center]}{[i]}{[/i]}{[/center]}')
+        self.assert_json_equal('LABELFORM', 'desc_folder', '')
 
         self.factory.xfer = ContainerList()
         self.calljson('/lucterios.documents/containerList', {"container": "1"}, False)
@@ -168,7 +168,7 @@ class DocumentTest(LucteriosTest):
         self.assert_count_equal('', 7)
         self.assert_count_equal('container', 0)
         self.assert_json_equal('LABELFORM', 'title_folder', ">truc1")
-        self.assert_json_equal('LABELFORM', 'desc_folder', "{[center]}{[i]}blabla{[/i]}{[/center]}")
+        self.assert_json_equal('LABELFORM', 'desc_folder', "blabla")
         self.assert_count_equal("#container/actions", 2)
 
         self.factory.xfer = ContainerList()
@@ -178,7 +178,7 @@ class DocumentTest(LucteriosTest):
         self.assert_count_equal('container', 1)
         self.assert_count_equal("#container/actions", 3)
         self.assert_json_equal('LABELFORM', 'title_folder', ">truc2")
-        self.assert_json_equal('LABELFORM', 'desc_folder', "{[center]}{[i]}bouuuuu!{[/i]}{[/center]}")
+        self.assert_json_equal('LABELFORM', 'desc_folder', "bouuuuu!")
 
         self.factory.xfer = ContainerList()
         self.calljson('/lucterios.documents/containerList', {"container": "3"}, False)
@@ -186,7 +186,7 @@ class DocumentTest(LucteriosTest):
         self.assert_count_equal('', 7)
         self.assert_count_equal('container', 0)
         self.assert_json_equal('LABELFORM', 'title_folder', ">truc2>truc3")
-        self.assert_json_equal('LABELFORM', 'desc_folder', "{[center]}{[i]}----{[/i]}{[/center]}")
+        self.assert_json_equal('LABELFORM', 'desc_folder', "----")
         self.assert_count_equal("#container/actions", 2)
 
     def test_add(self):
@@ -236,10 +236,10 @@ class DocumentTest(LucteriosTest):
         self.assert_comp_equal(('LABELFORM', 'name'), "doc1.png", (1, 0, 2, 1))
         self.assert_comp_equal(('LABELFORM', 'parent'), ">truc2", (1, 1, 2, 1))
         self.assert_comp_equal(('LABELFORM', 'description'), "doc 1", (1, 2, 2, 1))
-        self.assert_comp_equal(('LABELFORM', 'modifier'), '---', (1, 3, 1, 1))
-        self.assert_comp_equal(('LABELFORM', 'date_modification'), formats.date_format(current_date, "DATETIME_FORMAT"), (2, 3, 1, 1))
+        self.assert_comp_equal(('LABELFORM', 'modifier'), None, (1, 3, 1, 1))
+        self.assert_comp_equal(('LABELFORM', 'date_modification'), current_date.isoformat(), (2, 3, 1, 1), (0, 22))
         self.assert_comp_equal(('LABELFORM', 'creator'), "empty", (1, 4, 1, 1))
-        self.assert_comp_equal(('LABELFORM', 'date_creation'), formats.date_format(current_date, "DATETIME_FORMAT"), (2, 4, 1, 1))
+        self.assert_comp_equal(('LABELFORM', 'date_creation'), current_date.isoformat(), (2, 4, 1, 1), (0, 22))
         self.assertEqual(len(self.json_actions), 3)
 
         self.factory.xfer = DocumentAddModify()
@@ -456,13 +456,13 @@ class DocumentTest(LucteriosTest):
         self.assert_json_equal('', "container/@0/id", "3")
         self.assert_json_equal('', "container/@0/name", "truc3")
         self.assert_json_equal('', "container/@0/description", "----")
-        self.assert_json_equal('', "container/@0/date_modif", "---")
-        self.assert_json_equal('', "container/@0/modif", "---")
+        self.assert_json_equal('', "container/@0/date_modif", None)
+        self.assert_json_equal('', "container/@0/modif", None)
         self.assert_json_equal('', "container/@1/id", "5")
         self.assert_json_equal('', "container/@1/name", "doc1.png")
         self.assert_json_equal('', "container/@1/description", "doc 1")
-        self.assert_json_equal('', "container/@1/date_modif", six.text_type(current_date))
-        self.assert_json_equal('', "container/@1/modif", "---")
+        self.assert_json_equal('', "container/@1/date_modif", current_date.isoformat()[:23], True)
+        self.assert_json_equal('', "container/@1/modif", None)
 
         self.assertTrue(exists(get_user_path('documents', 'container_5')))
 
@@ -487,10 +487,10 @@ class DocumentTest(LucteriosTest):
         self.assert_comp_equal(('LABELFORM', 'name'), "doc2.png", (1, 0, 2, 1))
         self.assert_comp_equal(('LABELFORM', 'parent'), ">truc1", (1, 1, 2, 1))
         self.assert_comp_equal(('LABELFORM', 'description'), "doc 2", (1, 2, 2, 1))
-        self.assert_comp_equal(('LABELFORM', 'modifier'), '---', (1, 3, 1, 1))
-        self.assert_comp_equal(('LABELFORM', 'date_modification'), formats.date_format(current_date, "DATETIME_FORMAT"), (2, 3, 1, 1))
+        self.assert_comp_equal(('LABELFORM', 'modifier'), None, (1, 3, 1, 1))
+        self.assert_comp_equal(('LABELFORM', 'date_modification'), current_date.isoformat(), (2, 3, 1, 1), (0, 22))
         self.assert_comp_equal(('LABELFORM', 'creator'), "empty", (1, 4, 1, 1))
-        self.assert_comp_equal(('LABELFORM', 'date_creation'), formats.date_format(current_date, "DATETIME_FORMAT"), (2, 4, 1, 1))
+        self.assert_comp_equal(('LABELFORM', 'date_creation'), current_date.isoformat(), (2, 4, 1, 1), (0, 22))
         self.assertEqual(len(self.json_actions), 2)
 
         self.factory.xfer = DocumentAddModify()
