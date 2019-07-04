@@ -487,7 +487,6 @@ class ContainerList(XferListEditor):
         new_col = obj_doc.col
         new_row = obj_doc.row
         obj_doc.colspan = 2
-        obj_doc.change_type_header('date_modif', 'H')
         self.move_components('container', 0, 2)
         self.fill_current_folder(new_col, new_row)
 

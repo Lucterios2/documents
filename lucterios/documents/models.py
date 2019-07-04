@@ -34,7 +34,7 @@ from django.db import models
 from django.utils import six, timezone
 from django.utils.translation import ugettext_lazy as _
 
-from lucterios.framework.models import LucteriosModel
+from lucterios.framework.models import LucteriosModel, LucteriosVirtualField
 from lucterios.framework.filetools import get_user_path, readimage_to_base64
 from lucterios.framework.signal_and_lock import Signal
 
@@ -48,13 +48,15 @@ class AbstractContainer(LucteriosModel):
     parent = models.ForeignKey('FolderContainer', verbose_name=_('parent'), null=True, on_delete=models.CASCADE)
     name = models.CharField(_('name'), max_length=250, blank=False)
     description = models.TextField(_('description'), blank=True)
+    icon = LucteriosVirtualField(verbose_name='', compute_from='get_icon', format_string='icon')
+    modif = LucteriosVirtualField(verbose_name=_('modifier'), compute_from='get_modif', )
+    date_modif = LucteriosVirtualField(verbose_name=_('date modification'), compute_from='get_date_modif', format_string='H')
 
     @classmethod
     def get_default_fields(cls):
-        return [('', 'icon'), "name", "description", (_('modifier'), "modif"), (_('date modification'), "date_modif")]
+        return ['icon', "name", "description", "modif", "date_modif"]
 
-    @property
-    def icon(self):
+    def get_icon(self):
         if isinstance(self.get_final_child(), FolderContainer):
             icon_name = "folder.png"
         else:
@@ -62,15 +64,13 @@ class AbstractContainer(LucteriosModel):
         img = readimage_to_base64(join(dirname(__file__), "static", 'lucterios.documents', "images", icon_name))
         return img.decode('ascii')
 
-    @property
-    def modif(self):
+    def get_modif(self):
         final_container = self.get_final_child()
         if isinstance(final_container, DocumentContainer):
             return final_container.modifier
         return None
 
-    @property
-    def date_modif(self):
+    def get_date_modif(self):
         final_container = self.get_final_child()
         if isinstance(final_container, DocumentContainer):
             return final_container.date_modification
