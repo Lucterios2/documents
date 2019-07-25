@@ -1,3 +1,16 @@
+.. image:: https://img.shields.io/pypi/djversions/lucterios-documents
+    :target: https://pypi.org/project/lucterios-documents/
+    :alt: Django version
+
+.. image:: https://img.shields.io/pypi/v/lucterios-documents
+    :target: https://pypi.org/project/lucterios-documents/
+    :alt: Latest Version
+
+.. image:: https://img.shields.io/pypi/pyversions/lucterios-documents
+    :target: https://pypi.org/project/pypi/lucterios-documents/
+    :alt: Supported Python versions
+
+
 Documents modules for Lucterios framework
 =========================================
 
