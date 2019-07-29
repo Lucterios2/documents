@@ -41,6 +41,7 @@ from lucterios.framework.signal_and_lock import Signal
 from lucterios.CORE.models import LucteriosGroup, LucteriosUser
 from lucterios.documents.models_legacy import Folder, Document
 from lucterios.documents.doc_editors import DocEditor
+from lucterios.framework.auditlog import auditlog
 
 
 class AbstractContainer(LucteriosModel):
@@ -335,3 +336,9 @@ def migrate_containers(old_parent, new_parent):
 @Signal.decorate('checkparam')
 def documents_checkparam():
     migrate_containers(None, None)
+
+
+@Signal.decorate('auditlog_register')
+def documents_auditlog_register():
+    auditlog.register(FolderContainer, include_fields=["name", "description", "viewer", "modifier"])
+    auditlog.register(DocumentContainer, include_fields=["name", "description", "modif", "date_modif", "sharekey"])
