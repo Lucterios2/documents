@@ -147,11 +147,11 @@ class FolderContainer(AbstractContainer):
         return file_paths
 
     def delete(self):
-        file_paths = self.get_subfiles()
+        sub_containers = list(self.abstractcontainer_set.all())
+        for sub_container in sub_containers:
+            sub_container = sub_container.get_final_child()
+            sub_container.delete()
         LucteriosModel.delete(self)
-        for file_path in file_paths:
-            if isfile(file_path):
-                unlink(file_path)
 
     def import_files(self, dir_to_import, viewers, modifiers, user):
         for filename in listdir(dir_to_import):
