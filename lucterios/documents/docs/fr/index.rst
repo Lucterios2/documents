@@ -7,7 +7,5 @@ Aide relative aux fonctionnalités de gestion documentaire.
    :maxdepth: 2
 
    shared_document.rst
-   configuration.rst
    editor.rst
-
-
+   configuration.rst
