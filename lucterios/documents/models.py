@@ -187,6 +187,13 @@ class FolderContainer(AbstractContainer):
                 makedirs(new_dir_to_extract)
             folder.extract_files(new_dir_to_extract)
 
+    def add_pdf_document(self, title, user, metadata, pdf_content):
+        new_doc = DocumentContainer.objects.create(name='%s.pdf' % title.replace(' ', '_'), description=title, parent=self,
+                                                   creator=user, modifier=user, metadata=metadata,
+                                                   date_creation=timezone.now(), date_modification=timezone.now())
+        new_doc.content = pdf_content
+        return new_doc
+
     class Meta(object):
         verbose_name = _('folder')
         verbose_name_plural = _('folders')
@@ -202,6 +209,7 @@ class DocumentContainer(AbstractContainer):
                                 verbose_name=_('creator'), null=True, on_delete=models.CASCADE)
     date_creation = models.DateTimeField(verbose_name=_('date creation'), null=False)
     sharekey = models.CharField('sharekey', max_length=100, null=True)
+    metadata = models.CharField('metadata', max_length=50, null=True)
 
     @classmethod
     def get_show_fields(cls):
