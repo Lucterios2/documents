@@ -35,7 +35,7 @@ from django.utils import six, timezone
 from django.utils.translation import ugettext_lazy as _
 
 from lucterios.framework.models import LucteriosModel, LucteriosVirtualField
-from lucterios.framework.filetools import get_user_path, readimage_to_base64
+from lucterios.framework.filetools import get_user_path, readimage_to_base64, remove_accent
 from lucterios.framework.signal_and_lock import Signal
 
 from lucterios.CORE.models import LucteriosGroup, LucteriosUser
@@ -188,7 +188,7 @@ class FolderContainer(AbstractContainer):
             folder.extract_files(new_dir_to_extract)
 
     def add_pdf_document(self, title, user, metadata, pdf_content):
-        new_doc = DocumentContainer.objects.create(name='%s.pdf' % title.replace(' ', '_'), description=title, parent=self,
+        new_doc = DocumentContainer.objects.create(name=remove_accent('%s.pdf' % title), description=title.replace('_', ' '), parent=self,
                                                    creator=user, modifier=user, metadata=metadata,
                                                    date_creation=timezone.now(), date_modification=timezone.now())
         new_doc.content = pdf_content
