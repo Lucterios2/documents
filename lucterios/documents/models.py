@@ -174,7 +174,7 @@ class FolderContainer(AbstractContainer):
                 new_folder.import_files(complet_path, viewers, modifiers, user)
 
     def extract_files(self, dir_to_extract):
-        for doc in DocumentContainer.objects.filter(folder_id=self.id):
+        for doc in DocumentContainer.objects.filter(parent_id=self.id):
             if isfile(doc.file_path):
                 try:
                     with ZipFile(doc.file_path, 'r') as zip_ref:
