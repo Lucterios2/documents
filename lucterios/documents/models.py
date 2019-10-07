@@ -341,8 +341,8 @@ def migrate_containers(old_parent, new_parent):
     return nb_folder, nb_doc
 
 
-@Signal.decorate('checkparam')
-def documents_checkparam():
+@Signal.decorate('convertdata')
+def documents_convertdata():
     migrate_containers(None, None)
 
 
