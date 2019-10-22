@@ -26,7 +26,7 @@ from __future__ import unicode_literals
 from os import unlink, listdir, makedirs
 from os.path import isfile, isdir, join, dirname
 from zipfile import ZipFile
-from lucterios.CORE.parameters import notfree_mode_connect
+from lucterios.CORE.parameters import notfree_mode_connect, Params
 from datetime import datetime
 from zipfile import BadZipFile
 
@@ -34,14 +34,17 @@ from django.db import models
 from django.utils import six, timezone
 from django.utils.translation import ugettext_lazy as _
 
-from lucterios.framework.models import LucteriosModel, LucteriosVirtualField
-from lucterios.framework.filetools import get_user_path, readimage_to_base64, remove_accent
+from lucterios.framework.models import LucteriosModel, LucteriosVirtualField,\
+    PrintFieldsPlugIn
+from lucterios.framework.filetools import get_user_path, readimage_to_base64, remove_accent,\
+    BASE64_PREFIX
 from lucterios.framework.signal_and_lock import Signal
+from lucterios.framework.auditlog import auditlog
 
-from lucterios.CORE.models import LucteriosGroup, LucteriosUser
+from lucterios.CORE.models import LucteriosGroup, LucteriosUser, Parameter
 from lucterios.documents.models_legacy import Folder, Document
 from lucterios.documents.doc_editors import DocEditor
-from lucterios.framework.auditlog import auditlog
+from lucterios.framework.tools import get_binay
 
 
 class AbstractContainer(LucteriosModel):
@@ -341,9 +344,52 @@ def migrate_containers(old_parent, new_parent):
     return nb_folder, nb_doc
 
 
+class DefaultDocumentsPrintPlugin(PrintFieldsPlugIn):
+
+    name = "DEFAULT_DOCUMENTS"
+    title = _('default documents')
+
+    doc_list = {'signature': "documents-signature"}
+
+    def get_all_print_fields(self):
+        fields = []
+        for doc_key, doc_value in self.doc_list.items():
+            fields.append(("%s > %s" % (self.title, _(doc_value)), "%s.%s" % (self.name, doc_key)))
+        return fields
+
+    def evaluate(self, text_to_evaluate):
+        from base64 import b64encode
+        value = text_to_evaluate
+        for doc_key, doc_value in self.doc_list.items():
+            if "#%s" % doc_key in value:
+                image_file = Params.getobject(doc_value)
+                if image_file is None:
+                    image_base64 = ""
+                else:
+                    image_base64 = get_binay(BASE64_PREFIX) + b64encode(image_file.content.read())
+                value = value.replace("#%s" % doc_key, image_base64.decode())
+        return value
+
+
+PrintFieldsPlugIn.add_plugin(DefaultDocumentsPrintPlugin)
+
+
 @Signal.decorate('convertdata')
 def documents_convertdata():
     migrate_containers(None, None)
+
+
+@Signal.decorate('checkparam')
+def documents_checkparam():
+    Parameter.check_and_create(name="documents-signature", typeparam=0, title=_("documents-signature"),
+                               args="{'Multi':False}", value='',
+                               meta='("documents","DocumentContainer","django.db.models.Q(name__regex=\'.*\\.jpg|.*\\.png\')", "id", False)')
+
+
+@Signal.decorate('config')
+def config_documents(setting_list):
+    setting_list['60@%s' % _("Document")] = ["documents-signature"]
+    return True
 
 
 @Signal.decorate('auditlog_register')
