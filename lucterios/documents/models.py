@@ -364,7 +364,7 @@ class DefaultDocumentsPrintPlugin(PrintFieldsPlugIn):
             if "#%s" % doc_key in value:
                 image_file = Params.getobject(doc_value)
                 if image_file is None:
-                    image_base64 = ""
+                    image_base64 = b''
                 else:
                     image_base64 = get_binay(BASE64_PREFIX) + b64encode(image_file.content.read())
                 value = value.replace("#%s" % doc_key, image_base64.decode())
