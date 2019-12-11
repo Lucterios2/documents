@@ -59,5 +59,5 @@ setup(
         "lucterios.documents.migrations": ['*'],
         "lucterios.documents": ['build', 'images/*', 'locale/*/*/*', 'help/*'],
     },
-    install_requires=["lucterios ~=2.4", "Pillow ~=6.0", "etherpad-lite ~=0.5", "requests"],
+    install_requires=["lucterios ~=2.4", "etherpad-lite ~=0.5", "requests"],
 )
