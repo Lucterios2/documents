@@ -27,7 +27,8 @@ from os.path import join, dirname
 from zipfile import ZipFile
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from threading import Thread
-from cgi import parse_header, parse_multipart, parse_qs
+from cgi import parse_header, parse_multipart
+from urllib.parse import parse_qs
 
 from django.utils import timezone, six
 
