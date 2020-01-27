@@ -34,17 +34,16 @@ from django.db import models
 from django.utils import six, timezone
 from django.utils.translation import ugettext_lazy as _
 
-from lucterios.framework.models import LucteriosModel, LucteriosVirtualField,\
-    PrintFieldsPlugIn
-from lucterios.framework.filetools import get_user_path, readimage_to_base64, remove_accent,\
-    BASE64_PREFIX
+from lucterios.framework.models import LucteriosModel, LucteriosVirtualField, PrintFieldsPlugIn
+from lucterios.framework.filetools import get_user_path, readimage_to_base64, remove_accent, BASE64_PREFIX
 from lucterios.framework.signal_and_lock import Signal
 from lucterios.framework.auditlog import auditlog
+from lucterios.framework.tools import get_binay
 
 from lucterios.CORE.models import LucteriosGroup, LucteriosUser, Parameter
+
 from lucterios.documents.models_legacy import Folder, Document
 from lucterios.documents.doc_editors import DocEditor
-from lucterios.framework.tools import get_binay
 
 
 class AbstractContainer(LucteriosModel):
@@ -384,6 +383,9 @@ def documents_checkparam():
     Parameter.check_and_create(name="documents-signature", typeparam=0, title=_("documents-signature"),
                                args="{'Multi':False}", value='',
                                meta='("documents","DocumentContainer","django.db.models.Q(name__regex=\'.*\\.jpg|.*\\.png\')", "id", False)')
+
+    LucteriosGroup.redefine_generic(_("# documents (administrator)"), Folder.get_permission(True, True, True), Document.get_permission(True, True, True))
+    LucteriosGroup.redefine_generic(_("# documents (editor)"), Document.get_permission(True, True, True))
 
 
 @Signal.decorate('config')

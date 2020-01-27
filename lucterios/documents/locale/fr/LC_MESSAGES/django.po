@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-22 16:52+0000\n"
+"POT-Creation-Date: 2020-01-25 16:35+0000\n"
 "PO-Revision-Date: 2019-10-22 18:52+0200\n"
 "Last-Translator: b'Paul ARULATEDA <paul531@orange.fr>'\n"
 "Language-Team: \n"
@@ -31,80 +31,88 @@ msgstr "Fichier non trouvé !"
 msgid "shared link"
 msgstr "Lien partagé"
 
-#: models.py:52 models_legacy.py:46
+#: models.py:51 models_legacy.py:46
 msgid "parent"
 msgstr "parent"
 
-#: models.py:53 models_legacy.py:43 models_legacy.py:162
+#: models.py:52 models_legacy.py:43 models_legacy.py:162
 msgid "name"
 msgstr "nom"
 
-#: models.py:54 models_legacy.py:44 models_legacy.py:163
+#: models.py:53 models_legacy.py:44 models_legacy.py:163
 msgid "description"
 msgstr "description"
 
-#: models.py:56 models.py:96 models.py:209 models_legacy.py:50
+#: models.py:55 models.py:95 models.py:208 models_legacy.py:50
 #: models_legacy.py:165
 msgid "modifier"
 msgstr "modificateur"
 
-#: models.py:57 models.py:210 models_legacy.py:167
+#: models.py:56 models.py:209 models_legacy.py:167
 msgid "date modification"
 msgstr "date de modification"
 
-#: models.py:88
+#: models.py:87
 msgid "container"
 msgstr "containeur"
 
-#: models.py:89
+#: models.py:88
 msgid "containers"
 msgstr "containeurs"
 
-#: models.py:95 models_legacy.py:48
+#: models.py:94 models_legacy.py:48
 msgid "viewer"
 msgstr "visionneur"
 
-#: models.py:100 models.py:105 models_legacy.py:58 models_legacy.py:62
+#: models.py:99 models.py:104 models_legacy.py:58 models_legacy.py:62
 msgid "001@Info"
 msgstr "001@Info"
 
-#: models.py:101 models.py:106 models_legacy.py:58 models_legacy.py:62
+#: models.py:100 models.py:105 models_legacy.py:58 models_legacy.py:62
 msgid "001@Permission"
 msgstr "001@Permission"
 
-#: models.py:201 models_legacy.py:154 models_legacy.py:161
+#: models.py:200 models_legacy.py:154 models_legacy.py:161
 msgid "folder"
 msgstr "dossier"
 
-#: models.py:202 models_legacy.py:155
+#: models.py:201 models_legacy.py:155
 msgid "folders"
 msgstr "dossiers"
 
-#: models.py:212 models_legacy.py:169
+#: models.py:211 models_legacy.py:169
 msgid "creator"
 msgstr "créateur"
 
-#: models.py:213 models_legacy.py:171
+#: models.py:212 models_legacy.py:171
 msgid "date creation"
 msgstr "date de création"
 
-#: models.py:314 models_legacy.py:249
+#: models.py:313 models_legacy.py:249
 msgid "document"
 msgstr "document"
 
-#: models.py:315 models_legacy.py:250
+#: models.py:314 models_legacy.py:250
 msgid "documents"
 msgstr "documents"
 
-#: models.py:350
+#: models.py:349
 msgid "default documents"
 msgstr "documents par défaut"
 
-#: models.py:384
+#: models.py:383
 msgid "documents-signature"
 msgstr "image de cachet ou de signature"
 
-#: models.py:391 views.py:58
+#: models.py:387
+msgid "# documents (administrator)"
+msgstr "# documents (administrateur)"
+
+#: models.py:388
+msgid "# documents (editor)"
+msgstr "# documents (éditeur)"
+
+#: models.py:393 views.py:58
 msgid "Document"
 msgstr "Gestion documentaire"
 
