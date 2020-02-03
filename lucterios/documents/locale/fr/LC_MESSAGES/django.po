@@ -294,4 +294,4 @@ msgstr "%d fichiers actuellement accessibles"
 
 #: views.py:605
 msgid "Parameters"
-msgstr "Paramètres"
+msgstr "Paramètres" 
