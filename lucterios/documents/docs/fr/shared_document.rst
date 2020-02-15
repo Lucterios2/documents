@@ -4,25 +4,39 @@ Fichiers partagés
 Liste des documents
 -------------------
 
-Le menu *Bureautique/Gestion documentaire/Documents* vous permet de consulter la liste des fichiers que vous avez déjà enregistrés. Pour vous aider à retrouver vos documents, la liste est classifiée par un ensemble de dossiers et de sous-dossiers et une description vous donne un petit résumé.
+Pour retrouver plus aisément vos documents, sous *Diacamma*, ceux-ci peuvent être enregistrés dans des dossiers et des sous-dossiers du gestionnaire de documents.
+Chaque dossier est assorti d'une description et d'informations relatives à la dernière modification.
 
-Vous avez aussi la possibilité d'ajouter un sous-dossier ou de modifier les propriétés du dossier courant.
+     Menu *Bureautique/Gestion de fichiers et de documents/Documents*
+ 
+.. image:: listfiles.png
+
+En utilisant le bouton "+ Dossier", il est possible de créer un nouveau dossier.
+Après l'avoir sélectionné, vous pouvez aussi en supprimer un et son contenu, à l'aide du bouton "-".
+Le bouton situé juste au dessus de "+ Dossier" permet, lui, d'éditer les propriétés du dossier actif et de les modifier, à la condition de disposer des droits pour cela.
+
+*Diacamma* mémorise l'utilisateur et la date de création de tout document ainsi que les informations relatives à la dernière modification. Affichez le contenu d'un dossier après l'avoir sélectionné et avoir cliqué sur le bouton "Editer" ou faites un double-clic sur la ligne correspondante au dossier.
 
 .. image:: listdoc.png
 
-Suivant vos permissions, vous pouvez extraire votre fichier pour le consulter, le modifier et éventuellement ré-injecter vos corrections.
+Le retour au dossier-parent est possible grâce au bouton "<"
+Suivant vos permissions, vous pouvez ajouter un document dans un dossier.
 
-De plus, l'outil mémorisera l'utilisateur et la date de création du document ainsi que les informations relatives à la dernière modification.
+Affichez la fiche d'un document à l'aide d'un double-clic sur son nom.
 
 .. image:: showdoc.png
 
-Depuis la fiche du document, il vous est possible d'activer un lien de téléchargement.
-Ce lien web peut être transmis à une personne tiers, n'ayant aucun droit d'accès à votre logiciel, afin de télécharger le document.
-**Attention:** Votre instance doit être accessible sur internet pour que le lien puisse fonctionner depuis n'importe où.
+Depuis cette fiche, il vous est possible :
+- de le modifier en l'important de nouveau.
+- de générer un lien de téléchargement. Ce lien web peut être transmis à une personne n'ayant aucun droit d'accès à votre logiciel afin qu'elle puisse télécharger le document.
+
+**Attention:** Votre instance doit être accessible sur internet pour que ce lien puisse fonctionner.
 
 Recherche de documents
 ----------------------
 
-Le menu *Bureautique/Gestion documentaire/Recherche de document* vous permet de définir un critère de recherche sur un document.
+     Menu *Bureautique/Gestion documentaire/Recherche de document* 
+     
+Saisissez les critères de recherche de documents et validez. Ces critères sont sauvegardables pour une utilisation ultérieure.
 
-Une fois validé, l'outil va rechercher dans la base toutes les fichiers correspondants à ces critères.
+Diacamma parcourera tous les dossiers du gestionnaire de documents afin d'en extraire la liste de ceux satisfaisant aux critères saisis.
