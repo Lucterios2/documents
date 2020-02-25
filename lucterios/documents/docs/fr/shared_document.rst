@@ -27,8 +27,8 @@ Affichez la fiche d'un document à l'aide d'un double-clic sur son nom.
 .. image:: showdoc.png
 
 Depuis cette fiche, il vous est possible :
-- de le modifier en l'important de nouveau.
-- de générer un lien de téléchargement. Ce lien web peut être transmis à une personne n'ayant aucun droit d'accès à votre logiciel afin qu'elle puisse télécharger le document.
+ * de le modifier en l'important de nouveau
+ * de générer un lien de téléchargement. Ce lien web peut être transmis à une personne n'ayant aucun droit d'accès à votre logiciel afin qu'elle puisse télécharger le document
 
 **Attention:** Votre instance doit être accessible sur internet pour que ce lien puisse fonctionner.
 
