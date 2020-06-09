@@ -12,28 +12,28 @@ basedate = datetime.date(1899, 12, 30)
 basedatetime = datetime.datetime(1899, 12, 30)
 
 
-def ss_to_xy(s):
+def ss_to_xy(coordinate):
     """convert spreadsheet coordinates to zero-index xy coordinates.
     return None if input is invalid"""
-    result = re.match(r'\$*([A-Z]+)\$*([0-9]+)', s, re.RegexFlag.IGNORECASE)
+    result = re.match(r'\$*([A-Z]+)\$*([0-9]+)', coordinate, re.RegexFlag.IGNORECASE)
     if result is None:
         return None
     xstring = result.group(1).upper()
     multiplier = 1
-    x = 0
+    posx = 0
     for i in xstring:
-        x = x * multiplier + (ord(i) - 64)
+        posx = posx * multiplier + (ord(i) - 64)
         multiplier = multiplier * 26
-    x = x - 1
-    y = int(result.group(2)) - 1
-    return (x, y)
+    posx = posx - 1
+    posy = int(result.group(2)) - 1
+    return (posx, posy)
 
 
 def _grid_size(cells):
     maxx = -1
     maxy = -1
-    for key, _value in cells.items():
-        (posx, posy) = ss_to_xy(key)
+    for coordinate, _value in cells.items():
+        (posx, posy) = ss_to_xy(coordinate)
         maxx = max(posx, maxx)
         maxy = max(posy, maxy)
     return (maxx + 1, maxy + 1)
@@ -133,26 +133,27 @@ class EtherCalc(object):
         elif calc_format == "ods":
             return self.put(sid, data, "application/vnd.oasis.opendocument.spreadsheet")
 
+    def _export_python(self, page):
+        cells = self.cells(page)
+        sizex, sizey = _grid_size(cells)
+        grid = [[None for _ in range(sizex)] for _ in range(sizey)]
+        for coordinate, value in cells.items():
+            posx, posy = ss_to_xy(coordinate)
+            if value['valuetype'] == 'n':
+                grid[posy][posx] = float(value['datavalue'])
+            elif value['valuetype'] == 'b':
+                grid[posy][posx] = None
+            elif value['valuetype'] == 'nd':
+                grid[posy][posx] = basedate + datetime.timedelta(days=int(value['datavalue']))
+            elif value['valuetype'] == 'ndt':
+                grid[posy][posx] = basedatetime + datetime.timedelta(days=float((value['datavalue'])))
+            else:
+                grid[posy][posx] = str(value['datavalue'])
+        return grid
+
     def export(self, page, calc_format="python"):
         if calc_format == "python":
-            cells = self.cells(page)
-            (sizex, sizey) = _grid_size(cells)
-            grid = [[None for _ in range(sizex)] for _ in range(sizey)]
-            for k, v in cells.items():
-                (x, y) = ss_to_xy(k)
-                if v['valuetype'] == 'n':
-                    grid[y][x] = float(v['datavalue'])
-                elif v['valuetype'] == 'b':
-                    grid[y][x] = None
-                elif v['valuetype'] == 'nd':
-                    grid[y][x] = basedate + \
-                        datetime.timedelta(days=int(v['datavalue']))
-                elif v['valuetype'] == 'ndt':
-                    grid[y][x] = basedatetime + \
-                        datetime.timedelta(days=float((v['datavalue'])))
-                else:
-                    grid[y][x] = str(v['datavalue'])
-            return grid
+            return self._export_python(page)
         elif calc_format == "json":
             return self.get("_/" + page + "/csv.json").content
         elif calc_format == "socialcalc":

@@ -362,19 +362,25 @@ class ContainerDel(XferDelete):
     model = AbstractContainer
     field_id = 'container'
 
-    def fillresponse(self):
-        parent = None
-        if len(self.items) > 0:
-            parent = self.items[0].parent
+    def _check_delete_permission(self):
         if not WrapAction.is_permission(self.request, 'documents.delete_folder'):
             for item in self.items:
                 if isinstance(item.get_final_child(), FolderContainer):
                     raise LucteriosException(IMPORTANT, _("No allow to delete folder!"))
+
+    def _check_view_read_permission(self):
+        parent = None
+        if len(self.items) > 0:
+            parent = self.items[0].parent
         if parent is not None and notfree_mode_connect() and not self.request.user.is_superuser:
             if parent.cannot_view(self.request.user):
                 raise LucteriosException(IMPORTANT, _("No allow to view!"))
             if parent.is_readonly(self.request.user):
                 raise LucteriosException(IMPORTANT, _("No allow to write!"))
+
+    def fillresponse(self):
+        self._check_delete_permission()
+        self._check_view_read_permission()
         XferDelete.fillresponse(self)
 
 
