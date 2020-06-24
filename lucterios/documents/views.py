@@ -115,7 +115,7 @@ class FolderImportExport(XferContainerAcknowledge):
             parent.colspan = 3
 
             self.add_components(dlg)
-            dlg.add_action(self.get_action(TITLE_OK, "images/ok.png"), close=CLOSE_YES, params={'SAVE': 'YES'})
+            dlg.add_action(self.return_action(TITLE_OK, "images/ok.png"), close=CLOSE_YES, params={'SAVE': 'YES'})
             dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
         else:
             if self.getparam("parent", 0) != 0:
@@ -281,9 +281,9 @@ class DocumentEditor(XferContainerAcknowledge):
             frame.set_value(editor.get_iframe())
             frame.set_location(0, 2, 2, 0)
             dlg.add_component(frame)
-            dlg.add_action(self.get_action(TITLE_SAVE, 'images/save.png'), close=CLOSE_NO, params={'SAVE': 'YES'})
+            dlg.add_action(self.return_action(TITLE_SAVE, 'images/save.png'), close=CLOSE_NO, params={'SAVE': 'YES'})
             dlg.add_action(WrapAction(TITLE_CLOSE, 'images/close.png'))
-            dlg.set_close_action(self.get_action(), params={'CLOSE': 'YES'})
+            dlg.set_close_action(self.return_action(), params={'CLOSE': 'YES'})
 
 
 @ActionsManage.affect_grid(_('Folder'), "images/add.png")
@@ -350,7 +350,7 @@ class ContainerAddFile(XferContainerAcknowledge):
             select.set_location(1, max_row)
             select.description = _('document type')
             dlg.add_component(select)
-            dlg.add_action(self.get_action(TITLE_OK, 'images/ok.png'), close=CLOSE_YES, params={'CONFIRME': 'YES'})
+            dlg.add_action(self.return_action(TITLE_OK, 'images/ok.png'), close=CLOSE_YES, params={'CONFIRME': 'YES'})
             dlg.add_action(WrapAction(TITLE_CLOSE, 'images/close.png'))
 
 
@@ -438,7 +438,7 @@ class ContainerList(XferListEditor):
             btn_return = XferCompButton('return')
             btn_return.set_location(new_col + 1, new_row)
             btn_return.set_is_mini(True)
-            btn_return.set_action(self.request, self.get_action('', 'images/left.png'), params={'current_folder': self.item.parent_id if self.item.parent_id is not None else 0},
+            btn_return.set_action(self.request, self.return_action('', 'images/left.png'), params={'current_folder': self.item.parent_id if self.item.parent_id is not None else 0},
                                   modal=FORMTYPE_REFRESH, close=CLOSE_NO)
             self.add_component(btn_return)
 
