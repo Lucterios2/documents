@@ -26,7 +26,7 @@ from __future__ import unicode_literals
 from os.path import isfile
 
 from django.utils.translation import ugettext_lazy as _
-from django.utils import six, timezone
+from django.utils import timezone
 
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.tools import ActionsManage, CLOSE_NO, FORMTYPE_MODAL
@@ -78,7 +78,7 @@ class DocumentContainerEditor(LucteriosEditor):
         file_name.set_location(obj_cmt.col, obj_cmt.row, obj_cmt.colspan, obj_cmt.rowspan)
         xfer.add_component(file_name)
         obj_folder = xfer.get_components('parent')
-        obj_folder.select_list.sort(key=lambda item: six.text_type(item[1]))
+        obj_folder.select_list.sort(key=lambda item: str(item[1]))
 
     def show(self, xfer):
         if not isfile(self.item.file_path):

@@ -30,7 +30,7 @@ from threading import Thread
 from cgi import parse_header, parse_multipart
 from urllib.parse import parse_qs
 
-from django.utils import timezone, six
+from django.utils import timezone
 
 from lucterios.framework.filetools import get_user_path
 
@@ -137,7 +137,7 @@ class TestMoke(BaseHTTPRequestHandler):
             requestvars = {}
         request_field = {}
         for key, value in requestvars.items():
-            if isinstance(value, six.binary_type):
+            if isinstance(value, bytes):
                 value = value.decode()
             elif isinstance(value, list):
                 value = [item.decode() for item in value]

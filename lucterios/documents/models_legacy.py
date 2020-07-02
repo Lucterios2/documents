@@ -31,7 +31,7 @@ from datetime import datetime
 from zipfile import BadZipFile
 
 from django.db import models
-from django.utils import six, timezone
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from lucterios.framework.models import LucteriosModel
@@ -100,7 +100,7 @@ class Folder(LucteriosModel):
         docs = self.document_set.all()
         for doc in docs:
             file_paths.append(
-                get_user_path("documents", "document_%s" % six.text_type(doc.id)))
+                get_user_path("documents", "document_%s" % str(doc.id)))
         LucteriosModel.delete(self)
         for file_path in file_paths:
             if isfile(file_path):
@@ -119,7 +119,7 @@ class Folder(LucteriosModel):
                 new_doc.date_creation = new_doc.date_modification
                 new_doc.save()
                 file_path = get_user_path(
-                    "documents", "document_%s" % six.text_type(new_doc.id))
+                    "documents", "document_%s" % str(new_doc.id))
                 with ZipFile(file_path, 'w') as zip_ref:
                     zip_ref.write(complet_path, arcname=filename)
             elif isdir(complet_path):
@@ -133,7 +133,7 @@ class Folder(LucteriosModel):
     def extract_files(self, dir_to_extract):
         for doc in Document.objects.filter(folder_id=self.id):
             file_path = get_user_path(
-                "documents", "document_%s" % six.text_type(doc.id))
+                "documents", "document_%s" % str(doc.id))
             if isfile(file_path):
                 try:
                     with ZipFile(file_path, 'r') as zip_ref:
@@ -196,17 +196,17 @@ class Document(LucteriosModel):
         return '[%s] %s' % (self.folder, self.name)
 
     def delete(self):
-        file_path = get_user_path("documents", "document_%s" % six.text_type(self.id))
+        file_path = get_user_path("documents", "document_%s" % str(self.id))
         LucteriosModel.delete(self)
         if isfile(file_path):
             unlink(file_path)
 
     def set_context(self, xfer):
-        if notfree_mode_connect() and not isinstance(xfer, six.text_type) and not xfer.request.user.is_superuser:
+        if notfree_mode_connect() and not isinstance(xfer, str) and not xfer.request.user.is_superuser:
             self.filter = models.Q(folder=None) | models.Q(folder__viewer__in=xfer.request.user.groups.all())
         if self.sharekey is not None:
             import urllib.parse
-            if isinstance(xfer, six.text_type):
+            if isinstance(xfer, str):
                 root_url = xfer
             else:
                 abs_url = xfer.request.META.get('HTTP_REFERER', xfer.request.build_absolute_uri()).split('/')
@@ -222,7 +222,7 @@ class Document(LucteriosModel):
     @property
     def content(self):
         from _io import BytesIO
-        file_path = get_user_path("documents", "document_%s" % six.text_type(self.id))
+        file_path = get_user_path("documents", "document_%s" % str(self.id))
         if isfile(file_path):
             with ZipFile(file_path, 'r') as zip_ref:
                 file_list = zip_ref.namelist()

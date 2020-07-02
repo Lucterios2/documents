@@ -27,7 +27,6 @@ from os.path import join, dirname, exists
 from shutil import rmtree
 import json
 
-from django.utils import formats, six
 from django.contrib.auth.models import Permission
 from django.conf import settings
 

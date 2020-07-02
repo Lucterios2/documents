@@ -31,7 +31,7 @@ from datetime import datetime
 from zipfile import BadZipFile
 
 from django.db import models
-from django.utils import six, timezone
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from lucterios.framework.models import LucteriosModel, LucteriosVirtualField, PrintFieldsPlugIn
@@ -87,7 +87,7 @@ class AbstractContainer(LucteriosModel):
         verbose_name = _('container')
         verbose_name_plural = _('containers')
         default_permissions = []
-        ordering = ['-foldercontainer__isnull', 'parent__name', 'name']
+        ordering = ['-foldercontainer', 'parent__name', 'name']
 
 
 class FolderContainer(AbstractContainer):
@@ -240,7 +240,7 @@ class DocumentContainer(AbstractContainer):
 
     @property
     def file_path(self):
-        return get_user_path("documents", "container_%s" % six.text_type(self.id))
+        return get_user_path("documents", "container_%s" % str(self.id))
 
     def delete(self):
         file_path = self.file_path
@@ -249,9 +249,9 @@ class DocumentContainer(AbstractContainer):
             unlink(file_path)
 
     def set_context(self, xfer):
-        if notfree_mode_connect() and not isinstance(xfer, six.text_type) and not xfer.request.user.is_superuser:
+        if notfree_mode_connect() and not isinstance(xfer, str) and not xfer.request.user.is_superuser:
             self.filter = models.Q(parent=None) | models.Q(parent__viewer__in=xfer.request.user.groups.all())
-        if isinstance(xfer, six.text_type):
+        if isinstance(xfer, str):
             self.root_url = xfer
         else:
             abs_url = xfer.request.META.get('HTTP_REFERER', xfer.request.build_absolute_uri()).split('/')
@@ -287,9 +287,9 @@ class DocumentContainer(AbstractContainer):
             with ZipFile(self.file_path, 'w') as zip_ref:
                 if isinstance(content, BytesIO):
                     content = content.read()
-                if isinstance(content, six.text_type):
+                if isinstance(content, str):
                     content = content.encode()
-                if isinstance(content, six.binary_type):
+                if isinstance(content, bytes):
                     zip_ref.writestr(zinfo_or_arcname=self.name, data=content)
 
     def change_sharekey(self, clear):
@@ -339,7 +339,7 @@ def migrate_containers(old_parent, new_parent):
         nb_doc += sub_nb_doc
         nb_folder += 1
     if (old_parent is None) and (nb_folder > 0):
-        six.print_('Convert containers: folder=%d - documents=%d' % (nb_folder, nb_doc))
+        print('Convert containers: folder=%d - documents=%d' % (nb_folder, nb_doc))
     return nb_folder, nb_doc
 
 
