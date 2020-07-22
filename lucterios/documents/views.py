@@ -553,7 +553,7 @@ class DownloadFile(XferContainerAcknowledge):
     field_id = 'document'
     caption = _("Download document")
 
-    def get_post(self, request, *args, **kwargs):
+    def request_handling(self, request, *args, **kwargs):
         from django.http.response import StreamingHttpResponse, HttpResponse
         getLogger("lucterios.documents.DownloadFile").debug(">> get %s [%s]", request.path, request.user)
         try:
