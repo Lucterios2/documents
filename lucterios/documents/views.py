@@ -552,6 +552,7 @@ class DownloadFile(XferContainerAcknowledge):
     model = DocumentContainer
     field_id = 'document'
     caption = _("Download document")
+    methods_allowed = ('GET', )
 
     def request_handling(self, request, *args, **kwargs):
         from django.http.response import StreamingHttpResponse, HttpResponse
