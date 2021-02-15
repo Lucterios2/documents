@@ -37,7 +37,7 @@ from lucterios.CORE.models import LucteriosGroup, LucteriosUser
 
 from lucterios.documents.models import FolderContainer, DocumentContainer
 from lucterios.documents.views import FolderList, FolderAddModify, FolderDel, \
-    ContainerList, DocumentAddModify, DocumentShow, ContainerDel, DocumentSearch,\
+    DocumentList, DocumentAddModify, DocumentShow, DocumentDel, DocumentSearch,\
     DocumentChangeShared, DownloadFile, ContainerAddFile, DocumentEditor
 from lucterios.documents.test_tools import default_groups, default_folders,\
     create_doc, TestHTTPServer, TestMoke
@@ -146,47 +146,56 @@ class DocumentTest(LucteriosTest):
         folder = FolderContainer.objects.all()
         self.assertEqual(len(folder), 4)
 
-        self.factory.xfer = ContainerList()
-        self.calljson('/lucterios.documents/containerList', {}, False)
-        self.assert_observer('core.custom', 'lucterios.documents', 'containerList')
+        self.factory.xfer = DocumentList()
+        self.calljson('/lucterios.documents/documentList', {}, False)
+        self.assert_observer('core.custom', 'lucterios.documents', 'documentList')
         self.assertEqual(self.json_meta['title'], 'Documents')
         self.assertEqual(len(self.json_context), 0)
         self.assertEqual(len(self.json_actions), 1)
         self.assert_action_equal('POST', self.json_actions[0], ('Fermer', 'images/close.png'))
-        self.assert_count_equal('', 10)
-        self.assert_coordcomp_equal('container', (0, 3, 2, 1))
-        self.assert_grid_equal('container', {'icon': '', "name": "nom", "description": "description", "date_modif": "date de modification", "modif": "modificateur"}, 2)
-        self.assert_count_equal("#container/actions", 3)
+        self.assert_count_equal('', 11)
+        self.assert_coordcomp_equal('current_folder', (0, 4, 1, 1))
+        self.assert_grid_equal('current_folder', {'icon': '', "name": "nom"}, 2)
+        self.assert_count_equal("#current_folder/actions", 3)
+        self.assert_coordcomp_equal('document', (1, 4, 4, 1))
+        self.assert_grid_equal('document', {'icon': '', "name": "nom", "description": "description", "date_modification": "date de modification", "modifier": "modificateur"}, 0)
+        self.assert_count_equal("#document/actions", 3)
 
         self.assert_json_equal('LABELFORM', 'title_folder', ">")
         self.assert_json_equal('LABELFORM', 'desc_folder', '')
 
-        self.factory.xfer = ContainerList()
-        self.calljson('/lucterios.documents/containerList', {"container": "1"}, False)
-        self.assert_observer('core.custom', 'lucterios.documents', 'containerList')
-        self.assert_count_equal('', 7)
-        self.assert_count_equal('container', 0)
+        self.factory.xfer = DocumentList()
+        self.calljson('/lucterios.documents/documentList', {"current_folder": "1"}, False)
+        self.assert_observer('core.custom', 'lucterios.documents', 'documentList')
+        self.assert_count_equal('', 8)
+        self.assert_count_equal('current_folder', 0)
+        self.assert_count_equal("#current_folder/actions", 3)
+        self.assert_count_equal('document', 0)
+        self.assert_count_equal("#document/actions", 1)
         self.assert_json_equal('LABELFORM', 'title_folder', ">truc1")
         self.assert_json_equal('LABELFORM', 'desc_folder', "blabla")
-        self.assert_count_equal("#container/actions", 2)
 
-        self.factory.xfer = ContainerList()
-        self.calljson('/lucterios.documents/containerList', {"container": "2"}, False)
-        self.assert_observer('core.custom', 'lucterios.documents', 'containerList')
-        self.assert_count_equal('', 12)
-        self.assert_count_equal('container', 1)
-        self.assert_count_equal("#container/actions", 3)
+        self.factory.xfer = DocumentList()
+        self.calljson('/lucterios.documents/documentList', {"current_folder": "2"}, False)
+        self.assert_observer('core.custom', 'lucterios.documents', 'documentList')
+        self.assert_count_equal('', 13)
+        self.assert_count_equal('current_folder', 1)
+        self.assert_count_equal("#current_folder/actions", 3)
+        self.assert_count_equal('document', 0)
+        self.assert_count_equal("#document/actions", 3)
         self.assert_json_equal('LABELFORM', 'title_folder', ">truc2")
         self.assert_json_equal('LABELFORM', 'desc_folder', "bouuuuu!")
 
-        self.factory.xfer = ContainerList()
-        self.calljson('/lucterios.documents/containerList', {"container": "3"}, False)
-        self.assert_observer('core.custom', 'lucterios.documents', 'containerList')
-        self.assert_count_equal('', 7)
-        self.assert_count_equal('container', 0)
+        self.factory.xfer = DocumentList()
+        self.calljson('/lucterios.documents/documentList', {"current_folder": "3"}, False)
+        self.assert_observer('core.custom', 'lucterios.documents', 'documentList')
+        self.assert_count_equal('', 8)
+        self.assert_count_equal('current_folder', 0)
+        self.assert_count_equal("#current_folder/actions", 3)
         self.assert_json_equal('LABELFORM', 'title_folder', ">truc2>truc3")
         self.assert_json_equal('LABELFORM', 'desc_folder', "----")
-        self.assert_count_equal("#container/actions", 2)
+        self.assert_count_equal('document', 0)
+        self.assert_count_equal("#document/actions", 1)
 
     def test_add(self):
         self.factory.xfer = DocumentAddModify()
@@ -194,9 +203,15 @@ class DocumentTest(LucteriosTest):
         self.assert_observer('core.custom', 'lucterios.documents', 'documentAddModify')
         self.assertEqual(self.json_meta['title'], 'Ajouter un document')
         self.assert_count_equal('', 4)
+        self.assert_select_equal('parent', {2: '>truc2', 0: None})
         self.assert_comp_equal(('SELECT', 'parent'), "2", (1, 0, 1, 1))
         self.assert_comp_equal(('UPLOAD', 'filename'), '', (1, 1, 1, 1))
         self.assert_comp_equal(('MEMO', 'description'), '', (1, 2, 1, 1))
+
+        self.factory.xfer = DocumentAddModify()
+        self.calljson('/lucterios.documents/documentAddModify', {"current_folder": "2"}, False)
+        self.assert_observer('core.custom', 'lucterios.documents', 'documentAddModify')
+        self.assert_comp_equal(('SELECT', 'parent'), "2", (1, 0, 1, 1))
 
     def test_addsave(self):
         self.factory.user = LucteriosUser.objects.get(username='empty')
@@ -258,26 +273,30 @@ class DocumentTest(LucteriosTest):
         port = find_free_port()
         settings.ETHERPAD = {'url': 'http://localhost:%d' % port, 'apikey': 'abc123'}
 
-        self.factory.xfer = ContainerList()
-        self.calljson('/lucterios.documents/containerList', {}, False)
-        self.assert_observer('core.custom', 'lucterios.documents', 'containerList')
-        self.assert_count_equal('', 10)
-        self.assert_count_equal('container', 2)
-        self.assert_count_equal("#container/actions", 3)
+        self.factory.xfer = DocumentList()
+        self.calljson('/lucterios.documents/documentList', {}, False)
+        self.assert_observer('core.custom', 'lucterios.documents', 'documentList')
+        self.assert_count_equal('', 11)
+        self.assert_count_equal('current_folder', 2)
+        self.assert_count_equal("#current_folder/actions", 3)
+        self.assert_count_equal('document', 0)
+        self.assert_count_equal("#document/actions", 3)
 
         TestMoke.content_type = "application/json"
         httpd = TestHTTPServer(('localhost', port))
         httpd.start()
         try:
             TestMoke.initial(['{"code": 0, "message":"ok", "data": null}'])
-            self.factory.xfer = ContainerList()
-            self.calljson('/lucterios.documents/containerList', {}, False)
-            self.assert_observer('core.custom', 'lucterios.documents', 'containerList')
-            self.assert_count_equal('container', 2)
-            self.assert_count_equal("#container/actions", 4)
+            self.factory.xfer = DocumentList()
+            self.calljson('/lucterios.documents/documentList', {}, False)
+            self.assert_observer('core.custom', 'lucterios.documents', 'documentList')
+            self.assert_count_equal('current_folder', 2)
+            self.assert_count_equal("#current_folder/actions", 3)
+            self.assert_count_equal('document', 0)
+            self.assert_count_equal("#document/actions", 4)
             self.assertEqual(TestMoke.results, [])
             self.assertEqual(len(TestMoke.requests), 1)
-            self.assertEqual(TestMoke.requests[0], ('/api/1.2.13/checkToken', {'apikey': ['abc123']}))
+            self.assertEqual(TestMoke.requests[0], ('/api/1.2.14/checkToken', {'apikey': ['abc123']}))
 
             TestMoke.initial(['{"code": 0, "message":"ok", "data": null}'])
             self.factory.xfer = ContainerAddFile()
@@ -287,8 +306,9 @@ class DocumentTest(LucteriosTest):
             self.assert_select_equal('docext', {'txt': 'txt', 'html': 'html'})  # nb=2
             self.assertEqual(TestMoke.results, [])
             self.assertEqual(len(TestMoke.requests), 1)
-            self.assertEqual(TestMoke.requests[0], ('/api/1.2.13/checkToken', {'apikey': ['abc123']}))
+            self.assertEqual(TestMoke.requests[0], ('/api/1.2.14/checkToken', {'apikey': ['abc123']}))
 
+            TestMoke.initial(['{"code": 0, "message":"ok", "data": null}'])
             self.factory.xfer = ContainerAddFile()
             self.calljson('/lucterios.documents/containerAddFile', {'name': 'aa.bb.cc', 'docext': 'txt', 'description': 'blablabla', 'CONFIRME': 'YES'}, False)
             self.assert_observer('core.acknowledge', 'lucterios.documents', 'containerAddFile')
@@ -297,20 +317,20 @@ class DocumentTest(LucteriosTest):
             self.assertEqual(self.response_json['action']['params']['document'], 5)
 
             TestMoke.initial(['{"code":4,"message":"no or wrong API Key","data":null}'])
-            self.factory.xfer = ContainerList()
-            self.calljson('/lucterios.documents/containerList', {}, False)
-            self.assert_observer('core.custom', 'lucterios.documents', 'containerList')
-            self.assert_count_equal('container', 3)
-            self.assert_count_equal("#container/actions", 3)
+            self.factory.xfer = DocumentList()
+            self.calljson('/lucterios.documents/documentList', {}, False)
+            self.assert_observer('core.custom', 'lucterios.documents', 'documentList')
+            self.assert_count_equal('document', 1)
+            self.assert_count_equal("#document/actions", 3)
             self.assertEqual(TestMoke.results, [])
             self.assertEqual(len(TestMoke.requests), 1)
-            self.assertEqual(TestMoke.requests[0], ('/api/1.2.13/checkToken', {'apikey': ['abc123']}))
+            self.assertEqual(TestMoke.requests[0], ('/api/1.2.14/checkToken', {'apikey': ['abc123']}))
 
             new_doc = DocumentContainer.objects.get(id=5)
             self.assertEqual(new_doc.parent_id, None)
             self.assertEqual(new_doc.name, 'aa.bb.txt')
             self.assertEqual(new_doc.description, "blablabla")
-            self.assertTrue(exists(get_user_path('documents', 'container_5')))
+            self.assertTrue(not exists(get_user_path('documents', 'container_5')))
 
             TestMoke.initial(['{"code": 0, "message":"ok", "data": null}',
                               '{"code": 0, "message":"ok", "data": null}'])
@@ -322,7 +342,7 @@ class DocumentTest(LucteriosTest):
             self.assertEqual(json.loads(json_test), {'code': 0, 'message': "ok", 'data': None})
             self.assertEqual(TestMoke.results, [])
             self.assertEqual(len(TestMoke.requests), 2)
-            self.assertEqual(TestMoke.requests[0], ('/api/1.2.13/checkToken', {'apikey': ['abc123']}))
+            self.assertEqual(TestMoke.requests[0], ('/api/1.2.14/checkToken', {'apikey': ['abc123']}))
             self.assertEqual(TestMoke.requests[1], '/p/edb6edba72798a8d49e95bf2f107ea10-5/export/txt')
 
             TestMoke.initial(['{"code": 0, "message":"ok", "data": null}',
@@ -333,9 +353,9 @@ class DocumentTest(LucteriosTest):
             self.assert_observer('core.custom', 'lucterios.documents', 'documentEditor')
             self.assertEqual(TestMoke.results, [])
             self.assertEqual(len(TestMoke.requests), 3)
-            self.assertEqual(TestMoke.requests[0], ('/api/1.2.13/checkToken', {'apikey': ['abc123']}))
-            self.assertEqual(TestMoke.requests[1], ('/api/1.2.13/listAllPads', {'apikey': ['abc123']}))
-            self.assertEqual(TestMoke.requests[2], ('/api/1.2.13/createPad', {'apikey': ['abc123'],
+            self.assertEqual(TestMoke.requests[0], ('/api/1.2.14/checkToken', {'apikey': ['abc123']}))
+            self.assertEqual(TestMoke.requests[1], ('/api/1.2.14/listAllPads', {'apikey': ['abc123']}))
+            self.assertEqual(TestMoke.requests[2], ('/api/1.2.14/createPad', {'apikey': ['abc123'],
                                                                               'padName': ['aa.bb.txt'],
                                                                               'padID': ['edb6edba72798a8d49e95bf2f107ea10-5']}))
 
@@ -346,8 +366,8 @@ class DocumentTest(LucteriosTest):
             self.assert_observer('core.acknowledge', 'lucterios.documents', 'documentEditor')
             self.assertEqual(TestMoke.results, [])
             self.assertEqual(len(TestMoke.requests), 2)
-            self.assertEqual(TestMoke.requests[0], ('/api/1.2.13/checkToken', {'apikey': ['abc123']}))
-            self.assertEqual(TestMoke.requests[1], ('/api/1.2.13/getText', {'apikey': ['abc123'],
+            self.assertEqual(TestMoke.requests[0], ('/api/1.2.14/checkToken', {'apikey': ['abc123']}))
+            self.assertEqual(TestMoke.requests[1], ('/api/1.2.14/getText', {'apikey': ['abc123'],
                                                                             'padID': ['edb6edba72798a8d49e95bf2f107ea10-5']}))
 
             TestMoke.initial(['{"code": 0, "message":"ok", "data": null}',
@@ -358,9 +378,9 @@ class DocumentTest(LucteriosTest):
             self.assert_observer('core.acknowledge', 'lucterios.documents', 'documentEditor')
             self.assertEqual(TestMoke.results, [])
             self.assertEqual(len(TestMoke.requests), 3)
-            self.assertEqual(TestMoke.requests[0], ('/api/1.2.13/checkToken', {'apikey': ['abc123']}))
-            self.assertEqual(TestMoke.requests[1], ('/api/1.2.13/listAllPads', {'apikey': ['abc123']}))
-            self.assertEqual(TestMoke.requests[2], ('/api/1.2.13/deletePad', {'apikey': ['abc123'],
+            self.assertEqual(TestMoke.requests[0], ('/api/1.2.14/checkToken', {'apikey': ['abc123']}))
+            self.assertEqual(TestMoke.requests[1], ('/api/1.2.14/listAllPads', {'apikey': ['abc123']}))
+            self.assertEqual(TestMoke.requests[2], ('/api/1.2.14/deletePad', {'apikey': ['abc123'],
                                                                               'padID': ['edb6edba72798a8d49e95bf2f107ea10-5']}))
         finally:
             httpd.shutdown()
@@ -369,23 +389,27 @@ class DocumentTest(LucteriosTest):
         port = find_free_port()
         settings.ETHERCALC = {'url': 'http://localhost:%d' % port}
 
-        self.factory.xfer = ContainerList()
-        self.calljson('/lucterios.documents/containerList', {}, False)
-        self.assert_observer('core.custom', 'lucterios.documents', 'containerList')
-        self.assert_count_equal('', 10)
-        self.assert_count_equal('container', 2)
-        self.assert_count_equal("#container/actions", 3)
+        self.factory.xfer = DocumentList()
+        self.calljson('/lucterios.documents/documentList', {}, False)
+        self.assert_observer('core.custom', 'lucterios.documents', 'documentList')
+        self.assert_count_equal('', 11)
+        self.assert_count_equal('current_folder', 2)
+        self.assert_count_equal("#current_folder/actions", 3)
+        self.assert_count_equal('document', 0)
+        self.assert_count_equal("#document/actions", 3)
 
         TestMoke.content_type = "application/json"
         httpd = TestHTTPServer(('localhost', port))
         httpd.start()
         try:
             TestMoke.initial([''])
-            self.factory.xfer = ContainerList()
-            self.calljson('/lucterios.documents/containerList', {}, False)
-            self.assert_observer('core.custom', 'lucterios.documents', 'containerList')
-            self.assert_count_equal('container', 2)
-            self.assert_count_equal("#container/actions", 4)
+            self.factory.xfer = DocumentList()
+            self.calljson('/lucterios.documents/documentList', {}, False)
+            self.assert_observer('core.custom', 'lucterios.documents', 'documentList')
+            self.assert_count_equal('current_folder', 2)
+            self.assert_count_equal("#current_folder/actions", 3)
+            self.assert_count_equal('document', 0)
+            self.assert_count_equal("#document/actions", 4)
             self.assertEqual(TestMoke.results, [])
             self.assertEqual(len(TestMoke.requests), 1)
             self.assertEqual(TestMoke.requests[0], '/')
@@ -411,7 +435,7 @@ class DocumentTest(LucteriosTest):
             self.assertEqual(new_doc.parent_id, None)
             self.assertEqual(new_doc.name, 'aa.bb.csv')
             self.assertEqual(new_doc.description, "blablabla")
-            self.assertTrue(exists(get_user_path('documents', 'container_5')))
+            self.assertTrue(not exists(get_user_path('documents', 'container_5')))
 
             TestMoke.initial(['', 'false', ''])
             self.factory.xfer = DocumentEditor()
@@ -448,31 +472,29 @@ class DocumentTest(LucteriosTest):
     def test_delete(self):
         current_date = create_doc(self.factory.user)
 
-        self.factory.xfer = ContainerList()
-        self.calljson('/lucterios.documents/containerList', {"current_folder": "2"}, False)
-        self.assert_observer('core.custom', 'lucterios.documents', 'containerList')
-        self.assert_count_equal('container', 2)
-        self.assert_json_equal('', "container/@0/id", "3")
-        self.assert_json_equal('', "container/@0/name", "truc3")
-        self.assert_json_equal('', "container/@0/description", "----")
-        self.assert_json_equal('', "container/@0/date_modif", None)
-        self.assert_json_equal('', "container/@0/modif", None)
-        self.assert_json_equal('', "container/@1/id", "5")
-        self.assert_json_equal('', "container/@1/name", "doc1.png")
-        self.assert_json_equal('', "container/@1/description", "doc 1")
-        self.assert_json_equal('', "container/@1/date_modif", current_date.isoformat()[:23], True)
-        self.assert_json_equal('', "container/@1/modif", None)
-
+        self.factory.xfer = DocumentList()
+        self.calljson('/lucterios.documents/documentList', {"current_folder": "2"}, False)
+        self.assert_observer('core.custom', 'lucterios.documents', 'documentList')
+        self.assert_count_equal('current_folder', 1)
+        self.assert_json_equal('', "current_folder/@0/id", "3")
+        self.assert_json_equal('', "current_folder/@0/name", "truc3")
+        self.assert_count_equal('document', 1)
+        self.assert_json_equal('', "document/@0/id", "5")
+        self.assert_json_equal('', "document/@0/name", "doc1.png")
+        self.assert_json_equal('', "document/@0/description", "doc 1")
+        self.assert_json_equal('', "document/@0/date_modification", current_date.isoformat()[:23], True)
+        self.assert_json_equal('', "document/@0/modifier", None)
         self.assertTrue(exists(get_user_path('documents', 'container_5')))
 
-        self.factory.xfer = ContainerDel()
-        self.calljson('/lucterios.documents/containerDel', {"container": "5", "CONFIRME": 'YES'}, False)
-        self.assert_observer('core.acknowledge', 'lucterios.documents', 'containerDel')
+        self.factory.xfer = DocumentDel()
+        self.calljson('/lucterios.documents/documentDel', {"document": "5", "CONFIRME": 'YES'}, False)
+        self.assert_observer('core.acknowledge', 'lucterios.documents', 'documentDel')
 
-        self.factory.xfer = ContainerList()
-        self.calljson('/lucterios.documents/containerList', {"current_folder": "2"}, False)
-        self.assert_count_equal('container', 1)
-        self.assert_json_equal('', "container/@0/id", "3")
+        self.factory.xfer = DocumentList()
+        self.calljson('/lucterios.documents/documentList', {"current_folder": "2"}, False)
+        self.assert_count_equal('current_folder', 1)
+        self.assert_json_equal('', "current_folder/@0/id", "3")
+        self.assert_count_equal('document', 0)
         self.assertFalse(exists(get_user_path('documents', 'container_5')))
 
     def test_readonly(self):
@@ -497,9 +519,9 @@ class DocumentTest(LucteriosTest):
         self.assert_observer('core.exception', 'lucterios.documents', 'documentAddModify')
         self.assert_json_equal('', 'message', "Écriture non autorisée !")
 
-        self.factory.xfer = ContainerDel()
-        self.calljson('/lucterios.documents/containerDel', {"container": "6"}, False)
-        self.assert_observer('core.exception', 'lucterios.documents', 'containerDel')
+        self.factory.xfer = DocumentDel()
+        self.calljson('/lucterios.documents/documentDel', {"document": "6"}, False)
+        self.assert_observer('core.exception', 'lucterios.documents', 'documentDel')
         self.assert_json_equal('', 'message', "Écriture non autorisée !")
 
     def test_cannot_view(self):
@@ -515,9 +537,9 @@ class DocumentTest(LucteriosTest):
         self.assert_observer('core.exception', 'lucterios.documents', 'documentAddModify')
         self.assert_json_equal('', 'message', "Visualisation non autorisée !")
 
-        self.factory.xfer = ContainerDel()
-        self.calljson('/lucterios.documents/containerDel', {"container": "7"}, False)
-        self.assert_observer('core.exception', 'lucterios.documents', 'containerDel')
+        self.factory.xfer = DocumentDel()
+        self.calljson('/lucterios.documents/documentDel', {"document": "7"}, False)
+        self.assert_observer('core.exception', 'lucterios.documents', 'documentDel')
         self.assert_json_equal('', 'message', "Visualisation non autorisée !")
 
     def test_search(self):

@@ -148,6 +148,20 @@ class FolderContainer(AbstractContainer):
                 file_paths.extend(container.get_subfiles())
         return file_paths
 
+    def get_subfolders(self, user, wantmodify):
+        items = FolderContainer.objects.filter(models.Q(parent=self if self.id is not None else None))
+        if notfree_mode_connect() and not user.is_superuser:
+            new_items = []
+            for item in items:
+                if not item.cannot_view(user):
+                    if wantmodify and not item.is_readonly(user):
+                        new_items.append(item)
+                    elif not wantmodify:
+                        new_items.append(item)
+            items = models.QuerySet(model=FolderContainer)
+            items._result_cache = new_items
+        return items
+
     def delete(self):
         sub_containers = list(self.abstractcontainer_set.all())
         for sub_container in sub_containers:
@@ -227,7 +241,7 @@ class DocumentContainer(AbstractContainer):
 
     @classmethod
     def get_default_fields(cls):
-        return ["name", "description", "date_modification", "modifier"]
+        return ["icon", "name", "description", "date_modification", "modifier"]
 
     def __init__(self, *args, **kwargs):
         AbstractContainer.__init__(self, *args, **kwargs)
@@ -267,6 +281,10 @@ class DocumentContainer(AbstractContainer):
         return FolderContainer.objects.filter(self.filter)
 
     @property
+    def isempty(self):
+        return not isfile(self.file_path)
+
+    @property
     def content(self):
         from _io import BytesIO
         if isfile(self.file_path):
@@ -280,7 +298,10 @@ class DocumentContainer(AbstractContainer):
     @content.setter
     def content(self, content):
         from _io import BytesIO
-        if not isinstance(content, BytesIO) and hasattr(content, 'read'):
+        if (content == "") or (content == b""):
+            if isfile(self.file_path):
+                unlink(self.file_path)
+        elif not isinstance(content, BytesIO) and hasattr(content, 'read'):
             with open(self.file_path, "wb") as file_tmp:
                 file_tmp.write(content.read())
         else:
@@ -302,9 +323,10 @@ class DocumentContainer(AbstractContainer):
             md5res.update(phrase.encode())
             self.sharekey = md5res.hexdigest()
 
-    def get_doc_editors(self):
+    def get_doc_editors(self, user=None, wantWrite=True):
+        readonly = not wantWrite or (self.parent.is_readonly(user) if (user is not None) and (self.parent is not None) else False)
         for editor_class in DocEditor.get_all_editor():
-            editor_obj = editor_class(self.root_url, self)
+            editor_obj = editor_class(self.root_url, self, readonly, user.get_full_name() if user is not None else '???')
             if editor_obj.is_manage():
                 return editor_obj
         return None

@@ -42,7 +42,8 @@ from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, ActionsManag
     CLOSE_NO, FORMTYPE_REFRESH, SELECT_SINGLE, SELECT_NONE, \
     WrapAction, CLOSE_YES, SELECT_MULTI
 from lucterios.framework.xfercomponents import XferCompButton, XferCompLabelForm, \
-    XferCompImage, XferCompUpLoad, XferCompDownLoad, XferCompSelect
+    XferCompImage, XferCompUpLoad, XferCompDownLoad, XferCompSelect,\
+    XferCompGrid
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework import signal_and_lock
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
@@ -223,7 +224,9 @@ def docshow_modify_condition(xfer):
 
 def folder_notreadonly_condition(xfer, gridname=''):
     if notfree_mode_connect() and not xfer.request.user.is_superuser:
-        if xfer.current_folder > 0:
+        if not hasattr(xfer, 'current_folder'):
+            return False
+        elif xfer.current_folder > 0:
             folder = FolderContainer.objects.get(id=xfer.current_folder)
             if folder.cannot_view(xfer.request.user):
                 raise LucteriosException(IMPORTANT, _("No allow to view!"))
@@ -232,7 +235,7 @@ def folder_notreadonly_condition(xfer, gridname=''):
     return True
 
 
-@ActionsManage.affect_grid(TITLE_ADD, "images/add.png")
+@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", condition=folder_notreadonly_condition)
 @ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", close=CLOSE_YES, condition=docshow_modify_condition)
 @MenuManage.describ('documents.add_document')
 class DocumentAddModify(XferAddEditor):
@@ -241,6 +244,12 @@ class DocumentAddModify(XferAddEditor):
     field_id = 'document'
     caption_add = _("Add document")
     caption_modify = _("Modify document")
+
+    def _search_model(self):
+        current_folder = self.getparam('current_folder', 0)
+        if current_folder != 0:
+            self.params['parent'] = current_folder
+        XferAddEditor._search_model(self)
 
     def fillresponse(self):
         if not docshow_modify_condition(self):
@@ -258,7 +267,7 @@ class DocumentShow(XferShowEditor):
 
 
 @ActionsManage.affect_show(_('Editor'), "file.png", modal=FORMTYPE_NOMODAL,
-                           close=CLOSE_YES, condition=lambda xfer: xfer.item.get_doc_editors() is not None)
+                           close=CLOSE_YES, condition=lambda xfer: xfer.item.get_doc_editors(wantWrite=False) is not None)
 @MenuManage.describ('documents.add_document')
 class DocumentEditor(XferContainerAcknowledge):
     caption = _("Edit document")
@@ -267,7 +276,7 @@ class DocumentEditor(XferContainerAcknowledge):
     field_id = 'document'
 
     def fillresponse(self):
-        editor = self.item.get_doc_editors()
+        editor = self.item.get_doc_editors(self.request.user, False)
         if self.getparam('SAVE', '') == 'YES':
             editor.save_content()
         elif self.getparam('CLOSE', '') == 'YES':
@@ -281,7 +290,8 @@ class DocumentEditor(XferContainerAcknowledge):
             frame.set_value(editor.get_iframe())
             frame.set_location(0, 2, 2, 0)
             dlg.add_component(frame)
-            dlg.add_action(self.return_action(TITLE_SAVE, 'images/save.png'), close=CLOSE_NO, params={'SAVE': 'YES'})
+            if editor.withSaveBtn:
+                dlg.add_action(self.return_action(TITLE_SAVE, 'images/save.png'), close=CLOSE_NO, params={'SAVE': 'YES'})
             dlg.add_action(WrapAction(TITLE_CLOSE, 'images/close.png'))
             dlg.set_close_action(self.return_action(), params={'CLOSE': 'YES'})
 
@@ -310,28 +320,22 @@ def file_createnew_condition(xfer, gridname=''):
 class ContainerAddFile(XferContainerAcknowledge):
     caption = _("Create document")
     icon = "document.png"
-    model = AbstractContainer
-    field_id = 'container'
-
-    def _initialize(self, request, *_, **kwargs):
-        self.model = DocumentContainer
-        self.field_id = 'document'
-        XferContainerAcknowledge._initialize(self, request, *_, **kwargs)
+    model = DocumentContainer
+    field_id = 'document'
 
     def fillresponse(self, current_folder=0, docext=""):
         if current_folder == 0:
-            self.item.parent_id = None
-        else:
-            self.item.parent_id = current_folder
+            current_folder = None
         if self.getparam('CONFIRME', '') == 'YES':
             self.params = {}
             filename_spited = self.item.name.split('.')
             if len(filename_spited) > 1:
                 filename_spited = filename_spited[:-1]
             self.item.name = "%s.%s" % (".".join(filename_spited), docext)
+            self.item.parent_id = current_folder
             self.item.editor.before_save(self)
             self.item.save()
-            self.item.content = ""
+            self.item.get_doc_editors(self.request.user, True).get_empty()
             self.redirect_action(DocumentEditor.get_action(), modal=FORMTYPE_NOMODAL, close=CLOSE_YES, params={'document': self.item.id})
         else:
             dlg = self.create_custom(self.model)
@@ -340,6 +344,7 @@ class ContainerAddFile(XferContainerAcknowledge):
             img.set_value(self.icon_path())
             img.set_location(0, 0, 1, 6)
             dlg.add_component(img)
+            dlg.item.parent_id = current_folder
             dlg.fill_from_model(1, max_row, True, ['parent'])
             dlg.fill_from_model(1, max_row + 1, False, ['name', 'description'])
 
@@ -356,156 +361,108 @@ class ContainerAddFile(XferContainerAcknowledge):
 
 @ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI, condition=folder_notreadonly_condition)
 @MenuManage.describ('documents.delete_document')
-class ContainerDel(XferDelete):
+class DocumentDel(XferDelete):
     caption = _("Delete document")
     icon = "document.png"
-    model = AbstractContainer
-    field_id = 'container'
-
-    def _check_delete_permission(self):
-        if not WrapAction.is_permission(self.request, 'documents.delete_folder'):
-            for item in self.items:
-                if isinstance(item.get_final_child(), FolderContainer):
-                    raise LucteriosException(IMPORTANT, _("No allow to delete folder!"))
-
-    def _check_view_read_permission(self):
-        parent = None
-        if len(self.items) > 0:
-            parent = self.items[0].parent
-        if parent is not None and notfree_mode_connect() and not self.request.user.is_superuser:
-            if parent.cannot_view(self.request.user):
-                raise LucteriosException(IMPORTANT, _("No allow to view!"))
-            if parent.is_readonly(self.request.user):
-                raise LucteriosException(IMPORTANT, _("No allow to write!"))
+    model = DocumentContainer
+    field_id = 'document'
 
     def fillresponse(self):
-        self._check_delete_permission()
-        self._check_view_read_permission()
+        if len(self.items) > 0:
+            self.item = self.items[0]
+        else:
+            self.item = DocumentContainer()
+        if not docshow_modify_condition(self):
+            raise LucteriosException(IMPORTANT, _("No allow to write!"))
         XferDelete.fillresponse(self)
 
 
-@ActionsManage.affect_grid(TITLE_EDIT, "images/edit.png", close=CLOSE_NO, modal=FORMTYPE_REFRESH, unique=SELECT_SINGLE)
 @MenuManage.describ('documents.change_document', FORMTYPE_NOMODAL, 'documents.actions', _("Management of documents"))
-class ContainerList(XferListEditor):
+class DocumentList(XferListEditor):
     caption = _("Documents")
     icon = "document.png"
-    model = AbstractContainer
-    field_id = 'container'
-
-    def get_items_from_filter(self):
-        items = XferListEditor.get_items_from_filter(self)
-        if notfree_mode_connect() and not self.request.user.is_superuser:
-            new_items = []
-            for item in items:
-                item = item.get_final_child()
-                if isinstance(item, DocumentContainer) or not item.cannot_view(self.request.user):
-                    new_items.append(item)
-            items = QuerySet(model=AbstractContainer)
-            items._result_cache = new_items
-        return items
+    model = DocumentContainer
+    field_id = 'document'
 
     def fillresponse_header(self):
-        if 'container' in self.params:
-            del self.params['container']
-        if (self.item is not None) and (self.item.id is not None) and isinstance(self.item, FolderContainer):
-            self.params['current_folder'] = self.item.id
         self.current_folder = self.getparam('current_folder', 0)
         if self.current_folder > 0:
             self.filter = Q(parent=self.current_folder)
         else:
             self.filter = Q(parent=None)
+        self.fill_current_folder()
 
-    def fill_current_folder(self, new_col, new_row):
+    def fillresponse(self):
+        XferListEditor.fillresponse(self)
+        self.move_components('document', 1, -1)
+        self.get_components('document').colspan = 4
+        if folder_notreadonly_condition(self):
+            self.add_document()
+
+    def fill_current_folder(self):
         lbl = XferCompLabelForm('title_folder')
         if self.current_folder > 0:
             folder_obj = FolderContainer.objects.get(id=self.current_folder)
             lbl.set_value(folder_obj.get_title())
             folder_description = folder_obj.description
         else:
-            folder_obj = None
+            folder_obj = FolderContainer()
             lbl.set_value('>')
             folder_description = ""
-        lbl.set_location(new_col, new_row)
+        lbl.set_location(1, 2, 1)
         lbl.description = _("current folder:")
         self.add_component(lbl)
 
         lbl = XferCompLabelForm('desc_folder')
         lbl.set_value_as_header(folder_description)
-        lbl.set_location(new_col, new_row + 1)
+        lbl.set_location(0, 3, 2)
         self.add_component(lbl)
 
         if self.current_folder > 0:
             btn_return = XferCompButton('return')
-            btn_return.set_location(new_col + 1, new_row)
+            btn_return.set_location(2, 2)
             btn_return.set_is_mini(True)
-            btn_return.set_action(self.request, self.return_action('', 'images/left.png'), params={'current_folder': self.item.parent_id if self.item.parent_id is not None else 0},
+            btn_return.set_action(self.request, self.return_action('', 'images/left.png'), params={'current_folder': folder_obj.parent_id if folder_obj.parent_id is not None else 0},
                                   modal=FORMTYPE_REFRESH, close=CLOSE_NO)
             self.add_component(btn_return)
 
             btn_edit = XferCompButton('edit')
-            btn_edit.set_location(new_col + 1, new_row + 1)
+            btn_edit.set_location(4, 2)
             btn_edit.set_is_mini(True)
             btn_edit.set_action(self.request, FolderAddModify.get_action('', 'images/edit.png'),
                                 params={'folder': self.current_folder}, close=CLOSE_NO)
             self.add_component(btn_edit)
+        folder = XferCompGrid("current_folder")
+        folder.set_model(folder_obj.get_subfolders(self.request.user, False), ["icon", "name"])
+        folder.set_location(0, 4, 1)
+        folder.add_action(self.request, self.return_action("", 'images/right.png'), close=CLOSE_NO, modal=FORMTYPE_REFRESH, unique=SELECT_SINGLE)
+        folder.add_action(self.request, FolderAddModify.get_action("", "images/add.png"), close=CLOSE_NO)
+        folder.add_action(self.request, self.return_action("", "images/delete.png"), close=CLOSE_NO, unique=SELECT_SINGLE)
+        self.add_component(folder)
         return folder_obj
 
     def add_document(self):
-        old_item = self.item
-        self.model = DocumentContainer
-        self.item = DocumentContainer()
         last_row = self.get_max_row() + 5
         lbl = XferCompLabelForm('sep1')
         lbl.set_location(0, last_row, 6)
         lbl.set_value("{[center]}{[hr/]}{[/center]}")
         self.add_component(lbl)
         lbl = XferCompLabelForm('sep2')
-        lbl.set_location(0, last_row + 1, 2)
+        lbl.set_location(0, last_row + 1, 3)
         lbl.set_value_as_infocenter(_("Add document"))
         self.add_component(lbl)
 
         self.fill_from_model(0, last_row + 3, False)
         self.remove_component('parent')
+        self.get_components('filename').colspan = 3
+        self.get_components('description').colspan = 3
 
         btn_doc = XferCompButton('adddoc')
-        btn_doc.set_location(1, last_row + 4)
+        btn_doc.set_location(3, last_row + 4)
+        btn_doc.set_is_mini(True)
         btn_doc.set_action(self.request, DocumentAddModify.get_action(TITLE_ADD, 'images/add.png'),
                            params={'parent': self.current_folder, 'SAVE': 'YES'}, close=CLOSE_NO)
         self.add_component(btn_doc)
-
-        self.model = AbstractContainer
-        self.item = old_item
-
-    def fillresponse_body(self):
-        containerorder = self.getparam('GRID_ORDER%container', ())
-        self.params['GRID_ORDER%container'] = ','.join([item.replace('icon', 'foldercontainer__isnull') for item in containerorder])
-        XferListEditor.fillresponse_body(self)
-        grid = self.get_components('container')
-        grid.get_header('icon').orderable = 1
-        grid.order_list = list(set(containerorder))
-        self.params['GRID_ORDER%container'] = ','.join(grid.order_list)
-        if self.params['GRID_ORDER%container'] == '':
-            del self.params['GRID_ORDER%container']
-
-    def fillresponse(self):
-        XferListEditor.fillresponse(self)
-        obj_doc = self.get_components('container')
-        new_col = obj_doc.col
-        new_row = obj_doc.row
-        obj_doc.colspan = 2
-        self.move_components('container', 0, 2)
-        self.fill_current_folder(new_col, new_row)
-
-        if isinstance(self.item, DocumentContainer):
-            btn_doc = XferCompButton('doc')
-            btn_doc.set_location(new_col, new_row + 4)
-            btn_doc.set_is_mini(True)
-            btn_doc.set_action(self.request, DocumentShow.get_action('', ''),
-                               params={'document': self.item.id}, close=CLOSE_NO)
-            btn_doc.java_script = "current.actionPerformed();"
-            self.add_component(btn_doc)
-        elif folder_notreadonly_condition(self):
-            self.add_document()
 
 
 @MenuManage.describ('documents.change_document', FORMTYPE_NOMODAL, 'documents.actions', _('To find a document following a set of criteria.'))
@@ -552,24 +509,54 @@ class DownloadFile(XferContainerAcknowledge):
     model = DocumentContainer
     field_id = 'document'
     caption = _("Download document")
-    methods_allowed = ('GET', )
+    methods_allowed = ('GET', 'PUT')
 
     def request_handling(self, request, *args, **kwargs):
         from django.http.response import StreamingHttpResponse, HttpResponse
-        getLogger("lucterios.documents.DownloadFile").debug(">> get %s [%s]", request.path, request.user)
+        getLogger("lucterios.documents").debug(">> DownloadFile get %s [%s]", request.path, request.user)
         try:
             self._initialize(request, *args, **kwargs)
+            fileid = self.getparam('fileid', 0)
             shared = self.getparam('shared', '')
             filename = self.getparam('filename', '')
             try:
-                doc = DocumentContainer.objects.get(name=filename, sharekey=shared)
+                if fileid == 0:
+                    doc = DocumentContainer.objects.get(name=filename, sharekey=shared)
+                else:
+                    doc = DocumentContainer.objects.get(id=fileid, name=filename)
                 response = StreamingHttpResponse(doc.content, content_type='application/octet-stream')
                 response['Content-Disposition'] = 'attachment; filename=%s' % doc.name
+                if hasattr(request, 'session') and hasattr(request.session, 'accessed'):
+                    request.session.accessed = False
+                if hasattr(request, 'session') and hasattr(request.session, 'modified'):
+                    request.session.modified = False
             except DocumentContainer.DoesNotExist:
+                getLogger('lucterios.documents.DownloadFile').exception("downloadFile")
                 response = HttpResponse(_("File not found !"))
             return response
         finally:
-            getLogger("lucterios.documents.DownloadFile").debug("<< get %s [%s]", request.path, request.user)
+            getLogger("lucterios.documents").debug("<< DownloadFile get %s [%s]", request.path, request.user)
+
+
+@MenuManage.describ('')
+class UploadFile(XferContainerAcknowledge):
+    icon = "document.png"
+    field_id = 'document'
+    caption = "document"
+
+    def request_handling(self, request, *args, **kwargs):
+        getLogger("lucterios.documents").debug(">> UploadFile get %s [%s]", request.path, request.user)
+        try:
+            from lucterios.documents.doc_editors import OnlyOfficeEditor
+            from django.http.response import JsonResponse
+            self._initialize(request, *args, **kwargs)
+            doc = DocumentContainer.objects.get(id=self.getparam('fileid', 0), name=self.getparam('filename', ''))
+            abs_url = request.META.get('HTTP_REFERER', request.build_absolute_uri()).split('/')
+            editor = OnlyOfficeEditor('/'.join(abs_url[:-2]), doc)
+            responsejson = editor.uploadFile(request.body)
+            return JsonResponse(responsejson, json_dumps_params={'indent': 3})
+        finally:
+            getLogger("lucterios.documents").debug("<< UploadFile get %s [%s]", request.path, request.user)
 
 
 @signal_and_lock.Signal.decorate('summary')
