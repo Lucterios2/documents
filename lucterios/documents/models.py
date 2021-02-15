@@ -31,6 +31,7 @@ from datetime import datetime
 from zipfile import BadZipFile
 
 from django.db import models
+from django.db.models.aggregates import Count
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
@@ -326,7 +327,7 @@ class DocumentContainer(AbstractContainer):
     def get_doc_editors(self, user=None, wantWrite=True):
         readonly = not wantWrite or (self.parent.is_readonly(user) if (user is not None) and (self.parent is not None) else False)
         for editor_class in DocEditor.get_all_editor():
-            editor_obj = editor_class(self.root_url, self, readonly, user.get_full_name() if user is not None else '???')
+            editor_obj = editor_class(self.root_url, self, readonly, user.get_full_name() if (user is not None) and hasattr(user, 'get_full_name') else '???')
             if editor_obj.is_manage():
                 return editor_obj
         return None
@@ -365,6 +366,31 @@ def migrate_containers(old_parent, new_parent):
     return nb_folder, nb_doc
 
 
+def merge_multicontainers():
+    nb_folder = 0
+    nb_doc = 0
+    for multi_data in FolderContainer.objects.values("name", "description", "parent").annotate(Count('id')).values("name", "description", "parent").order_by().filter(id__count__gt=1):
+        multi_folders = FolderContainer.objects.filter(**multi_data).order_by('id')
+        if len(multi_folders) > 1:
+            try:
+                first_folder = multi_folders.first()
+                first_folder.get_final_child().merge_objects(list(multi_folders)[1:])
+                nb_folder += 1
+            except Exception as err:
+                print('merge_multicontainers Folder error', multi_folders, '->', err)
+    for multi_data in DocumentContainer.objects.values("name", "description", "parent", "date_modification", "modifier").annotate(Count('id')).values("name", "description", "parent", "date_modification", "modifier").order_by().filter(id__count__gt=1):
+        multi_documents = DocumentContainer.objects.filter(**multi_data).order_by('id')
+        if len(multi_documents) > 1:
+            try:
+                first_document = multi_documents.first()
+                first_document.get_final_child().merge_objects(list(multi_documents)[1:])
+                nb_doc += 1
+            except Exception as err:
+                print('merge_multicontainers Document error', multi_documents, '->', err)
+    if (nb_doc > 0) or (nb_folder > 0):
+        print('Merge multi-containers: folder=%d - documents=%d' % (nb_folder, nb_doc))
+
+
 class DefaultDocumentsPrintPlugin(PrintFieldsPlugIn):
 
     name = "DEFAULT_DOCUMENTS"
@@ -398,6 +424,7 @@ PrintFieldsPlugIn.add_plugin(DefaultDocumentsPrintPlugin)
 @Signal.decorate('convertdata')
 def documents_convertdata():
     migrate_containers(None, None)
+    merge_multicontainers()
 
 
 @Signal.decorate('checkparam')

@@ -77,6 +77,22 @@ class FolderAddModify(XferAddEditor):
     caption_add = _("Add folder")
     caption_modify = _("Modify folder")
 
+    def _search_model(self):
+        current_folder = self.getparam('current_folder', 0)
+        if current_folder != 0:
+            self.params['parent'] = current_folder
+        XferAddEditor._search_model(self)
+
+    def fillresponse(self):
+        XferAddEditor.fillresponse(self)
+        parentid = self.getparam('parent', 0)
+        if (self.item.id is None) and (parentid != 0):
+            parent = FolderContainer.objects.get(id=parentid)
+            viewer = self.get_components('viewer')
+            viewer.set_value([group.id for group in parent.viewer.all()])
+            modifier = self.get_components('modifier')
+            modifier.set_value([group.id for group in parent.modifier.all()])
+
 
 @ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI)
 @MenuManage.describ('documents.delete_folder')
@@ -484,10 +500,11 @@ class DocumentSearch(XferSavedCriteriaSearchEditor):
 
     def fillresponse(self):
         XferSearchEditor.fillresponse(self)
+        grid = self.get_components(self.field_id)
+        grid.actions = []
+        grid.add_action(self.request, DocumentShow.get_action(TITLE_EDIT, "images/show.png"), close=CLOSE_NO, unique=SELECT_SINGLE)
         if self.select_class is not None:
-            grid = self.get_components(self.field_id)
-            grid.add_action(self.request, self.select_class.get_action(_("Select"), "images/ok.png"),
-                            close=CLOSE_YES, unique=self.mode_select, pos_act=0)
+            grid.add_action(self.request, self.select_class.get_action(_("Select"), "images/ok.png"), close=CLOSE_YES, unique=self.mode_select, pos_act=0)
 
 
 @ActionsManage.affect_show(_('delete shared link'), "images/permissions.png", condition=lambda xfer: xfer.item.sharekey is not None)

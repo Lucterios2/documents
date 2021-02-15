@@ -307,11 +307,12 @@ class OnlyOfficeEditor(DocEditor):
             'url': self.doc_url,
             'info': {'folder': self.doccontainer.parent.name if self.doccontainer.parent is not None else ""}
         }
+        lang = settings.LANGUAGE_CODE
         option['editorConfig'] = {
             "callbackUrl": "" if self.readonly else "%s/lucterios.documents/uploadFile?%s" % (self.root_url, self.url_params),
-            'lang': 'en',
+            'lang': lang,
             'mode': 'show' if self.readonly else 'edit',
-            'region': 'en-EN',
+            'region': '%s-%s' % (lang, lang.upper()),
             "customization": {
                 'autosave': False,
                 'chat': False,
