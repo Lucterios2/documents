@@ -23,6 +23,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
+from os import unlink
 from os.path import isfile
 from zipfile import ZipFile
 
@@ -40,6 +41,16 @@ class Folder(LucteriosModel):
     parent = models.ForeignKey('Folder', verbose_name=_('parent'), null=True, on_delete=models.CASCADE)
     viewer = models.ManyToManyField(LucteriosGroup, related_name="folder_viewer", verbose_name=_('viewer'), blank=True)
     modifier = models.ManyToManyField(LucteriosGroup, related_name="folder_modifier", verbose_name=_('modifier'), blank=True)
+
+    def delete(self):
+        file_paths = []
+        docs = self.document_set.all()
+        for doc in docs:
+            file_paths.append(get_user_path("documents", "document_%s" % str(doc.id)))
+        LucteriosModel.delete(self)
+        for file_path in file_paths:
+            if isfile(file_path):
+                unlink(file_path)
 
     # DEPRECATED MODEL
 
