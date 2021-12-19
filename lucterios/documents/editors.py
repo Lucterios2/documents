@@ -72,7 +72,7 @@ class DocumentContainerEditor(LucteriosEditor):
         xfer.remove_component('name')
         file_name = XferCompUpLoad('filename')
         file_name.http_file = True
-        file_name.maxsize = 16 * 1024 * 1024  # 16Mo
+        file_name.maxsize = 64 * 1024 * 1024  # 64Mo
         file_name.compress = True
         file_name.set_value('')
         file_name.set_location(obj_cmt.col, obj_cmt.row, obj_cmt.colspan, obj_cmt.rowspan)
