@@ -39,7 +39,7 @@ from lucterios.framework.models import LucteriosModel, LucteriosVirtualField, Pr
 from lucterios.framework.filetools import get_user_path, readimage_to_base64, remove_accent, BASE64_PREFIX
 from lucterios.framework.signal_and_lock import Signal
 from lucterios.framework.auditlog import auditlog
-from lucterios.framework.tools import get_binay
+from lucterios.framework.tools import get_binay, get_url_from_request
 
 from lucterios.CORE.models import LucteriosGroup, LucteriosUser, Parameter
 
@@ -269,8 +269,7 @@ class DocumentContainer(AbstractContainer):
         if isinstance(xfer, str):
             self.root_url = xfer
         else:
-            abs_url = xfer.request.META.get('HTTP_REFERER', xfer.request.build_absolute_uri()).split('/')
-            self.root_url = '/'.join(abs_url[:-2])
+            self.root_url = get_url_from_request(xfer.request)
         if self.sharekey is not None:
             import urllib.parse
             self.shared_link = "%s/%s?shared=%s&filename=%s" % (self.root_url, 'lucterios.documents/downloadFile', self.sharekey, urllib.parse.quote(self.name))

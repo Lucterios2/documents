@@ -40,7 +40,7 @@ from lucterios.framework.xferadvance import XferListEditor, XferDelete, XferAddE
 from lucterios.framework.xfersearch import XferSearchEditor
 from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, ActionsManage, \
     CLOSE_NO, FORMTYPE_REFRESH, SELECT_SINGLE, SELECT_NONE, \
-    WrapAction, CLOSE_YES, SELECT_MULTI
+    WrapAction, CLOSE_YES, SELECT_MULTI, get_url_from_request
 from lucterios.framework.xfercomponents import XferCompButton, XferCompLabelForm, \
     XferCompImage, XferCompUpLoad, XferCompDownLoad, XferCompSelect,\
     XferCompGrid
@@ -568,8 +568,7 @@ class UploadFile(XferContainerAcknowledge):
             from django.http.response import JsonResponse
             self._initialize(request, *args, **kwargs)
             doc = DocumentContainer.objects.get(id=self.getparam('fileid', 0), name=self.getparam('filename', ''))
-            abs_url = request.META.get('HTTP_REFERER', request.build_absolute_uri()).split('/')
-            editor = OnlyOfficeEditor('/'.join(abs_url[:-2]), doc)
+            editor = OnlyOfficeEditor(get_url_from_request(request), doc)
             responsejson = editor.uploadFile(request.body)
             return JsonResponse(responsejson, json_dumps_params={'indent': 3})
         finally:
