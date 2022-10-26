@@ -226,7 +226,7 @@ class DocumentContainer(AbstractContainer):
                                 verbose_name=_('creator'), null=True, on_delete=models.CASCADE)
     date_creation = models.DateTimeField(verbose_name=_('date creation'), null=False)
     sharekey = models.CharField('sharekey', max_length=100, null=True)
-    metadata = models.CharField('metadata', max_length=50, null=True)
+    metadata = models.CharField('metadata', max_length=200, null=True)
 
     @classmethod
     def get_show_fields(cls):

@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=250, verbose_name='name')),
                 ('description', models.TextField(verbose_name='description', blank=True)),
             ],
-            options={'default_permissions': [], 'ordering': ['-foldercontainer__isnull', 'parent__name', 'name'], 'verbose_name': 'container', 'verbose_name_plural': 'containers'},
+            options={'default_permissions': [], 'ordering': ['-foldercontainer', 'parent__name', 'name'], 'verbose_name': 'container', 'verbose_name_plural': 'containers'},
         ),
         migrations.CreateModel(
             name='DocumentContainer',
