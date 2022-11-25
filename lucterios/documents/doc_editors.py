@@ -292,14 +292,14 @@ class OnlyOfficeEditor(DocEditor):
     def editor_option(self):
         extension = str(self.doccontainer.name.split('.')[-1])
         if extension in ('csv', 'xlsx', 'ods', 'xls'):
-            documentType = "spreadsheet"
+            documentType = "cell"
         elif extension in ('docx', 'odt', 'txt', 'doc', 'pdf'):
-            documentType = "text"
+            documentType = "word"
         elif extension in ('pptx', 'odp', 'ppt'):
-            documentType = "presentation"
+            documentType = "slide"
         else:
             raise LucteriosException(IMPORTANT, 'Invalid format !')
-        option = {"width": "100%", "height": "830px", 'type': "desktop", 'documentType': documentType}
+        option = {"width": "100%", "height": "830px", 'type': "embedded", 'documentType': documentType}
         option['document'] = {
             'fileType': extension,
             'key': self.docid,
@@ -311,7 +311,7 @@ class OnlyOfficeEditor(DocEditor):
         option['editorConfig'] = {
             "callbackUrl": "" if self.readonly else "%s/lucterios.documents/uploadFile?%s" % (self.root_url, self.url_params),
             'lang': lang,
-            'mode': 'show' if self.readonly else 'edit',
+            'mode': 'view' if self.readonly else 'edit',
             'region': '%s-%s' % (lang, lang.upper()),
             "customization": {
                 'autosave': False,
