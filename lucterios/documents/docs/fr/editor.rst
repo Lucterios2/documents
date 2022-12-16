@@ -24,9 +24,9 @@ Configurer
 
 	Éditer le fichier "settings.py" contenu dans le répertoire de votre instance.
 	Ajouter et adapter la ligne ci-dessous:
-	 - url : adresse d'accès d'Etherpad
-	 - apikey : contenu de la clef de sécurité (fichier APIKEY.txt contenu dans l'installation d'etherpad) 
-	 
+     - url : adresse d'accès d'Etherpad
+     - apikey : contenu de la clef de sécurité (fichier APIKEY.txt contenu dans l'installation d'etherpad) 
+
 ::
 	
 	# extra
@@ -58,7 +58,7 @@ Configurer
 
 	Editer le fichier "settings.py" contenu dans le répertoire de votre instance.
 	Ajouter et adapter la ligne ci-dessous:
-	 - url : adresse d'accès d'Ethercal
+     - url : adresse d'accès d'Ethercal
 	 
 ::
 	
