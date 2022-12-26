@@ -96,6 +96,9 @@ class FolderContainer(AbstractContainer):
     viewer = models.ManyToManyField(LucteriosGroup, related_name="foldercontainer_viewer", verbose_name=_('viewer'), blank=True)
     modifier = models.ManyToManyField(LucteriosGroup, related_name="foldercontainer_modifier", verbose_name=_('modifier'), blank=True)
 
+    BAD_RECURSIVE = " !! "
+    MAX_RECURSIVE = 10
+
     @classmethod
     def get_show_fields(cls):
         return {_('001@Info'): ["name", "description", "parent"],
@@ -117,10 +120,10 @@ class FolderContainer(AbstractContainer):
     def get_title(self, num=0):
         title = ">" + self.name
         if self.parent is not None:
-            if num < 10:
+            if num < self.MAX_RECURSIVE:
                 title = self.parent.get_title(num + 1) + title
             else:
-                title = " !! "
+                title = self.BAD_RECURSIVE
         return title
 
     def __str__(self):
@@ -420,10 +423,18 @@ class DefaultDocumentsPrintPlugin(PrintFieldsPlugIn):
 PrintFieldsPlugIn.add_plugin(DefaultDocumentsPrintPlugin)
 
 
+def check_parent_folder():
+    for folder in FolderContainer.objects.all():
+        if folder.get_title().startswith(FolderContainer.BAD_RECURSIVE):
+            folder.parent = None
+            folder.save()
+
+
 @Signal.decorate('convertdata')
 def documents_convertdata():
     migrate_containers(None, None)
     merge_multicontainers()
+    check_parent_folder()
 
 
 @Signal.decorate('checkparam')

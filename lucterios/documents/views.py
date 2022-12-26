@@ -79,7 +79,7 @@ class FolderAddModify(XferAddEditor):
 
     def _search_model(self):
         current_folder = self.getparam('current_folder', 0)
-        if current_folder != 0:
+        if (current_folder != 0) and (current_folder != self.getparam('folder', 0)):
             self.params['parent'] = current_folder
         XferAddEditor._search_model(self)
 
