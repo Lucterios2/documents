@@ -32,7 +32,9 @@ from logging import getLogger
 from django.utils.translation import ugettext_lazy as _
 from django.apps.registry import apps
 from django.db.models import Q
-from django.db.models.query import QuerySet
+from django.core.exceptions import ObjectDoesNotExist
+from django.views.decorators.http import require_GET
+from django.views import View
 
 from lucterios.framework.xferadvance import XferListEditor, XferDelete, XferAddEditor, XferShowEditor,\
     TITLE_ADD, TITLE_MODIFY, TITLE_DELETE, TITLE_EDIT, TITLE_CANCEL, TITLE_OK,\
@@ -575,6 +577,67 @@ class UploadFile(XferContainerAcknowledge):
             getLogger("lucterios.documents").debug("<< UploadFile get %s [%s]", request.path, request.user)
 
 
+@require_GET
+def check_file_info(request, file_id):
+    from django.http.response import JsonResponse, HttpResponse, HttpResponseNotFound, HttpResponseServerError
+    getLogger("lucterios.documents").debug(f"Check file: file id: {file_id}")
+    try:
+        try:
+            doc = DocumentContainer.objects.get(id=file_id)
+        except (ValueError, ObjectDoesNotExist):
+            return HttpResponseNotFound(f"File id {file_id} no found".encode())
+        if ('access_token' not in request.GET) or (str(doc.date_modification.timestamp()) != request.GET['access_token']):
+            return HttpResponse(b"token invalid", status=401)
+        res = {
+            'BaseFileName': doc.name,
+            'Size': len(doc.content.read()),
+            'UserId': 1,
+            'UserCanWrite': False,
+        }
+        return JsonResponse(res)
+    except Exception:
+        getLogger("lucterios.documents").exception("check_file_info failure!!!")
+        return HttpResponseServerError()
+
+
+class FileContentView(View):
+
+    @staticmethod
+    def get(request, file_id):
+        from django.http.response import HttpResponse, HttpResponseNotFound, HttpResponseServerError
+        print(f"GetFile: file id: {file_id}, access token: {request.GET['access_token']}")
+        try:
+            try:
+                doc = DocumentContainer.objects.get(id=file_id)
+            except (ValueError, ObjectDoesNotExist):
+                return HttpResponseNotFound(f"File id {file_id} no found".encode())
+            if ('access_token' not in request.GET) or (str(doc.date_modification.timestamp()) != request.GET['access_token']):
+                return HttpResponse(b"token invalid", status=401)
+            return HttpResponse(doc.content.read())
+        except Exception:
+            getLogger("lucterios.documents").exception("FileContentView get failure!!!")
+            return HttpResponseServerError()
+
+    @staticmethod
+    def post(request, file_id):
+        from django.http.response import HttpResponse, HttpResponseNotFound, HttpResponseServerError
+        print(f"PutFile: file id: {file_id}, access token: {request.GET['access_token']}")
+        if not request.body:
+            return HttpResponseNotFound(b'Not possible to get the file content.')
+        try:
+            try:
+                doc = DocumentContainer.objects.get(id=file_id)
+            except (ValueError, ObjectDoesNotExist):
+                return HttpResponseNotFound(f"File id {file_id} no found".encode())
+            if ('access_token' not in request.GET) or (str(doc.date_modification.timestamp()) != request.GET['access_token']):
+                return HttpResponse(b"token invalid", status=401)
+            doc.content = request.read()
+            return HttpResponse()  # status 200
+        except Exception:
+            getLogger("lucterios.documents").exception("FileContentView post failure!!!")
+            return HttpResponseServerError()
+
+
 @signal_and_lock.Signal.decorate('summary')
 def summary_documents(xfer):
     if not hasattr(xfer, 'add_component'):
@@ -605,6 +668,14 @@ def summary_documents(xfer):
         return True
     else:
         return False
+
+
+@signal_and_lock.Signal.decorate('get_url_patterns')
+def get_url_patterns(url_patterns):
+    from django.conf.urls import url
+    url_patterns.append(url(r'^lucterios.documents/files/(.*)/contents', FileContentView.as_view()))
+    url_patterns.append(url(r'^lucterios.documents/files/(.*)', check_file_info))
+    return True
 
 
 @signal_and_lock.Signal.decorate('conf_wizard')

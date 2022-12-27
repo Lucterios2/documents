@@ -23,21 +23,23 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
+from os.path import join, dirname, isfile
 from hashlib import md5
 from urllib.error import URLError
 from urllib import request
 from urllib.parse import urlencode
 from requests.exceptions import ConnectionError
 from logging import getLogger
+from lxml import etree
+from json import dumps, loads
 
 from django.conf import settings
+from django.utils import timezone
 
 from etherpad_lite import EtherpadLiteClient, EtherpadException
+
 from lucterios.documents.ethercalc import EtherCalc
 from lucterios.framework.error import LucteriosException, IMPORTANT
-from json import dumps, loads
-from django.utils import timezone
-from os.path import join, dirname, isfile
 
 
 class DocEditor(object):
@@ -389,6 +391,134 @@ class OnlyOfficeEditor(DocEditor):
         else:
             self.doccontainer.content = get(download_url, verify=False).content
             return self._convert_download_url(download_extension, expected_extension)
+
+    def uploadFile(self, info_body):
+        from requests import get
+        try:
+            self.info_body = loads(info_body.decode())
+            if self.info_body['status'] == 2:
+                old_content = self.doccontainer.content
+                try:
+                    self.doccontainer.content = get(self._get_download_url(), verify=False).content
+                    self.doccontainer.date_modification = timezone.now()
+                    self.doccontainer.save()
+                except Exception:
+                    self.doccontainer.content = old_content
+                    raise
+            responsejson = {'error': 0}
+        except Exception as error:
+            getLogger('lucterios.plugin').exception("uploadfile")
+            responsejson = {'error': str(error)}
+        return responsejson
+
+    def get_empty(self):
+        extension = str(self.doccontainer.name.split('.')[-1])
+        if extension in ('csv', 'xlsx', 'ods'):
+            default_filename = "new.xlsx"
+        elif extension in ('docx', 'odt', 'txt'):
+            default_filename = "new.docx"
+        elif extension in ('pptx', 'odp'):
+            default_filename = "new.pptx"
+        else:
+            default_filename = "new.unknown"
+        filename_path = join(dirname(__file__), 'assets', default_filename)
+        if isfile(filename_path):
+            with open(filename_path, 'rb') as filehdl:
+                self.doccontainer.content = filehdl.read()
+        else:
+            raise LucteriosException(IMPORTANT, 'Invalid format !')
+
+
+class CollaboraEditor(DocEditor):
+
+    SETTING_NAME = "COLLABORA"
+
+    @classmethod
+    def extension_rw_supported(cls):
+        if hasattr(settings, 'COLLABORA') and ('url' in settings.COLLABORA):
+            return ('csv', 'xlsx', 'ods', 'docx', 'odt', 'txt', 'pptx', 'odp')
+        else:
+            return ()
+
+    @classmethod
+    def extension_ro_supported(cls):
+        return ('xls', 'doc', 'ppt', 'pdf', "jpeg", "jpg", "gif", "png", "bmp")
+
+    @property
+    def withSaveBtn(self):
+        return False
+
+    @property
+    def doc_url(self):
+        return "%s/lucterios.documents/files/%s" % (self.root_url, self.doccontainer.id)
+
+    @property
+    def access_token(self):
+        return self.doccontainer.date_modification.timestamp()
+
+    @property
+    def collabora_url(self):
+        from requests import get
+        extension = str(self.doccontainer.name.split('.')[-1])
+        if extension in ('csv', 'xlsx', 'ods', 'xls'):
+            mime_type = "calc"
+        elif extension in ('docx', 'odt', 'txt', 'doc', 'pdf'):
+            mime_type = "writer"
+        elif extension in ('pptx', 'odp', 'ppt'):
+            mime_type = "impress"
+        elif extension in ('pdf', "jpeg", "jpg", "gif", "png", "bmp"):
+            mime_type = "draw"
+        else:
+            raise LucteriosException(IMPORTANT, 'Invalid format !')
+        response = get(self.editorParams['url'] + '/hosting/discovery', verify=False)
+        discovery = response.text
+        if not discovery:
+            raise LucteriosException(IMPORTANT, 'No able to retrieve the discovery.xml file from the Collabora Online server with the submitted address.')
+        # print(discovery)
+        parsed = etree.fromstring(discovery)
+        if parsed is None:
+            raise LucteriosException(IMPORTANT, 'The retrieved discovery.xml file is not a valid XML file')
+        result = parsed.xpath(f"/wopi-discovery/net-zone/app[@name='{mime_type}']/action")
+        if len(result) == 1:
+            raise LucteriosException(IMPORTANT, 'The requested mime type is not handled')
+        online_url = result[0].get('urlsrc')
+        if not online_url.startswith(self.editorParams['url']):
+            base_url = '/'.join(online_url.split('/')[:3])
+            if self.editorParams['url'].startswith(base_url):
+                online_url = online_url.replace(base_url, self.editorParams['url'][len(base_url):])
+        return online_url
+
+    def get_iframe(self):
+        return """
+{[div]}
+  {[form action="%(collabora_url)sWOPISrc=%(url)s" enctype="multipart/form-data" method="post" target="iframeCollabora" id="collabora-submit-form"]}
+    {[input name="access_token" value="%(access_token)s" type="hidden" id="access-token"/]}
+    {[input type="submit" value="" /]}
+  {[/form]}
+{[/div]}
+{[iframe id="iframeCollabora" name="iframeCollabora" style="width:95%%;height:80%%;position:absolute;"]}{[/iframe]}
+{[script type="text/ecmascript"]}
+    function loadDocument() {
+        var formElem = document.getElementById("collabora-submit-form");
+        if (!formElem) {
+            console.log('error: submit form not found');
+            return;
+        }
+        console.log('loading ... ' + formElem.action);
+        formElem.submit();
+    }
+    loadDocument();
+{[/script]}
+""" % {'collabora_url': self.collabora_url, 'url': self.doc_url, 'access_token': self.access_token}
+
+    def send_content(self):
+        pass
+
+    def close(self):
+        pass
+
+    def save_content(self):
+        pass
 
     def uploadFile(self, info_body):
         from requests import get
