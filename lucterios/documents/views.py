@@ -51,7 +51,7 @@ from lucterios.framework import signal_and_lock
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
 from lucterios.framework.filetools import get_tmp_dir, get_user_dir
 from lucterios.CORE.parameters import notfree_mode_connect
-from lucterios.CORE.models import LucteriosGroup
+from lucterios.CORE.models import LucteriosGroup, LucteriosUser
 from lucterios.CORE.editors import XferSavedCriteriaSearchEditor
 
 from lucterios.documents.models import FolderContainer, DocumentContainer, AbstractContainer
@@ -577,22 +577,62 @@ class UploadFile(XferContainerAcknowledge):
             getLogger("lucterios.documents").debug("<< UploadFile get %s [%s]", request.path, request.user)
 
 
+def file_check_permission(file_id, request):
+    from django.http.response import HttpResponse, HttpResponseNotFound
+    can_write = False
+    user = None
+    try:
+        doc = DocumentContainer.objects.get(id=file_id)
+    except (ValueError, ObjectDoesNotExist):
+        return HttpResponseNotFound(f"File id {file_id} no found".encode())
+    if ('access_token' not in request.GET) or (request.GET['access_token'].count('-') != 1):
+        return HttpResponse(b"token invalid: no token", status=401)
+    user_id, date_timestamp = request.GET['access_token'].split('-')
+    user_id = int(user_id)
+    if str(doc.date_modification.timestamp()) != date_timestamp:
+        return HttpResponse(b"token invalid: timestamp", status=401)
+    if user_id == 0:
+        if notfree_mode_connect():
+            return HttpResponse(b"token invalid: unsecure", status=401)
+        else:
+            can_write = True
+    else:
+        try:
+            user = LucteriosUser.objects.get(id=user_id)
+        except ObjectDoesNotExist:
+            return HttpResponse(b"token invalid: user unknown", status=401)
+        if doc.parent.cannot_view(user):
+            return HttpResponse(b"token invalid: no permission", status=401)
+        can_write = not doc.parent.is_readonly(user)
+    return doc, can_write, user
+
+
 @require_GET
 def check_file_info(request, file_id):
-    from django.http.response import JsonResponse, HttpResponse, HttpResponseNotFound, HttpResponseServerError
+    from django.http.response import JsonResponse, HttpResponseBase, HttpResponseServerError
     getLogger("lucterios.documents").debug(f"Check file: file id: {file_id}")
     try:
-        try:
-            doc = DocumentContainer.objects.get(id=file_id)
-        except (ValueError, ObjectDoesNotExist):
-            return HttpResponseNotFound(f"File id {file_id} no found".encode())
-        if ('access_token' not in request.GET) or (str(doc.date_modification.timestamp()) != request.GET['access_token']):
-            return HttpResponse(b"token invalid", status=401)
+        perm_res = file_check_permission(file_id, request)
+        if isinstance(perm_res, HttpResponseBase):
+            return perm_res
+        doc, can_write, user = perm_res
         res = {
             'BaseFileName': doc.name,
             'Size': len(doc.content.read()),
-            'UserId': 1,
-            'UserCanWrite': False,
+            'UserId': str(user.id) if user is not None else '0',
+            'OwnerId': str(doc.creator.id) if doc.creator is not None else '0',
+            'UserCanWrite': can_write,
+            'UserFriendlyName': str(user) if user is not None else '---',
+            'HidePrintOption': False,
+            'DisablePrint': False,
+            'HideSaveOption': False,
+            'HideExportOption': True,
+            'DisableExport': True,
+            'DisableCopy': True,
+            'EnableOwnerTermination': False,
+            'LastModifiedTime': doc.date_modification.isoformat(),
+            'IsUserLocked': False,
+            'IsUserRestricted': False,
         }
         return JsonResponse(res)
     except Exception:
@@ -604,15 +644,13 @@ class FileContentView(View):
 
     @staticmethod
     def get(request, file_id):
-        from django.http.response import HttpResponse, HttpResponseNotFound, HttpResponseServerError
+        from django.http.response import HttpResponse, HttpResponseBase, HttpResponseServerError
         print(f"GetFile: file id: {file_id}, access token: {request.GET['access_token']}")
         try:
-            try:
-                doc = DocumentContainer.objects.get(id=file_id)
-            except (ValueError, ObjectDoesNotExist):
-                return HttpResponseNotFound(f"File id {file_id} no found".encode())
-            if ('access_token' not in request.GET) or (str(doc.date_modification.timestamp()) != request.GET['access_token']):
-                return HttpResponse(b"token invalid", status=401)
+            perm_res = file_check_permission(file_id, request)
+            if isinstance(perm_res, HttpResponseBase):
+                return perm_res
+            doc, _can_write, _user_id = perm_res
             return HttpResponse(doc.content.read())
         except Exception:
             getLogger("lucterios.documents").exception("FileContentView get failure!!!")
@@ -620,17 +658,15 @@ class FileContentView(View):
 
     @staticmethod
     def post(request, file_id):
-        from django.http.response import HttpResponse, HttpResponseNotFound, HttpResponseServerError
+        from django.http.response import HttpResponse, HttpResponseBase, HttpResponseNotFound, HttpResponseServerError
         print(f"PutFile: file id: {file_id}, access token: {request.GET['access_token']}")
         if not request.body:
             return HttpResponseNotFound(b'Not possible to get the file content.')
         try:
-            try:
-                doc = DocumentContainer.objects.get(id=file_id)
-            except (ValueError, ObjectDoesNotExist):
-                return HttpResponseNotFound(f"File id {file_id} no found".encode())
-            if ('access_token' not in request.GET) or (str(doc.date_modification.timestamp()) != request.GET['access_token']):
-                return HttpResponse(b"token invalid", status=401)
+            perm_res = file_check_permission(file_id, request)
+            if isinstance(perm_res, HttpResponseBase):
+                return perm_res
+            doc, _can_write, _user_id = perm_res
             doc.content = request.read()
             return HttpResponse()  # status 200
         except Exception:

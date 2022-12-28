@@ -130,6 +130,8 @@ class FolderContainer(AbstractContainer):
         return self.get_title()
 
     def is_readonly(self, user):
+        if user.is_superuser:
+            return False
         readonly = True
         for modifier_item in self.modifier.all():
             if modifier_item in user.groups.all():
@@ -137,6 +139,8 @@ class FolderContainer(AbstractContainer):
         return readonly
 
     def cannot_view(self, user):
+        if user.is_superuser:
+            return False
         cannotview = True
         for viewer_item in self.viewer.all():
             if viewer_item in user.groups.all():
@@ -329,7 +333,7 @@ class DocumentContainer(AbstractContainer):
     def get_doc_editors(self, user=None, wantWrite=True):
         readonly = not wantWrite or (self.parent.is_readonly(user) if (user is not None) and (self.parent is not None) else False)
         for editor_class in DocEditor.get_all_editor():
-            editor_obj = editor_class(self.root_url, self, readonly, user.get_full_name() if (user is not None) and hasattr(user, 'get_full_name') else '???')
+            editor_obj = editor_class(self.root_url, self, readonly, user)
             if editor_obj.is_manage():
                 return editor_obj
         return None

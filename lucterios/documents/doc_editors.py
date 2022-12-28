@@ -46,11 +46,12 @@ class DocEditor(object):
 
     SETTING_NAME = "XXX"
 
-    def __init__(self, root_url, doccontainer, readonly=False, username='???'):
+    def __init__(self, root_url, doccontainer, readonly=False, user=None):
         self.root_url = root_url
         self.doccontainer = doccontainer
         self._readonly = readonly
-        self.username = username
+        self.user = user
+        self.username = user.get_full_name() if (user is not None) and hasattr(user, 'get_full_name') else '???'
         self._client = None
         if hasattr(settings, self.SETTING_NAME):
             self.editorParams = getattr(settings, self.SETTING_NAME)
@@ -454,7 +455,7 @@ class CollaboraEditor(DocEditor):
 
     @property
     def access_token(self):
-        return self.doccontainer.date_modification.timestamp()
+        return "%d-%s" % (self.user.id if self.user is not None else 0, self.doccontainer.date_modification.timestamp())
 
     @property
     def collabora_url(self):
@@ -490,24 +491,25 @@ class CollaboraEditor(DocEditor):
 
     def get_iframe(self):
         return """
-{[div]}
-  {[form action="%(collabora_url)sWOPISrc=%(url)s" enctype="multipart/form-data" method="post" target="iframeCollabora" id="collabora-submit-form"]}
+{[div style="display: none"]}
+  {[form action="%(collabora_url)sWOPISrc=%(url)s" enctype="multipart/form-data" method="post" target="iframeCollabora" id="collabora-submit-form" name="collabora-submit-form"]}
     {[input name="access_token" value="%(access_token)s" type="hidden" id="access-token"/]}
-    {[input type="submit" value="" /]}
+    {[button id="collabora-button" type="submit" value="show" /]}
   {[/form]}
 {[/div]}
 {[iframe id="iframeCollabora" name="iframeCollabora" style="width:95%%;height:80%%;position:absolute;"]}{[/iframe]}
-{[script type="text/ecmascript"]}
-    function loadDocument() {
-        var formElem = document.getElementById("collabora-submit-form");
-        if (!formElem) {
-            console.log('error: submit form not found');
-            return;
+{[script type="text/javascript"]}
+    function refresh_collabora() {
+        var btnElem = document.getElementById("collabora-button");
+        if (!btnElem) {
+            console.log('error: button not found');
+        } else {
+            console.log('loading ... ' + btnElem.value);
+            btnElem.click();
         }
-        console.log('loading ... ' + formElem.action);
-        formElem.submit();
     }
-    loadDocument();
+    refresh_collabora();
+    setTimeout(refresh_collabora, 100);
 {[/script]}
 """ % {'collabora_url': self.collabora_url, 'url': self.doc_url, 'access_token': self.access_token}
 
