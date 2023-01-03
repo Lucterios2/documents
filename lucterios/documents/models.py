@@ -29,6 +29,7 @@ from zipfile import ZipFile
 from lucterios.CORE.parameters import notfree_mode_connect, Params
 from datetime import datetime
 from zipfile import BadZipFile
+from logging import getLogger
 
 from django.db import models
 from django.db.models.aggregates import Count
@@ -368,7 +369,7 @@ def migrate_containers(old_parent, new_parent):
         nb_doc += sub_nb_doc
         nb_folder += 1
     if (old_parent is None) and (nb_folder > 0):
-        print('Convert containers: folder=%d - documents=%d' % (nb_folder, nb_doc))
+        getLogger("lucterios.documents").info('Convert containers: folder=%d - documents=%d', nb_folder, nb_doc)
     return nb_folder, nb_doc
 
 
@@ -383,7 +384,7 @@ def merge_multicontainers():
                 first_folder.get_final_child().merge_objects(list(multi_folders)[1:])
                 nb_folder += 1
             except Exception as err:
-                print('merge_multicontainers Folder error', multi_folders, '->', err)
+                getLogger("lucterios.documents").error('merge_multicontainers Folder error %s -> %s', multi_folders, err)
     for multi_data in DocumentContainer.objects.values("name", "description", "parent", "date_modification", "modifier").annotate(Count('id')).values("name", "description", "parent", "date_modification", "modifier").order_by().filter(id__count__gt=1):
         multi_documents = DocumentContainer.objects.filter(**multi_data).order_by('id')
         if len(multi_documents) > 1:
@@ -392,9 +393,9 @@ def merge_multicontainers():
                 first_document.get_final_child().merge_objects(list(multi_documents)[1:])
                 nb_doc += 1
             except Exception as err:
-                print('merge_multicontainers Document error', multi_documents, '->', err)
+                getLogger("lucterios.documents").error('merge_multicontainers Document error %s -> %s', multi_documents, err)
     if (nb_doc > 0) or (nb_folder > 0):
-        print('Merge multi-containers: folder=%d - documents=%d' % (nb_folder, nb_doc))
+        getLogger("lucterios.documents").info('Merge multi-containers: folder=%d - documents=%d', nb_folder, nb_doc)
 
 
 class DefaultDocumentsPrintPlugin(PrintFieldsPlugIn):

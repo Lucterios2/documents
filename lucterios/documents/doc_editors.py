@@ -475,7 +475,7 @@ class CollaboraEditor(DocEditor):
         discovery = response.text
         if not discovery:
             raise LucteriosException(IMPORTANT, 'No able to retrieve the discovery.xml file from the Collabora Online server with the submitted address.')
-        # print(discovery)
+        getLogger("lucterios.document").debug(discovery)
         parsed = etree.fromstring(discovery)
         if parsed is None:
             raise LucteriosException(IMPORTANT, 'The retrieved discovery.xml file is not a valid XML file')

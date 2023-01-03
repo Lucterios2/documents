@@ -645,7 +645,7 @@ class FileContentView(View):
     @staticmethod
     def get(request, file_id):
         from django.http.response import HttpResponse, HttpResponseBase, HttpResponseServerError
-        print(f"GetFile: file id: {file_id}, access token: {request.GET['access_token']}")
+        getLogger("lucterios.documents").info(f"GetFile: file id: {file_id}, access token: {request.GET['access_token']}")
         try:
             perm_res = file_check_permission(file_id, request)
             if isinstance(perm_res, HttpResponseBase):
@@ -659,7 +659,7 @@ class FileContentView(View):
     @staticmethod
     def post(request, file_id):
         from django.http.response import HttpResponse, HttpResponseBase, HttpResponseNotFound, HttpResponseServerError
-        print(f"PutFile: file id: {file_id}, access token: {request.GET['access_token']}")
+        getLogger("lucterios.documents").info(f"PutFile: file id: {file_id}, access token: {request.GET['access_token']}")
         if not request.body:
             return HttpResponseNotFound(b'Not possible to get the file content.')
         try:
