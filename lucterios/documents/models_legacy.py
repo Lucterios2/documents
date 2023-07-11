@@ -28,7 +28,7 @@ from os.path import isfile
 from zipfile import ZipFile
 
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from lucterios.framework.models import LucteriosModel
 from lucterios.framework.filetools import get_user_path

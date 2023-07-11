@@ -29,7 +29,7 @@ from shutil import rmtree
 from zipfile import ZipFile
 from logging import getLogger
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.apps.registry import apps
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
