@@ -708,9 +708,9 @@ def summary_documents(xfer):
 
 @signal_and_lock.Signal.decorate('get_url_patterns')
 def get_url_patterns(url_patterns):
-    from django.conf.urls import url
-    url_patterns.append(url(r'^lucterios.documents/files/(.*)/contents', FileContentView.as_view()))
-    url_patterns.append(url(r'^lucterios.documents/files/(.*)', check_file_info))
+    from django.conf.urls import re_path
+    url_patterns.append(re_path(r'^lucterios.documents/files/(.*)/contents', FileContentView.as_view()))
+    url_patterns.append(re_path(r'^lucterios.documents/files/(.*)', check_file_info))
     return True
 
 
