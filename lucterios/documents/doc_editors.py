@@ -497,7 +497,7 @@ class CollaboraEditor(DocEditor):
     {[button id="collabora-button" type="submit" value="show" /]}
   {[/form]}
 {[/div]}
-{[iframe id="iframeCollabora" name="iframeCollabora" style="width:95%%;height:80%%;position:absolute;"]}{[/iframe]}
+{[iframe id="iframeCollabora" name="iframeCollabora" style="width:98%%;height:91%%;position:absolute;"]}{[/iframe]}
 {[script type="text/javascript"]}
     function refresh_collabora() {
         var btnElem = document.getElementById("collabora-button");
@@ -543,11 +543,11 @@ class CollaboraEditor(DocEditor):
 
     def get_empty(self):
         extension = str(self.doccontainer.name.split('.')[-1])
-        if extension in ('csv', 'xlsx', 'ods'):
+        if extension in ('xlsx', ):
             default_filename = "new.xlsx"
-        elif extension in ('docx', 'odt', 'txt'):
+        elif extension in ('docx', ):
             default_filename = "new.docx"
-        elif extension in ('pptx', 'odp'):
+        elif extension in ('pptx', ):
             default_filename = "new.pptx"
         else:
             default_filename = "new.unknown"
@@ -556,4 +556,4 @@ class CollaboraEditor(DocEditor):
             with open(filename_path, 'rb') as filehdl:
                 self.doccontainer.content = filehdl.read()
         else:
-            raise LucteriosException(IMPORTANT, 'Invalid format !')
+            self.doccontainer.content = b''
