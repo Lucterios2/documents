@@ -601,9 +601,9 @@ def file_check_permission(file_id, request):
             user = LucteriosUser.objects.get(id=user_id)
         except ObjectDoesNotExist:
             return HttpResponse(b"token invalid: user unknown", status=401)
-        if doc.parent.cannot_view(user):
+        if (doc.parent is not None) and doc.parent.cannot_view(user):
             return HttpResponse(b"token invalid: no permission", status=401)
-        can_write = not doc.parent.is_readonly(user)
+        can_write = (doc.parent is None) or not doc.parent.is_readonly(user)
     return doc, can_write, user
 
 

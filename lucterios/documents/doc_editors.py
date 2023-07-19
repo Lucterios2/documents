@@ -483,7 +483,7 @@ class CollaboraEditor(DocEditor):
         if len(result) == 1:
             raise LucteriosException(IMPORTANT, 'The requested mime type is not handled')
         online_url = result[0].get('urlsrc')
-        if not online_url.startswith(self.editorParams['url']):
+        if online_url.startswith(self.editorParams['url']):
             base_url = '/'.join(online_url.split('/')[:3])
             if self.editorParams['url'].startswith(base_url):
                 online_url = online_url.replace(base_url, self.editorParams['url'][len(base_url):])
