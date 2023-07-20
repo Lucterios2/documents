@@ -272,7 +272,7 @@ class OnlyOfficeEditor(DocEditor):
 
     @classmethod
     def extension_ro_supported(cls):
-        if hasattr(settings, 'COLLABORA') and ('url' in settings.COLLABORA):
+        if hasattr(settings, 'ONLYOFFICE') and ('url' in settings.ONLYOFFICE):
             return ('xls', 'doc', 'ppt', 'pdf')
         else:
             return ()
