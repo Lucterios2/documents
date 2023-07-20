@@ -272,7 +272,10 @@ class OnlyOfficeEditor(DocEditor):
 
     @classmethod
     def extension_ro_supported(cls):
-        return ('xls', 'doc', 'ppt', 'pdf')
+        if hasattr(settings, 'COLLABORA') and ('url' in settings.COLLABORA):
+            return ('xls', 'doc', 'ppt', 'pdf')
+        else:
+            return ()
 
     @property
     def withSaveBtn(self):
@@ -443,7 +446,10 @@ class CollaboraEditor(DocEditor):
 
     @classmethod
     def extension_ro_supported(cls):
-        return ('xls', 'doc', 'ppt', 'pdf', "jpeg", "jpg", "gif", "png", "bmp")
+        if hasattr(settings, 'COLLABORA') and ('url' in settings.COLLABORA):
+            return ('xls', 'doc', 'ppt', 'pdf', "jpeg", "jpg", "gif", "png", "bmp")
+        else:
+            return ()
 
     @property
     def withSaveBtn(self):
