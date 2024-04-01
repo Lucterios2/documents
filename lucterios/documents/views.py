@@ -58,22 +58,24 @@ from lucterios.documents.models import FolderContainer, DocumentContainer, Abstr
 from lucterios.documents.doc_editors import DocEditor
 
 
-MenuManage.add_sub("documents.conf", "core.extensions", "", _("Document"), "", 10)
+MenuManage.add_sub("documents.conf", "core.extensions", "", _("Document"), "", 10, 'mdi:mdi-folder-cog-outline')
 
 
 @MenuManage.describ('documents.change_folder', FORMTYPE_NOMODAL, 'documents.conf', _("Management of document's folders"))
 class FolderList(XferListEditor):
     caption = _("Folders")
     icon = "documentConf.png"
+    short_icon = 'mdi:mdi-folder-cog'
     model = FolderContainer
     field_id = 'folder'
 
 
-@ActionsManage.affect_grid(TITLE_ADD, "images/add.png")
-@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE)
+@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", short_icon='mdi:mdi-pencil-plus-outline')
+@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", short_icon='mdi:mdi-pencil-outline', unique=SELECT_SINGLE)
 @MenuManage.describ('documents.add_folder')
 class FolderAddModify(XferAddEditor):
     icon = "documentConf.png"
+    short_icon = 'mdi:mdi-folder-cog'
     model = FolderContainer
     field_id = 'folder'
     caption_add = _("Add folder")
@@ -96,17 +98,19 @@ class FolderAddModify(XferAddEditor):
             modifier.set_value([group.id for group in parent.modifier.all()])
 
 
-@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI)
+@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", short_icon='mdi:mdi-delete-outline', unique=SELECT_MULTI)
 @MenuManage.describ('documents.delete_folder')
 class FolderDel(XferDelete):
     caption = _("Delete folder")
     icon = "documentConf.png"
+    short_icon = 'mdi:mdi-folder-cog'
     model = FolderContainer
     field_id = 'folder'
 
 
 class FolderImportExport(XferContainerAcknowledge):
     icon = "documentConf.png"
+    short_icon = 'mdi:mdi-folder-cog'
     model = FolderContainer
     field_id = 'folder'
 
@@ -122,6 +126,7 @@ class FolderImportExport(XferContainerAcknowledge):
             dlg.item = self.item
             img = XferCompImage('img')
             img.set_value(self.icon_path())
+            img.set_short_icon(self.short_icon)
             img.set_location(0, 0, 1, 3)
             dlg.add_component(img)
             lbl = XferCompLabelForm('title')
@@ -134,8 +139,8 @@ class FolderImportExport(XferContainerAcknowledge):
             parent.colspan = 3
 
             self.add_components(dlg)
-            dlg.add_action(self.return_action(TITLE_OK, "images/ok.png"), close=CLOSE_YES, params={'SAVE': 'YES'})
-            dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
+            dlg.add_action(self.return_action(TITLE_OK, "images/ok.png", short_icon='mdi:mdi-check'), close=CLOSE_YES, params={'SAVE': 'YES'})
+            dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png', 'mdi:mdi-cancel'))
         else:
             if self.getparam("parent", 0) != 0:
                 self.item = FolderContainer.objects.get(id=self.getparam("parent", 0))
@@ -144,7 +149,7 @@ class FolderImportExport(XferContainerAcknowledge):
             self.run_archive()
 
 
-@ActionsManage.affect_grid(_("Import"), "zip.png", unique=SELECT_NONE)
+@ActionsManage.affect_grid(_("Import"), "zip.png", short_icon='mdi:mdi-folder-zip-outline', unique=SELECT_NONE)
 @MenuManage.describ('documents.add_folder')
 class FolderImport(FolderImportExport):
     caption = _("Import")
@@ -180,7 +185,7 @@ class FolderImport(FolderImportExport):
                     rmtree(tmp_dir)
 
 
-@ActionsManage.affect_grid(_("Extract"), "zip.png", unique=SELECT_NONE)
+@ActionsManage.affect_grid(_("Extract"), "zip.png", short_icon='mdi:mdi-folder-zip-outline', unique=SELECT_NONE)
 @MenuManage.describ('documents.add_folder')
 class FolderExtract(FolderImportExport):
     caption = _("Extract")
@@ -225,10 +230,10 @@ class FolderExtract(FolderImportExport):
 
 
 if not apps.is_installed("lucterios.contacts"):
-    MenuManage.add_sub("office", None, "lucterios.documents/images/office.png", _("Office"), _("Office tools"), 70)
+    MenuManage.add_sub("office", None, "lucterios.documents/images/office.png", _("Office"), _("Office tools"), 70, 'mdi:mdi-monitor')
 
 MenuManage.add_sub("documents.actions", "office", "lucterios.documents/images/document.png",
-                   _("Documents management"), _("Documents storage tools"), 80)
+                   _("Documents management"), _("Documents storage tools"), 80, 'mdi:mdi-folder-outline')
 
 
 def docshow_modify_condition(xfer):
@@ -253,11 +258,12 @@ def folder_notreadonly_condition(xfer, gridname=''):
     return True
 
 
-@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", condition=folder_notreadonly_condition)
-@ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", close=CLOSE_YES, condition=docshow_modify_condition)
+@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", short_icon='mdi:mdi-pencil-plus-outline', condition=folder_notreadonly_condition)
+@ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", short_icon='mdi:mdi-pencil-outline', close=CLOSE_YES, condition=docshow_modify_condition)
 @MenuManage.describ('documents.add_document')
 class DocumentAddModify(XferAddEditor):
     icon = "document.png"
+    short_icon = 'mdi:mdi-folder-outline'
     model = DocumentContainer
     field_id = 'document'
     caption_add = _("Add document")
@@ -275,21 +281,23 @@ class DocumentAddModify(XferAddEditor):
         XferAddEditor.fillresponse(self)
 
 
-@ActionsManage.affect_grid(TITLE_EDIT, "images/show.png", unique=SELECT_SINGLE)
+@ActionsManage.affect_grid(TITLE_EDIT, "images/show.png", short_icon='mdi:mdi-text-box-outline', unique=SELECT_SINGLE)
 @MenuManage.describ('documents.change_document')
 class DocumentShow(XferShowEditor):
     caption = _("Show document")
     icon = "document.png"
+    short_icon = 'mdi:mdi-folder-outline'
     model = DocumentContainer
     field_id = 'document'
 
 
-@ActionsManage.affect_show(_('Editor'), "file.png", modal=FORMTYPE_NOMODAL,
+@ActionsManage.affect_show(_('Editor'), "file.png", short_icon='mdi:mdi-file-outline', modal=FORMTYPE_NOMODAL,
                            close=CLOSE_YES, condition=lambda xfer: xfer.item.get_doc_editors(wantWrite=False) is not None)
 @MenuManage.describ('documents.add_document')
 class DocumentEditor(XferContainerAcknowledge):
     caption = _("Edit document")
     icon = "document.png"
+    short_icon = 'mdi:mdi-folder-outline'
     model = DocumentContainer
     field_id = 'document'
 
@@ -309,16 +317,17 @@ class DocumentEditor(XferContainerAcknowledge):
             frame.set_location(0, 2, 2, 0)
             dlg.add_component(frame)
             if editor.withSaveBtn:
-                dlg.add_action(self.return_action(TITLE_SAVE, 'images/save.png'), close=CLOSE_NO, params={'SAVE': 'YES'})
-            dlg.add_action(WrapAction(TITLE_CLOSE, 'images/close.png'))
+                dlg.add_action(self.return_action(TITLE_SAVE, 'images/save.png', short_icon='mdi:mdi-content-save-outline'), close=CLOSE_NO, params={'SAVE': 'YES'})
+            dlg.add_action(WrapAction(TITLE_CLOSE, 'images/close.png', 'mdi:mdi-close'))
             dlg.set_close_action(self.return_action(), params={'CLOSE': 'YES'})
 
 
-@ActionsManage.affect_grid(_('Folder'), "images/add.png")
+@ActionsManage.affect_grid(_('Folder'), "images/add.png", short_icon='mdi:mdi-pencil-plus-outline')
 @MenuManage.describ('documents.add_folder')
 class ContainerAddFolder(XferContainerAcknowledge):
     caption = _("Add folder")
     icon = "document.png"
+    short_icon = 'mdi:mdi-folder-outline'
     model = AbstractContainer
     field_id = 'container'
 
@@ -333,11 +342,12 @@ def file_createnew_condition(xfer, gridname=''):
         return False
 
 
-@ActionsManage.affect_grid(_('File'), "images/new.png", condition=file_createnew_condition)
+@ActionsManage.affect_grid(_('File'), "images/new.png", short_icon='mdi:mdi-pencil-plus-outline', condition=file_createnew_condition)
 @MenuManage.describ('documents.add_document')
 class ContainerAddFile(XferContainerAcknowledge):
     caption = _("Create document")
     icon = "document.png"
+    short_icon = 'mdi:mdi-folder-outline'
     model = DocumentContainer
     field_id = 'document'
 
@@ -374,14 +384,15 @@ class ContainerAddFile(XferContainerAcknowledge):
             select.description = _('document type')
             dlg.add_component(select)
             dlg.add_action(self.return_action(TITLE_OK, 'images/ok.png'), close=CLOSE_YES, params={'CONFIRME': 'YES'})
-            dlg.add_action(WrapAction(TITLE_CLOSE, 'images/close.png'))
+            dlg.add_action(WrapAction(TITLE_CLOSE, 'images/close.png', 'mdi:mdi-close'))
 
 
-@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI, condition=folder_notreadonly_condition)
+@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", short_icon='mdi:mdi-delete-outline', unique=SELECT_MULTI, condition=folder_notreadonly_condition)
 @MenuManage.describ('documents.delete_document')
 class DocumentDel(XferDelete):
     caption = _("Delete document")
     icon = "document.png"
+    short_icon = 'mdi:mdi-folder-outline'
     model = DocumentContainer
     field_id = 'document'
 
@@ -399,6 +410,7 @@ class DocumentDel(XferDelete):
 class DocumentList(XferListEditor):
     caption = _("Documents")
     icon = "document.png"
+    short_icon = 'mdi:mdi-folder-outline'
     model = DocumentContainer
     field_id = 'document'
 
@@ -440,22 +452,22 @@ class DocumentList(XferListEditor):
             btn_return = XferCompButton('return')
             btn_return.set_location(2, 2)
             btn_return.set_is_mini(True)
-            btn_return.set_action(self.request, self.return_action('', 'images/left.png'), params={'current_folder': folder_obj.parent_id if folder_obj.parent_id is not None else 0},
+            btn_return.set_action(self.request, self.return_action('', 'images/left.png', 'mdi:mdi-page-previous-outline'), params={'current_folder': folder_obj.parent_id if folder_obj.parent_id is not None else 0},
                                   modal=FORMTYPE_REFRESH, close=CLOSE_NO)
             self.add_component(btn_return)
 
             btn_edit = XferCompButton('edit')
             btn_edit.set_location(4, 2)
             btn_edit.set_is_mini(True)
-            btn_edit.set_action(self.request, FolderAddModify.get_action('', 'images/edit.png'),
+            btn_edit.set_action(self.request, FolderAddModify.get_action('', 'images/edit.png', 'mdi:mdi-pencil-outline'),
                                 params={'folder': self.current_folder}, close=CLOSE_NO)
             self.add_component(btn_edit)
         folder = XferCompGrid("current_folder")
         folder.set_model(folder_obj.get_subfolders(self.request.user, False), ["icon", "name"])
         folder.set_location(0, 4, 1)
-        folder.add_action(self.request, self.return_action("", 'images/right.png'), close=CLOSE_NO, modal=FORMTYPE_REFRESH, unique=SELECT_SINGLE)
-        folder.add_action(self.request, FolderAddModify.get_action("", "images/add.png"), close=CLOSE_NO)
-        folder.add_action(self.request, self.return_action("", "images/delete.png"), close=CLOSE_NO, unique=SELECT_SINGLE)
+        folder.add_action(self.request, self.return_action("", 'images/right.png', 'mdi:mdi-page-next-outline'), close=CLOSE_NO, modal=FORMTYPE_REFRESH, unique=SELECT_SINGLE)
+        folder.add_action(self.request, FolderAddModify.get_action("", "images/add.png", short_icon='mdi:mdi-pencil-plus-outline'), close=CLOSE_NO)
+        folder.add_action(self.request, self.return_action("", "images/delete.png", short_icon='mdi:mdi-delete-outline'), close=CLOSE_NO, unique=SELECT_SINGLE)
         self.add_component(folder)
         return folder_obj
 
@@ -478,7 +490,7 @@ class DocumentList(XferListEditor):
         btn_doc = XferCompButton('adddoc')
         btn_doc.set_location(3, last_row + 4)
         btn_doc.set_is_mini(True)
-        btn_doc.set_action(self.request, DocumentAddModify.get_action(TITLE_ADD, 'images/add.png'),
+        btn_doc.set_action(self.request, DocumentAddModify.get_action(TITLE_ADD, 'images/add.png', short_icon='mdi:mdi-pencil-plus-outline'),
                            params={'parent': self.current_folder, 'SAVE': 'YES'}, close=CLOSE_NO)
         self.add_component(btn_doc)
 
@@ -487,6 +499,7 @@ class DocumentList(XferListEditor):
 class DocumentSearch(XferSavedCriteriaSearchEditor):
     caption = _("Document search")
     icon = "documentFind.png"
+    short_icon = 'mdi:mdi-folder-search-outline'
     model = DocumentContainer
     field_id = 'document'
     mode_select = SELECT_SINGLE
@@ -504,16 +517,17 @@ class DocumentSearch(XferSavedCriteriaSearchEditor):
         XferSearchEditor.fillresponse(self)
         grid = self.get_components(self.field_id)
         grid.actions = []
-        grid.add_action(self.request, DocumentShow.get_action(TITLE_EDIT, "images/show.png"), close=CLOSE_NO, unique=SELECT_SINGLE)
+        grid.add_action(self.request, DocumentShow.get_action(TITLE_EDIT, "images/show.png", short_icon='mdi:mdi-text-box-outline'), close=CLOSE_NO, unique=SELECT_SINGLE)
         if self.select_class is not None:
             grid.add_action(self.request, self.select_class.get_action(_("Select"), "images/ok.png"), close=CLOSE_YES, unique=self.mode_select, pos_act=0)
 
 
-@ActionsManage.affect_show(_('delete shared link'), "images/permissions.png", condition=lambda xfer: xfer.item.sharekey is not None)
-@ActionsManage.affect_show(_('create shared link'), "images/permissions.png", condition=lambda xfer: xfer.item.sharekey is None)
+@ActionsManage.affect_show(_('delete shared link'), "images/permissions.png", short_icon="mdi:mdi-file-key-outline", condition=lambda xfer: xfer.item.sharekey is not None)
+@ActionsManage.affect_show(_('create shared link'), "images/permissions.png", short_icon="mdi:mdi-file-key-outline", condition=lambda xfer: xfer.item.sharekey is None)
 @MenuManage.describ('documents.add_document')
 class DocumentChangeShared(XferContainerAcknowledge):
     icon = "document.png"
+    short_icon = 'mdi:mdi-folder-outline'
     model = DocumentContainer
     field_id = 'document'
 
@@ -525,6 +539,7 @@ class DocumentChangeShared(XferContainerAcknowledge):
 @MenuManage.describ('')
 class DownloadFile(XferContainerAcknowledge):
     icon = "document.png"
+    short_icon = 'mdi:mdi-folder-outline'
     model = DocumentContainer
     field_id = 'document'
     caption = _("Download document")
@@ -560,6 +575,7 @@ class DownloadFile(XferContainerAcknowledge):
 @MenuManage.describ('')
 class UploadFile(XferContainerAcknowledge):
     icon = "document.png"
+    short_icon = 'mdi:mdi-folder-outline'
     field_id = 'document'
     caption = "document"
 
@@ -708,7 +724,7 @@ def summary_documents(xfer):
 
 @signal_and_lock.Signal.decorate('get_url_patterns')
 def get_url_patterns(url_patterns):
-    from django.conf.urls import re_path
+    from django.urls import re_path
     url_patterns.append(re_path(r'^lucterios.documents/files/(.*)/contents', FileContentView.as_view()))
     url_patterns.append(re_path(r'^lucterios.documents/files/(.*)', check_file_info))
     return True
@@ -730,5 +746,5 @@ def conf_wizard_document(wizard_ident, xfer):
         xfer.add_component(lbl)
         btn = XferCompButton("btnconf")
         btn.set_location(4, xfer.get_max_row() - 1, 1, 2)
-        btn.set_action(xfer.request, FolderList.get_action(TITLE_MODIFY, "images/edit.png"), close=CLOSE_NO)
+        btn.set_action(xfer.request, FolderList.get_action(TITLE_MODIFY, "images/edit.png", short_icon='mdi:mdi-pencil-outline'), close=CLOSE_NO)
         xfer.add_component(btn)
