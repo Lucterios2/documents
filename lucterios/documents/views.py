@@ -195,6 +195,7 @@ class FolderExtract(FolderImportExport):
         dlg.item = self.item
         img = XferCompImage('img')
         img.set_value(self.icon_path())
+        img.set_short_icon(self.short_icon)
         img.set_location(0, 0, 1, 3)
         dlg.add_component(img)
         lbl = XferCompLabelForm('title')
@@ -370,6 +371,7 @@ class ContainerAddFile(XferContainerAcknowledge):
             max_row = dlg.get_max_row() + 1
             img = XferCompImage('img')
             img.set_value(self.icon_path())
+            img.set_short_icon(self.short_icon)
             img.set_location(0, 0, 1, 6)
             dlg.add_component(img)
             dlg.item.parent_id = current_folder
