@@ -150,12 +150,13 @@ class FolderContainer(AbstractContainer):
 
     def get_subfiles(self):
         file_paths = []
-        for container in self.abstractcontainer_set.all():
-            container = container.get_final_child()
-            if isinstance(container, DocumentContainer):
-                file_paths.append(container.file_path)
-            else:
-                file_paths.extend(container.get_subfiles())
+        if self.id is not None:
+            for container in self.abstractcontainer_set.all():
+                container = container.get_final_child()
+                if isinstance(container, DocumentContainer):
+                    file_paths.append(container.file_path)
+                else:
+                    file_paths.extend(container.get_subfiles())
         return file_paths
 
     def get_subfolders(self, user, wantmodify):
