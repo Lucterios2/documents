@@ -36,7 +36,7 @@ from django.db.models.aggregates import Count
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from lucterios.framework.models import LucteriosModel, LucteriosVirtualField, PrintFieldsPlugIn,\
+from lucterios.framework.models import LucteriosModel, LucteriosVirtualField, PrintFieldsPlugIn, \
     LucteriosQuerySet
 from lucterios.framework.filetools import get_user_path, readimage_to_base64, remove_accent, BASE64_PREFIX
 from lucterios.framework.signal_and_lock import Signal

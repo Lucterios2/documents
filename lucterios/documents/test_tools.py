@@ -41,7 +41,7 @@ from lucterios.framework.test import add_empty_user
 
 
 def create_doc(user, with_folder=True):
-    root_path = join(dirname(__file__), 'static', 'lucterios.documents', 'images')
+    root_path = join(dirname(__file__), 'docs', 'fr')
     current_date = timezone.now()
     new_doc1 = DocumentContainer.objects.create(name='doc1.png', description="doc 1", creator=user,
                                                 date_creation=current_date, date_modification=current_date)
@@ -49,7 +49,7 @@ def create_doc(user, with_folder=True):
         new_doc1.parent = FolderContainer.objects.get(id=2)
     new_doc1.save()
     with ZipFile(get_user_path('documents', 'container_%d' % new_doc1.id), 'w') as zip_ref:
-        zip_ref.write(join(root_path, 'documentFind.png'), arcname='doc1.png')
+        zip_ref.write(join(root_path, 'configuration.png'), arcname='doc1.png')
 
     new_doc2 = DocumentContainer.objects.create(name='doc2.png', description="doc 2", creator=user,
                                                 date_creation=current_date, date_modification=current_date)
@@ -57,7 +57,7 @@ def create_doc(user, with_folder=True):
         new_doc2.parent = FolderContainer.objects.get(id=1)
     new_doc2.save()
     with ZipFile(get_user_path('documents', 'container_%d' % new_doc2.id), 'w') as zip_ref:
-        zip_ref.write(join(root_path, 'documentConf.png'), arcname='doc2.png')
+        zip_ref.write(join(root_path, 'listdoc.png'), arcname='doc2.png')
 
     new_doc3 = DocumentContainer.objects.create(name='doc3.png', description="doc 3", creator=user,
                                                 date_creation=current_date, date_modification=current_date)
@@ -65,7 +65,7 @@ def create_doc(user, with_folder=True):
         new_doc3.parent = FolderContainer.objects.get(id=4)
     new_doc3.save()
     with ZipFile(get_user_path('documents', 'container_%d' % new_doc3.id), 'w') as zip_ref:
-        zip_ref.write(join(root_path, 'document.png'), arcname='doc3.png')
+        zip_ref.write(join(root_path, 'showdoc.png'), arcname='doc3.png')
     return current_date
 
 

@@ -37,9 +37,9 @@ from lucterios.CORE.models import LucteriosGroup, LucteriosUser
 
 from lucterios.documents.models import FolderContainer, DocumentContainer
 from lucterios.documents.views import FolderList, FolderAddModify, FolderDel, \
-    DocumentList, DocumentAddModify, DocumentShow, DocumentDel, DocumentSearch,\
+    DocumentList, DocumentAddModify, DocumentShow, DocumentDel, DocumentSearch, \
     DocumentChangeShared, DownloadFile, ContainerAddFile, DocumentEditor
-from lucterios.documents.test_tools import default_groups, default_folders,\
+from lucterios.documents.test_tools import default_groups, default_folders, \
     create_doc, TestHTTPServer, TestMoke
 
 
@@ -217,7 +217,7 @@ class DocumentTest(LucteriosTest):
         self.factory.user = LucteriosUser.objects.get(username='empty')
 
         self.assertFalse(exists(get_user_path('documents', 'container_5')))
-        file_path = join(dirname(__file__), 'static', 'lucterios.documents', 'images', 'documentFind.png')
+        file_path = join(dirname(__file__), 'docs', 'en', 'listdoc.png')
 
         docs = DocumentContainer.objects.all()
         self.assertEqual(len(docs), 0)

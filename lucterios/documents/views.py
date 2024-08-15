@@ -36,15 +36,15 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.http import require_GET
 from django.views import View
 
-from lucterios.framework.xferadvance import XferListEditor, XferDelete, XferAddEditor, XferShowEditor,\
-    TITLE_ADD, TITLE_MODIFY, TITLE_DELETE, TITLE_EDIT, TITLE_CANCEL, TITLE_OK,\
+from lucterios.framework.xferadvance import XferListEditor, XferDelete, XferAddEditor, XferShowEditor, \
+    TITLE_ADD, TITLE_MODIFY, TITLE_DELETE, TITLE_EDIT, TITLE_CANCEL, TITLE_OK, \
     TEXT_TOTAL_NUMBER, TITLE_CLOSE, TITLE_SAVE
 from lucterios.framework.xfersearch import XferSearchEditor
 from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, ActionsManage, \
     CLOSE_NO, FORMTYPE_REFRESH, SELECT_SINGLE, SELECT_NONE, \
     WrapAction, CLOSE_YES, SELECT_MULTI, get_url_from_request
 from lucterios.framework.xfercomponents import XferCompButton, XferCompLabelForm, \
-    XferCompImage, XferCompUpLoad, XferCompDownLoad, XferCompSelect,\
+    XferCompImage, XferCompUpLoad, XferCompDownLoad, XferCompSelect, \
     XferCompGrid
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework import signal_and_lock
