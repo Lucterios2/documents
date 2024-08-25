@@ -491,13 +491,12 @@ class DocumentSearch(XferSavedCriteriaSearchEditor):
     mode_select = SELECT_SINGLE
     select_class = None
 
-    def get_text_search(self):
-        criteria_desc = XferSavedCriteriaSearchEditor.get_text_search(self)
+    def fillresponse_search(self):
+        XferSavedCriteriaSearchEditor.fillresponse_search(self)
         if notfree_mode_connect() and not self.request.user.is_superuser:
             if self.filter is None:
                 self.filter = Q()
             self.filter = self.filter & (Q(parent=None) | Q(parent__viewer__in=self.request.user.groups.all()))
-        return criteria_desc
 
     def fillresponse(self):
         XferSearchEditor.fillresponse(self)
