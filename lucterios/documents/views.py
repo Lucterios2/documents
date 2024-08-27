@@ -32,20 +32,20 @@ from logging import getLogger
 from django.utils.translation import gettext_lazy as _
 from django.apps.registry import apps
 from django.db.models import Q
+from django.db.models.query import QuerySet
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.http import require_GET
 from django.views import View
 
 from lucterios.framework.xferadvance import XferListEditor, XferDelete, XferAddEditor, XferShowEditor, \
     TITLE_ADD, TITLE_MODIFY, TITLE_DELETE, TITLE_EDIT, TITLE_CANCEL, TITLE_OK, \
-    TEXT_TOTAL_NUMBER, TITLE_CLOSE, TITLE_SAVE
+    TEXT_TOTAL_NUMBER, TITLE_CLOSE, TITLE_SAVE, TITLE_CREATE
 from lucterios.framework.xfersearch import XferSearchEditor
 from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, ActionsManage, \
     CLOSE_NO, FORMTYPE_REFRESH, SELECT_SINGLE, SELECT_NONE, \
-    WrapAction, CLOSE_YES, SELECT_MULTI, get_url_from_request
+    WrapAction, CLOSE_YES, SELECT_MULTI, get_url_from_request, FORMTYPE_MODAL
 from lucterios.framework.xfercomponents import XferCompButton, XferCompLabelForm, \
-    XferCompImage, XferCompUpLoad, XferCompDownLoad, XferCompSelect, \
-    XferCompGrid
+    XferCompImage, XferCompUpLoad, XferCompDownLoad, XferCompSelect, XferCompMosaic, MOSAIC_ORDER
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework import signal_and_lock
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
@@ -80,7 +80,7 @@ class FolderAddModify(XferAddEditor):
     caption_modify = _("Modify folder")
 
     def _search_model(self):
-        current_folder = self.getparam('current_folder', 0)
+        current_folder = self.getparam('document', 0)
         if (current_folder != 0) and (current_folder != self.getparam('folder', 0)):
             self.params['parent'] = current_folder
         XferAddEditor._search_model(self)
@@ -241,10 +241,10 @@ def docshow_modify_condition(xfer):
 
 def folder_notreadonly_condition(xfer, gridname=''):
     if notfree_mode_connect() and not xfer.request.user.is_superuser:
-        if not hasattr(xfer, 'current_folder'):
+        if not hasattr(xfer, 'curren_item'):
             return False
-        elif xfer.current_folder > 0:
-            folder = FolderContainer.objects.get(id=xfer.current_folder)
+        elif xfer.curren_item.id is not None:
+            folder = FolderContainer.objects.get(id=xfer.curren_item.id)
             if folder.cannot_view(xfer.request.user):
                 raise LucteriosException(IMPORTANT, _("No allow to view!"))
             if folder.is_readonly(xfer.request.user):
@@ -252,7 +252,6 @@ def folder_notreadonly_condition(xfer, gridname=''):
     return True
 
 
-@ActionsManage.affect_grid(TITLE_ADD, short_icon='mdi:mdi-pencil-plus-outline', condition=folder_notreadonly_condition)
 @ActionsManage.affect_show(TITLE_MODIFY, short_icon='mdi:mdi-pencil-outline', close=CLOSE_YES, condition=docshow_modify_condition)
 @MenuManage.describ('documents.add_document')
 class DocumentAddModify(XferAddEditor):
@@ -263,24 +262,32 @@ class DocumentAddModify(XferAddEditor):
     caption_modify = _("Modify document")
 
     def _search_model(self):
-        current_folder = self.getparam('current_folder', 0)
-        if current_folder != 0:
-            self.params['parent'] = current_folder
+        self.current_folder = FolderContainer.objects.filter(id=self.getparam('document', 0)).first()
+        if self.current_folder is not None:
+            self.params['parent'] = self.current_folder.id
+            del self.params['document']
         XferAddEditor._search_model(self)
 
     def fillresponse(self):
         if not docshow_modify_condition(self):
             raise LucteriosException(IMPORTANT, _("No allow to write!"))
         XferAddEditor.fillresponse(self)
+        if self.current_folder is not None:
+            self.get_components('parent').set_value(self.current_folder.id)
 
 
-@ActionsManage.affect_grid(TITLE_EDIT, short_icon='mdi:mdi-text-box-outline', unique=SELECT_SINGLE)
 @MenuManage.describ('documents.change_document')
 class DocumentShow(XferShowEditor):
     caption = _("Show document")
     short_icon = 'mdi:mdi-folder-outline'
     model = DocumentContainer
     field_id = 'document'
+
+    def fillresponse(self, current_folder=0):
+        if (self.item.id is None) and (current_folder != 0):
+            self.item = DocumentContainer.objects.get(id=current_folder)
+        XferShowEditor.fillresponse(self)
+        self.get_components('img').set_value(self.item.get_image(), '#')
 
 
 @ActionsManage.affect_show(_('Editor'), short_icon='mdi:mdi-file-outline', modal=FORMTYPE_NOMODAL,
@@ -313,18 +320,6 @@ class DocumentEditor(XferContainerAcknowledge):
             dlg.set_close_action(self.return_action(), params={'CLOSE': 'YES'})
 
 
-@ActionsManage.affect_grid(_('Folder'), short_icon='mdi:mdi-pencil-plus-outline')
-@MenuManage.describ('documents.add_folder')
-class ContainerAddFolder(XferContainerAcknowledge):
-    caption = _("Add folder")
-    short_icon = 'mdi:mdi-folder-outline'
-    model = AbstractContainer
-    field_id = 'container'
-
-    def fillresponse(self, current_folder=0):
-        self.redirect_action(FolderAddModify.get_action(), close=CLOSE_YES, params={'parent': current_folder})
-
-
 def file_createnew_condition(xfer, gridname=''):
     if folder_notreadonly_condition(xfer, gridname):
         return (len(DocEditor.get_all_extension_supported()) > 0)
@@ -340,16 +335,23 @@ class ContainerAddFile(XferContainerAcknowledge):
     model = DocumentContainer
     field_id = 'document'
 
-    def fillresponse(self, current_folder=0, docext=""):
-        if current_folder == 0:
-            current_folder = None
+    def _search_model(self):
+        if 'document' in self.params:
+            current_id = self.getparam('document', 0)
+            del self.params['document']
+        else:
+            current_id = 0
+        self.current_folder = FolderContainer.objects.get(id=current_id) if current_id != 0 else None
+        XferContainerAcknowledge._search_model(self)
+
+    def fillresponse(self, docext=""):
         if self.getparam('CONFIRME', '') == 'YES':
             self.params = {}
             filename_spited = self.item.name.split('.')
             if len(filename_spited) > 1:
                 filename_spited = filename_spited[:-1]
             self.item.name = "%s.%s" % (".".join(filename_spited), docext)
-            self.item.parent_id = current_folder
+            self.item.parent = self.current_folder
             self.item.editor.before_save(self)
             self.item.save()
             self.item.get_doc_editors(self.request.user, True).get_empty()
@@ -361,7 +363,7 @@ class ContainerAddFile(XferContainerAcknowledge):
             img.set_value(self.short_icon, '#')
             img.set_location(0, 0, 1, 6)
             dlg.add_component(img)
-            dlg.item.parent_id = current_folder
+            dlg.item.parent = self.current_folder
             dlg.fill_from_model(1, max_row, True, ['parent'])
             dlg.fill_from_model(1, max_row + 1, False, ['name', 'description'])
 
@@ -376,110 +378,90 @@ class ContainerAddFile(XferContainerAcknowledge):
             dlg.add_action(WrapAction(TITLE_CLOSE, short_icon='mdi:mdi-close'))
 
 
-@ActionsManage.affect_grid(TITLE_DELETE, short_icon='mdi:mdi-delete-outline', unique=SELECT_MULTI, condition=folder_notreadonly_condition)
 @MenuManage.describ('documents.delete_document')
 class DocumentDel(XferDelete):
     caption = _("Delete document")
     short_icon = 'mdi:mdi-folder-outline'
     model = DocumentContainer
-    field_id = 'document'
+    field_id = ('document', 'current_folder')
 
-    def fillresponse(self):
+    def fillresponse(self, current_folder=()):
         if len(self.items) > 0:
             self.item = self.items[0]
+            if not docshow_modify_condition(self):
+                raise LucteriosException(IMPORTANT, _("No allow to write!"))
+            XferDelete.fillresponse(self)
         else:
-            self.item = DocumentContainer()
-        if not docshow_modify_condition(self):
-            raise LucteriosException(IMPORTANT, _("No allow to write!"))
-        XferDelete.fillresponse(self)
+            XferContainerAcknowledge.fillresponse(self)
 
 
 @MenuManage.describ('documents.change_document', FORMTYPE_NOMODAL, 'documents.actions', _("Management of documents"))
-class DocumentList(XferListEditor):
+class DocumentMosaic(XferListEditor):
     caption = _("Documents")
     short_icon = 'mdi:mdi-folder-outline'
-    model = DocumentContainer
+    model = AbstractContainer
     field_id = 'document'
 
+    def _search_model(self):
+        if self.getparam('document') == '0':
+            del self.params['document']
+        XferListEditor._search_model(self)
+
     def fillresponse_header(self):
-        self.current_folder = self.getparam('current_folder', 0)
-        if self.current_folder > 0:
-            self.filter = Q(parent=self.current_folder)
-        else:
-            self.filter = Q(parent=None)
-        self.fill_current_folder()
-
-    def fillresponse(self):
-        XferListEditor.fillresponse(self)
-        self.move_components('document', 1, -1)
-        self.get_components('document').colspan = 4
-        if folder_notreadonly_condition(self):
-            self.add_document()
-
-    def fill_current_folder(self):
         lbl = XferCompLabelForm('title_folder')
-        if self.current_folder > 0:
-            folder_obj = FolderContainer.objects.get(id=self.current_folder)
-            lbl.set_value(folder_obj.get_title())
-            folder_description = folder_obj.description
-        else:
-            folder_obj = FolderContainer()
-            lbl.set_value('>')
-            folder_description = ""
-        lbl.set_location(1, 2, 1)
+        lbl.set_location(0, 2, 4)
         lbl.description = _("current folder:")
         self.add_component(lbl)
+        if self.item.id is not None:
+            self.curren_item = self.item.get_final_child()
+            lbl.set_value(self.curren_item.get_title())
+            self.filter = Q(parent=self.curren_item)
+            if notfree_mode_connect() and not self.request.user.is_superuser:
+                filter_folder = Q(foldercontainer__isnull=False) & Q(foldercontainer__viewer__in=self.request.user.groups.all())
+                filter_document = Q(documentcontainer__isnull=False) & Q(documentcontainer__parent__viewer__in=self.request.user.groups.all())
+                self.filter = self.filter & (filter_folder | filter_document)
+        else:
+            self.curren_item = AbstractContainer()
+            lbl.set_value('>')
+            self.filter = Q(parent=None)
+            if notfree_mode_connect() and not self.request.user.is_superuser:
+                filter_folder = Q(foldercontainer__isnull=False) & Q(foldercontainer__viewer__in=self.request.user.groups.all())
+                self.filter = self.filter & filter_folder
 
-        lbl = XferCompLabelForm('desc_folder')
-        lbl.set_value_as_header(folder_description)
-        lbl.set_location(0, 3, 2)
-        self.add_component(lbl)
+    def get_items_from_filter(self):
+        class ContainerQuerySet(QuerySet):
+            def __init__(self, model, *args, initial=[], **kwargs):
+                super(ContainerQuerySet, self).__init__(model=model, *args, **kwargs)
+                self._result_cache = initial
 
-        if self.current_folder > 0:
-            btn_return = XferCompButton('return')
-            btn_return.set_location(2, 2)
-            btn_return.set_is_mini(True)
-            btn_return.set_action(self.request, self.return_action('', short_icon='mdi:mdi-page-previous-outline'), params={'current_folder': folder_obj.parent_id if folder_obj.parent_id is not None else 0},
-                                  modal=FORMTYPE_REFRESH, close=CLOSE_NO)
-            self.add_component(btn_return)
+            def order_by(self, *field_names):
+                return self
+        order_field = self.getparam(MOSAIC_ORDER + self.field_id, '')
+        items = XferListEditor.get_items_from_filter(self)
+        if order_field.replace('-', '') == 'datemodif':
+            items = ContainerQuerySet(
+                model=AbstractContainer,
+                initial=sorted(items, key=lambda doc: str(doc.date_modif).lower(), reverse=order_field.startswith('-'))
+            )
+        return items
 
-            btn_edit = XferCompButton('edit')
-            btn_edit.set_location(4, 2)
-            btn_edit.set_is_mini(True)
-            btn_edit.set_action(self.request, FolderAddModify.get_action('', short_icon='mdi:mdi-pencil-outline'),
-                                params={'folder': self.current_folder}, close=CLOSE_NO)
-            self.add_component(btn_edit)
-        folder = XferCompGrid("current_folder")
-        folder.set_model(folder_obj.get_subfolders(self.request.user, False), ["icon", "name"])
-        folder.set_location(0, 4, 1)
-        folder.add_action(self.request, self.return_action("", short_icon='mdi:mdi-page-next-outline'), close=CLOSE_NO, modal=FORMTYPE_REFRESH, unique=SELECT_SINGLE)
-        folder.add_action(self.request, FolderAddModify.get_action("", short_icon='mdi:mdi-pencil-plus-outline'), close=CLOSE_NO)
-        folder.add_action(self.request, self.return_action("", short_icon='mdi:mdi-delete-outline'), close=CLOSE_NO, unique=SELECT_SINGLE)
-        self.add_component(folder)
-        return folder_obj
-
-    def add_document(self):
-        last_row = self.get_max_row() + 5
-        lbl = XferCompLabelForm('sep1')
-        lbl.set_location(0, last_row, 6)
-        lbl.set_value("{[center]}{[hr/]}{[/center]}")
-        self.add_component(lbl)
-        lbl = XferCompLabelForm('sep2')
-        lbl.set_location(0, last_row + 1, 3)
-        lbl.set_value_as_infocenter(_("Add document"))
-        self.add_component(lbl)
-
-        self.fill_from_model(0, last_row + 3, False)
-        self.remove_component('parent')
-        self.get_components('filename').colspan = 3
-        self.get_components('description').colspan = 3
-
-        btn_doc = XferCompButton('adddoc')
-        btn_doc.set_location(3, last_row + 4)
-        btn_doc.set_is_mini(True)
-        btn_doc.set_action(self.request, DocumentAddModify.get_action(TITLE_ADD, short_icon='mdi:mdi-pencil-plus-outline'),
-                           params={'parent': self.current_folder, 'SAVE': 'YES'}, close=CLOSE_NO)
-        self.add_component(btn_doc)
+    def fill_grid(self, row, model, field_id, items):
+        mosaic = XferCompMosaic(field_id)
+        mosaic.adding_fiedsorder.append(('datemodif', _('date modification')))
+        mosaic.set_model(items, self, "image", "indentification", "html_info", "group")
+        mosaic.set_location(0, row + 1, 4)
+        mosaic.set_height(350)
+        mosaic.add_action(self.request, FolderAddModify.get_action(TITLE_CREATE, short_icon='mdi:mdi-folder-plus-outline'), modal=FORMTYPE_MODAL, close=CLOSE_NO, unique=SELECT_NONE)
+        mosaic.add_action(self.request, DocumentAddModify.get_action(TITLE_ADD, short_icon='mdi:mdi-file-plus-outline'), modal=FORMTYPE_MODAL, close=CLOSE_NO, unique=SELECT_NONE)
+        if file_createnew_condition(self):
+            mosaic.add_action(self.request, ContainerAddFile.get_action(_('File'), short_icon='mdi:mdi-file-plus'), modal=FORMTYPE_MODAL, close=CLOSE_NO, unique=SELECT_NONE)
+        mosaic.add_action(self.request, DocumentDel.get_action(TITLE_DELETE, short_icon='mdi:mdi-file-remove-outline'), modal=FORMTYPE_MODAL, close=CLOSE_NO, unique=SELECT_MULTI)
+        if self.curren_item.id is not None:
+            mosaic.add_action(self.request, FolderAddModify.get_action(TITLE_MODIFY, short_icon='mdi:mdi-folder-edit'), modal=FORMTYPE_MODAL, close=CLOSE_NO, unique=SELECT_NONE, params={'folder': self.curren_item.id, 'parent': self.curren_item.parent_id})
+            mosaic.add_action(self.request, self.return_action(_('Back'), short_icon='mdi:mdi-folder-arrow-left'), modal=FORMTYPE_REFRESH, close=CLOSE_NO, unique=SELECT_NONE, params={'document': self.curren_item.parent_id if self.curren_item.parent_id is not None else 0})
+        mosaic.add_action(self.request, self.return_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO, unique=SELECT_SINGLE, group=FolderContainer().get_group())
+        mosaic.add_action(self.request, DocumentShow.get_action(TITLE_EDIT, short_icon='mdi:mdi-text-box-outline'), modal=FORMTYPE_MODAL, close=CLOSE_NO, unique=SELECT_SINGLE, group=DocumentContainer().get_group())
+        self.add_component(mosaic)
 
 
 @MenuManage.describ('documents.change_document', FORMTYPE_NOMODAL, 'documents.actions', _('To find a document following a set of criteria.'))

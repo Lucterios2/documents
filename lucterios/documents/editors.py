@@ -77,10 +77,12 @@ class DocumentContainerEditor(LucteriosEditor):
         file_name.set_value('')
         file_name.set_location(obj_cmt.col, obj_cmt.row, obj_cmt.colspan, obj_cmt.rowspan)
         xfer.add_component(file_name)
-        obj_folder = xfer.get_components('parent')
-        obj_folder.set_needed(False)
-        obj_folder.set_select_query(FolderContainer().get_subfolders(xfer.request.user, True))
-        obj_folder.select_list.sort(key=lambda item: str(item[1]))
+        if self.item.id is None:
+            xfer.change_to_readonly('parent')
+        else:
+            obj_folder = xfer.get_components('parent')
+            obj_folder.set_needed(False)
+            obj_folder.select_list.sort(key=lambda item: str(item[1]))
 
     def show(self, xfer):
         obj_cmt = xfer.get_components('creator')

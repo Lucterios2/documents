@@ -41,7 +41,7 @@ from lucterios.framework.models import LucteriosModel, LucteriosVirtualField, Pr
 from lucterios.framework.filetools import get_user_path, readimage_to_base64, remove_accent, BASE64_PREFIX
 from lucterios.framework.signal_and_lock import Signal
 from lucterios.framework.auditlog import auditlog
-from lucterios.framework.tools import get_binay, get_url_from_request
+from lucterios.framework.tools import get_binay, get_url_from_request, get_date_formating, toHtml
 
 from lucterios.CORE.models import LucteriosGroup, LucteriosUser, Parameter
 
@@ -55,12 +55,20 @@ class AbstractContainer(LucteriosModel):
     name = models.CharField(_('name'), max_length=250, blank=False)
     description = models.TextField(_('description'), blank=True)
     icon = LucteriosVirtualField(verbose_name='', compute_from='get_icon', format_string='icon')
+    image = LucteriosVirtualField(verbose_name='', compute_from='get_image', format_string='icon')
     modif = LucteriosVirtualField(verbose_name=_('modifier'), compute_from='get_modif', )
     date_modif = LucteriosVirtualField(verbose_name=_('date modification'), compute_from='get_date_modif', format_string='H')
 
+    indentification = LucteriosVirtualField(verbose_name=_('indentification'), compute_from='get_indentification')
+    html_info = LucteriosVirtualField(verbose_name=_('info'), compute_from='get_info')
+    group = LucteriosVirtualField(verbose_name=_('group'), compute_from='get_group')
+
     @classmethod
     def get_default_fields(cls):
-        return ['icon', "name", "description", "modif", "date_modif"]
+        return ['image', "name", "description", "modif", "date_modif"]
+
+    def get_indentification(self):
+        return self.name if self.description == '' else self.description.replace('{[br/]}', " ").replace('{[newline/]}', " ").strip()
 
     def get_icon(self):
         if isinstance(self.get_final_child(), FolderContainer):
@@ -70,11 +78,27 @@ class AbstractContainer(LucteriosModel):
         img = readimage_to_base64(join(dirname(__file__), "static", 'lucterios.documents', "images", icon_name))
         return img.decode('ascii')
 
+    def get_image(self):
+        if isinstance(self.get_final_child(), FolderContainer):
+            return "mdi:mdi-folder-outline"
+        else:
+            return "mdi:mdi-file-outline"
+
     def get_modif(self):
         final_container = self.get_final_child()
         if isinstance(final_container, DocumentContainer):
             return final_container.modifier
         return None
+
+    def get_info(self):
+        return """<b>name</b> %(name)s<br/>
+<b>description</b> %(description)s<br/>
+<b>modifier</b> %(modif)s<br/>
+<b>date modification</b> %(date_modif)s<br/>
+""" % {'name': self.name, 'description': toHtml(self.description), 'modif': self.modif if self.modif is not None else '---', 'date_modif': get_date_formating(self.date_modif) if self.date_modif is not None else '---'}
+
+    def get_group(self):
+        return self.__class__.__name__
 
     def get_date_modif(self):
         final_container = self.get_final_child()
@@ -119,13 +143,16 @@ class FolderContainer(AbstractContainer):
         return ["name", "description", "parent"]
 
     def get_title(self, num=0):
-        title = ">" + self.name
-        if self.parent is not None:
-            if num < self.MAX_RECURSIVE:
-                title = self.parent.get_title(num + 1) + title
-            else:
-                title = self.BAD_RECURSIVE
-        return title
+        try:
+            title = ">" + self.name
+            if self.parent_id is not None:
+                if num < self.MAX_RECURSIVE:
+                    title = self.parent.get_title(num + 1) + title
+                else:
+                    title = self.BAD_RECURSIVE
+            return title
+        except FolderContainer.DoesNotExist:
+            return "---"
 
     def __str__(self):
         return self.get_title()
@@ -251,7 +278,7 @@ class DocumentContainer(AbstractContainer):
 
     @classmethod
     def get_default_fields(cls):
-        return ["icon", "name", "description", "date_modification", "modifier"]
+        return ["image", "name", "description", "date_modification", "modifier"]
 
     def __init__(self, *args, **kwargs):
         AbstractContainer.__init__(self, *args, **kwargs)
