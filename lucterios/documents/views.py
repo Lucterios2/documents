@@ -287,7 +287,8 @@ class DocumentShow(XferShowEditor):
         if (self.item.id is None) and (current_folder != 0):
             self.item = DocumentContainer.objects.get(id=current_folder)
         XferShowEditor.fillresponse(self)
-        self.get_components('img').set_value(self.item.get_image(), '#')
+        mini_image = self.item.get_image()
+        self.get_components('img').set_value(mini_image, '#' if mini_image.startswith('mdi:') else 'png')
 
 
 @ActionsManage.affect_show(_('Editor'), short_icon='mdi:mdi-file-outline', modal=FORMTYPE_NOMODAL,

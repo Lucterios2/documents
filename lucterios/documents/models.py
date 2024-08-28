@@ -24,7 +24,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 from os import unlink, listdir, makedirs
-from os.path import isfile, isdir, join, dirname
+from os.path import isfile, isdir, join
 from zipfile import ZipFile
 from lucterios.CORE.parameters import notfree_mode_connect, Params
 from datetime import datetime
@@ -36,9 +36,9 @@ from django.db.models.aggregates import Count
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from lucterios.framework.models import LucteriosModel, LucteriosVirtualField, PrintFieldsPlugIn, \
-    LucteriosQuerySet
-from lucterios.framework.filetools import get_user_path, readimage_to_base64, remove_accent, BASE64_PREFIX
+from lucterios.framework.models import LucteriosModel, LucteriosVirtualField, PrintFieldsPlugIn, LucteriosQuerySet
+from lucterios.framework.filetools import get_user_path, remove_accent, BASE64_PREFIX,\
+    readimage_to_base64, get_image_size, open_image_resize
 from lucterios.framework.signal_and_lock import Signal
 from lucterios.framework.auditlog import auditlog
 from lucterios.framework.tools import get_binay, get_url_from_request, get_date_formating, toHtml
@@ -54,7 +54,6 @@ class AbstractContainer(LucteriosModel):
     parent = models.ForeignKey('FolderContainer', verbose_name=_('parent'), null=True, on_delete=models.CASCADE)
     name = models.CharField(_('name'), max_length=250, blank=False)
     description = models.TextField(_('description'), blank=True)
-    icon = LucteriosVirtualField(verbose_name='', compute_from='get_icon', format_string='icon')
     image = LucteriosVirtualField(verbose_name='', compute_from='get_image', format_string='icon')
     modif = LucteriosVirtualField(verbose_name=_('modifier'), compute_from='get_modif', )
     date_modif = LucteriosVirtualField(verbose_name=_('date modification'), compute_from='get_date_modif', format_string='H')
@@ -69,14 +68,6 @@ class AbstractContainer(LucteriosModel):
 
     def get_indentification(self):
         return self.name if self.description == '' else self.description.replace('{[br/]}', " ").replace('{[newline/]}', " ").strip()
-
-    def get_icon(self):
-        if isinstance(self.get_final_child(), FolderContainer):
-            icon_name = "folder.png"
-        else:
-            icon_name = "file.png"
-        img = readimage_to_base64(join(dirname(__file__), "static", 'lucterios.documents', "images", icon_name))
-        return img.decode('ascii')
 
     def get_image(self):
         if isinstance(self.get_final_child(), FolderContainer):
@@ -264,6 +255,9 @@ class FolderContainer(AbstractContainer):
 
 
 class DocumentContainer(AbstractContainer):
+
+    MINIATURE_HEIGHT = 200
+
     modifier = models.ForeignKey(LucteriosUser, related_name="documentcontainer_modifier",
                                  verbose_name=_('modifier'), null=True, on_delete=models.CASCADE)
     date_modification = models.DateTimeField(verbose_name=_('date modification'), null=False)
@@ -302,11 +296,78 @@ class DocumentContainer(AbstractContainer):
     def file_path(self):
         return get_user_path("documents", "container_%s" % str(self.id))
 
+    @property
+    def miniature_path(self):
+        return get_user_path("documents", "miniature_%s.png" % str(self.id))
+
+    @property
+    def mimetypevalue(self):
+        import magic
+        if not hasattr(self, '_mimetypevalue'):
+            self._mimetypevalue = magic.from_buffer(self.content.read(2048))
+        return self._mimetypevalue
+
+    def _resize_miniature(self, image):
+        original_width, original_height = image.size
+        miniature_width = original_width * self.MINIATURE_HEIGHT / original_height
+        image = image.resize((int(miniature_width), self.MINIATURE_HEIGHT))
+        image = image.convert("RGB")
+        with open(self.miniature_path, "wb") as image_file:
+            image.save(image_file, 'PNG', quality=90)
+
+    def _create_miniature_image_outline(self):
+        from PIL import Image
+        image = Image.open(self.content)
+        self._resize_miniature(image)
+        return isfile(self.miniature_path)
+
+    def _create_miniature_file_chart_outline(self):
+        from cairosvg import svg2png
+        with open(self.miniature_path, 'wb') as png_file:
+            svg2png(file_obj=self.content, write_to=png_file, output_height=self.MINIATURE_HEIGHT)
+        return isfile(self.miniature_path)
+
+    def _create_miniature_file_pdf_box(self):
+        from pdf2image import convert_from_bytes
+        images_list = convert_from_bytes(self.content.read(), first_page=0, last_page=1)
+        self._resize_miniature(images_list[0])
+        return isfile(self.miniature_path)
+
+    def get_image(self):
+        if isfile(self.miniature_path):
+            return readimage_to_base64(self.miniature_path).decode()
+        image_to_show = None
+        if 'image' in self.mimetypevalue:
+            image_to_show = "mdi:mdi-image-outline"
+        if 'text' in self.mimetypevalue:
+            image_to_show = "mdi:mdi-text-box-outline"
+        if self.mimetypevalue.startswith('SVG'):
+            image_to_show = "mdi:mdi-file-chart-outline"
+        if self.mimetypevalue.startswith('PDF document'):
+            image_to_show = "mdi:mdi-file-pdf-box"
+        if self.mimetypevalue.startswith('Microsoft Excel'):
+            image_to_show = "mdi:mdi-file-excel-outline"
+        if self.mimetypevalue.startswith('Microsoft Word'):
+            image_to_show = "mdi:mdi-file-word-outline"
+        if self.mimetypevalue.startswith('Microsoft PowerPoint'):
+            image_to_show = "mdi:mdi-file-powerpoint-outline"
+        if self.mimetypevalue.startswith('OpenDocument'):
+            image_to_show = "mdi:mdi-file-document"
+        if image_to_show is not None:
+            convert_function = getattr(self, "_create_miniature_" + image_to_show[8:].replace('-', '_'), None)
+            if (convert_function is not None) and convert_function():
+                return readimage_to_base64(self.miniature_path).decode()
+            return image_to_show
+        return AbstractContainer.get_image(self)
+
     def delete(self):
         file_path = self.file_path
+        miniature_file_path = self.miniature_path
         LucteriosModel.delete(self)
         if isfile(file_path):
             unlink(file_path)
+        if isfile(miniature_file_path):
+            unlink(miniature_file_path)
 
     def set_context(self, xfer):
         if notfree_mode_connect() and not isinstance(xfer, str) and not xfer.request.user.is_superuser:
@@ -357,6 +418,8 @@ class DocumentContainer(AbstractContainer):
                     content = content.encode()
                 if isinstance(content, bytes):
                     zip_ref.writestr(zinfo_or_arcname=self.name, data=content)
+        if isfile(self.miniature_path):
+            unlink(self.miniature_path)
 
     def change_sharekey(self, clear):
         if clear:

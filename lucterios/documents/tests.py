@@ -510,7 +510,7 @@ class DocumentTest(LucteriosTest):
         self.assert_observer('core.custom', 'lucterios.documents', 'documentMosaic')
         self.assert_count_equal('document', 2)
         self.assert_json_equal('', "document/@0/id", "5")
-        self.assert_json_equal('', "document/@0/image", "mdi:mdi-file-outline")
+        self.assert_json_equal('', "document/@0/image", "data:image/png;base64,iVBORw0", True)
         self.assert_json_equal('', "document/@0/name", "doc 1")
         self.assert_json_equal('', "document/@0/info", "<b>nom</b> doc1.png<br/>\n<b>description</b> doc 1<br/>\n<b>modificateur</b> ---<br/>\n<b>date de modification</b>", True)
         self.assert_json_equal('', "document/@0/group", "DocumentContainer")

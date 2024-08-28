@@ -60,5 +60,5 @@ setup(
         "lucterios.documents.migrations": ['*'],
         "lucterios.documents": ['build', 'images/*', 'locale/*/*/*', 'help/*'],
     },
-    install_requires=["lucterios ~=2.7", "etherpad-lite ~=0.5", "requests"],
+    install_requires=["lucterios ~=2.7", "etherpad-lite ~=0.5", "requests", "mimetypes-magic ~=0.4", "pdf2image ~=1.17"],
 )
