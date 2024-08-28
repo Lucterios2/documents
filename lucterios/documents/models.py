@@ -91,11 +91,20 @@ class AbstractContainer(LucteriosModel):
         return None
 
     def get_info(self):
-        return """<b>name</b> %(name)s<br/>
-<b>description</b> %(description)s<br/>
-<b>modifier</b> %(modif)s<br/>
-<b>date modification</b> %(date_modif)s<br/>
-""" % {'name': self.name, 'description': toHtml(self.description), 'modif': self.modif if self.modif is not None else '---', 'date_modif': get_date_formating(self.date_modif) if self.date_modif is not None else '---'}
+        return """<b>%(title_name)s</b> %(name)s<br/>
+<b>%(title_description)s</b> %(description)s<br/>
+<b>%(title_modif)s</b> %(modif)s<br/>
+<b>%(title_date_modif)s</b> %(date_modif)s<br/>
+""" % {
+            'title_name': _('name'),
+            'title_description': _('description'),
+            'title_modif': _('modifier'),
+            'title_date_modif': _('date modification'),
+            'name': self.name,
+            'description': toHtml(self.description),
+            'modif': self.modif if self.modif is not None else '---',
+            'date_modif': get_date_formating(self.date_modif) if self.date_modif is not None else '---'
+        }
 
     def get_group(self):
         return self.__class__.__name__

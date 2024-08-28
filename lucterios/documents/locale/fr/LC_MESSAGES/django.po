@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-24 15:35+0000\n"
-"PO-Revision-Date: 2019-10-22 18:52+0200\n"
+"POT-Creation-Date: 2024-08-28 11:36+0000\n"
+"PO-Revision-Date: 2024-08-28 13:33+0200\n"
 "Last-Translator: b'Paul ARULATEDA <paul531@orange.fr>'\n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -17,281 +17,291 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Translated-Using: django-rosetta 0.7.8\n"
-"X-Generator: Poedit 2.0.6\n"
+"X-Generator: Poedit 3.4.3\n"
 
-#: __init__.py:42 views.py:605
+#: __init__.py:42 views.py:703
 msgid "Lucterios documents"
 msgstr "Documents Lucterios "
 
-#: editors.py:68 editors.py:85
+#: editors.py:68
 msgid "File not found!"
 msgstr "Fichier non trouvé !"
 
-#: editors.py:100
+#: editors.py:102
 msgid "shared link"
 msgstr "Lien partagé"
 
-#: models.py:51 models_legacy.py:46
+#: models.py:54 models_legacy.py:41
 msgid "parent"
 msgstr "parent"
 
-#: models.py:52 models_legacy.py:43 models_legacy.py:162
+#: models.py:55 models.py:99 models_legacy.py:39 models_legacy.py:65
 msgid "name"
 msgstr "nom"
 
-#: models.py:53 models_legacy.py:44 models_legacy.py:163
+#: models.py:56 models.py:100 models_legacy.py:40 models_legacy.py:66
 msgid "description"
 msgstr "description"
 
-#: models.py:55 models.py:95 models.py:208 models_legacy.py:50
-#: models_legacy.py:165
+#: models.py:59 models.py:101 models.py:131 models.py:268 models_legacy.py:43
+#: models_legacy.py:67
 msgid "modifier"
 msgstr "modificateur"
 
-#: models.py:56 models.py:209 models_legacy.py:167
+#: models.py:60 models.py:102 models.py:269 models_legacy.py:68 views.py:450
 msgid "date modification"
 msgstr "date de modification"
 
-#: models.py:87
+#: models.py:62
+msgid "indentification"
+msgstr "indentification"
+
+#: models.py:63
+msgid "info"
+msgstr "info"
+
+#: models.py:64
+msgid "group"
+msgstr "groupe"
+
+#: models.py:123
 msgid "container"
 msgstr "containeur"
 
-#: models.py:88
+#: models.py:124
 msgid "containers"
 msgstr "containeurs"
 
-#: models.py:94 models_legacy.py:48
+#: models.py:130 models_legacy.py:42
 msgid "viewer"
 msgstr "visionneur"
 
-#: models.py:99 models.py:104 models_legacy.py:58 models_legacy.py:62
+#: models.py:138 models.py:143
 msgid "001@Info"
 msgstr "001@Info"
 
-#: models.py:100 models.py:105 models_legacy.py:58 models_legacy.py:62
+#: models.py:139 models.py:144
 msgid "001@Permission"
 msgstr "001@Permission"
 
-#: models.py:200 models_legacy.py:154 models_legacy.py:161
+#: models.py:260 models_legacy.py:58 models_legacy.py:64
 msgid "folder"
 msgstr "dossier"
 
-#: models.py:201 models_legacy.py:155
+#: models.py:261 models_legacy.py:59
 msgid "folders"
 msgstr "dossiers"
 
-#: models.py:211 models_legacy.py:169
+#: models.py:271 models_legacy.py:69
 msgid "creator"
 msgstr "créateur"
 
-#: models.py:212 models_legacy.py:171
+#: models.py:272 models_legacy.py:70
 msgid "date creation"
 msgstr "date de création"
 
-#: models.py:313 models_legacy.py:249
+#: models.py:380 models_legacy.py:88
 msgid "document"
 msgstr "document"
 
-#: models.py:314 models_legacy.py:250
+#: models.py:381 models_legacy.py:89
 msgid "documents"
 msgstr "documents"
 
-#: models.py:349
+#: models.py:441
 msgid "default documents"
 msgstr "documents par défaut"
 
-#: models.py:383
+#: models.py:484
 msgid "documents-signature"
 msgstr "image de cachet ou de signature"
 
-#: models.py:387
+#: models.py:488
 msgid "# documents (administrator)"
 msgstr "# documents (administrateur)"
 
-#: models.py:388
+#: models.py:489
 msgid "# documents (editor)"
 msgstr "# documents (éditeur)"
 
-#: models.py:393 views.py:58
+#: models.py:494 views.py:61
 msgid "Document"
 msgstr "Gestion documentaire"
 
-#: models_legacy.py:52
-msgid "Available group viewers"
-msgstr "groupes de visionneurs disponibles"
-
-#: models_legacy.py:52
-msgid "Chosen group viewers"
-msgstr "groupes de visionneurs choisis"
-
-#: models_legacy.py:54
-msgid "Available group modifiers"
-msgstr "groupes de modificateurs disponibles"
-
-#: models_legacy.py:54
-msgid "Chosen group modifiers"
-msgstr "groupes de modificateurs choisis"
-
-#: views.py:61
+#: views.py:64
 msgid "Management of document's folders"
 msgstr "Gestion des dossiers de documents"
 
-#: views.py:63
+#: views.py:66
 msgid "Folders"
 msgstr "Dossiers"
 
-#: views.py:76 views.py:292
+#: views.py:79
 msgid "Add folder"
 msgstr "Ajouter un dossier"
 
-#: views.py:77
+#: views.py:80
 msgid "Modify folder"
 msgstr "Modifier le dossier"
 
-#: views.py:83
+#: views.py:102
 msgid "Delete folder"
 msgstr "Supprimer le dossier"
 
-#: views.py:128 views.py:131
+#: views.py:147 views.py:150
 msgid "Import"
 msgstr "Importer"
 
-#: views.py:137
+#: views.py:156
 msgid "zip file"
 msgstr "fichier zip"
 
-#: views.py:164 views.py:167
+#: views.py:183 views.py:186
 msgid "Extract"
 msgstr "Extraire"
 
-#: views.py:209
+#: views.py:228
 msgid "Office"
 msgstr "Bureautique"
 
-#: views.py:209
+#: views.py:228
 msgid "Office tools"
 msgstr "Ensemble d'outils de gestion génériques"
 
-#: views.py:212
+#: views.py:230
 msgid "Documents management"
 msgstr "Gestion de fichiers et de documents"
 
-#: views.py:212
+#: views.py:230
 msgid "Documents storage tools"
 msgstr ""
 "Ensemble d'actions permettant une gestion documentaire électronique.{[br/]}"
 "Vous avez la possibilité ici de stocker de façon centraliser des fichiers, "
 "de les consulter et de les modifier."
 
-#: views.py:218 views.py:229 views.py:375
+#: views.py:236 views.py:249
 msgid "No allow to view!"
 msgstr "Visualisation non autorisée !"
 
-#: views.py:242 views.py:458
+#: views.py:261
 msgid "Add document"
 msgstr "Ajouter un document"
 
-#: views.py:243
+#: views.py:262
 msgid "Modify document"
 msgstr "Modifier le document"
 
-#: views.py:247 views.py:377
+#: views.py:273 views.py:392
 msgid "No allow to write!"
 msgstr "Écriture non autorisée !"
 
-#: views.py:254
+#: views.py:281
 msgid "Show document"
 msgstr "Afficher le document"
 
-#: views.py:260
+#: views.py:293
 msgid "Editor"
 msgstr "Éditeur"
 
-#: views.py:264
+#: views.py:297
 msgid "Edit document"
 msgstr "Editer un document"
 
-#: views.py:289
-msgid "Folder"
-msgstr "Dossier"
-
-#: views.py:308
+#: views.py:330 views.py:458
 msgid "File"
 msgstr "Fichier"
 
-#: views.py:311
+#: views.py:333
 msgid "Create document"
 msgstr "Créer un document"
 
-#: views.py:351
+#: views.py:375
 msgid "document type"
 msgstr "type de document"
 
-#: views.py:360
+#: views.py:383
 msgid "Delete document"
 msgstr "Supprimer le document"
 
-#: views.py:372
-msgid "No allow to delete folder!"
-msgstr "Suppression de dossier non autorisée !"
-
-#: views.py:382
+#: views.py:398
 msgid "Management of documents"
 msgstr "Gestion de documents"
 
-#: views.py:384
+#: views.py:400
 msgid "Documents"
 msgstr "Documents"
 
-#: views.py:423
+#: views.py:413
 msgid "current folder:"
 msgstr "dossier courant"
 
-#: views.py:505
+#: views.py:462
+msgid "Back"
+msgstr "Retour"
+
+#: views.py:468
 msgid "To find a document following a set of criteria."
 msgstr "Pour trouver un document suivant un ensemble de critères."
 
-#: views.py:507
+#: views.py:470
 msgid "Document search"
 msgstr "Recherche de document"
 
-#: views.py:526
+#: views.py:490
 msgid "Select"
 msgstr "Sélection"
 
-#: views.py:530
+#: views.py:493
 msgid "delete shared link"
 msgstr "supprimer le lien partagé"
 
-#: views.py:531
+#: views.py:494
 msgid "create shared link"
 msgstr "créer le lien partagé"
 
-#: views.py:548
+#: views.py:511
 msgid "Download document"
 msgstr "Télécharger le document"
 
-#: views.py:562
+#: views.py:535
 msgid "File not found !"
 msgstr "Fichier non trouvé !"
 
-#: views.py:575
+#: views.py:665
 msgid "Document management"
 msgstr "Gestion documentaire"
 
-#: views.py:585
+#: views.py:675
 msgid "no file currently available"
 msgstr "aucun fichier actuellement accessible"
 
-#: views.py:587
+#: views.py:677
 msgid "one file currently available"
 msgstr "un fichier actuellement accessible"
 
-#: views.py:589
+#: views.py:679
 #, python-format
 msgid "%d files currently available"
 msgstr "%d fichiers actuellement accessibles"
 
-#: views.py:605
+#: views.py:703
 msgid "Parameters"
 msgstr "Paramètres"
+
+#~ msgid "Available group viewers"
+#~ msgstr "groupes de visionneurs disponibles"
+
+#~ msgid "Chosen group viewers"
+#~ msgstr "groupes de visionneurs choisis"
+
+#~ msgid "Available group modifiers"
+#~ msgstr "groupes de modificateurs disponibles"
+
+#~ msgid "Chosen group modifiers"
+#~ msgstr "groupes de modificateurs choisis"
+
+#~ msgid "Folder"
+#~ msgstr "Dossier"
+
+#~ msgid "No allow to delete folder!"
+#~ msgstr "Suppression de dossier non autorisée !"

@@ -452,7 +452,8 @@ class DocumentMosaic(XferListEditor):
         mosaic.set_location(0, row + 1, 4)
         mosaic.set_height(350)
         mosaic.add_action(self.request, FolderAddModify.get_action(TITLE_CREATE, short_icon='mdi:mdi-folder-plus-outline'), modal=FORMTYPE_MODAL, close=CLOSE_NO, unique=SELECT_NONE)
-        mosaic.add_action(self.request, DocumentAddModify.get_action(TITLE_ADD, short_icon='mdi:mdi-file-plus-outline'), modal=FORMTYPE_MODAL, close=CLOSE_NO, unique=SELECT_NONE)
+        if folder_notreadonly_condition(self):
+            mosaic.add_action(self.request, DocumentAddModify.get_action(TITLE_ADD, short_icon='mdi:mdi-file-plus-outline'), modal=FORMTYPE_MODAL, close=CLOSE_NO, unique=SELECT_NONE)
         if file_createnew_condition(self):
             mosaic.add_action(self.request, ContainerAddFile.get_action(_('File'), short_icon='mdi:mdi-file-plus'), modal=FORMTYPE_MODAL, close=CLOSE_NO, unique=SELECT_NONE)
         mosaic.add_action(self.request, DocumentDel.get_action(TITLE_DELETE, short_icon='mdi:mdi-file-remove-outline'), modal=FORMTYPE_MODAL, close=CLOSE_NO, unique=SELECT_MULTI)
@@ -489,8 +490,8 @@ class DocumentSearch(XferSavedCriteriaSearchEditor):
             grid.add_action(self.request, self.select_class.get_action(_("Select"), short_icon="mdi:mdi-check"), close=CLOSE_YES, unique=self.mode_select, pos_act=0)
 
 
-@ActionsManage.affect_show(_('delete shared link'), short_icon="mdi:mdi-file-key-outline", condition=lambda xfer: xfer.item.sharekey is not None)
-@ActionsManage.affect_show(_('create shared link'), short_icon="mdi:mdi-file-key-outline", condition=lambda xfer: xfer.item.sharekey is None)
+@ActionsManage.affect_show(_('delete shared link'), short_icon="mdi:mdi-file-key-outline", condition=lambda xfer: docshow_modify_condition(xfer) and (xfer.item.sharekey is not None))
+@ActionsManage.affect_show(_('create shared link'), short_icon="mdi:mdi-file-key-outline", condition=lambda xfer: docshow_modify_condition(xfer) and (xfer.item.sharekey is None))
 @MenuManage.describ('documents.add_document')
 class DocumentChangeShared(XferContainerAcknowledge):
     short_icon = 'mdi:mdi-folder-outline'
@@ -498,6 +499,8 @@ class DocumentChangeShared(XferContainerAcknowledge):
     field_id = 'document'
 
     def fillresponse(self):
+        if not docshow_modify_condition(self):
+            raise LucteriosException(IMPORTANT, _("No allow to write!"))
         self.item.change_sharekey(self.item.sharekey is not None)
         self.item.save()
 
