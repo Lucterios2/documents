@@ -519,8 +519,8 @@ class DocumentTest(LucteriosTest):
         self.assert_json_equal('', "document/@0/group", "DocumentContainer")
         self.assert_json_equal('', "document/@1/id", "3")
         self.assert_json_equal('', "document/@1/image", "mdi:mdi-folder-outline")
-        self.assert_json_equal('', "document/@1/name", "----")
-        self.assert_json_equal('', "document/@1/info", "<b>nom</b> truc3<br/>\n<b>description</b> ----<br/>\n<b>modificateur</b> ---<br/>\n<b>date de modification</b> ---<br/>\n")
+        self.assert_json_equal('', "document/@1/name", "truc3")
+        self.assert_json_equal('', "document/@1/info", "<b>nom</b> truc3<br/>\n<b>description</b> ----<br/>\n")
         self.assert_json_equal('', "document/@1/group", "FolderContainer")
         self.assertTrue(exists(get_user_path('documents', 'container_5')))
 
