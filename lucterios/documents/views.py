@@ -409,13 +409,18 @@ class DocumentMosaic(XferListEditor):
         XferListEditor._search_model(self)
 
     def fillresponse_header(self):
+        self.get_components('title').colspan = 3
         lbl = XferCompLabelForm('title_folder')
-        lbl.set_location(0, 2, 4)
+        lbl.set_location(0, 2, 2)
         lbl.description = _("current folder:")
         self.add_component(lbl)
         if self.item.id is not None:
             self.curren_item = self.item.get_final_child()
             lbl.set_value(self.curren_item.get_title())
+            lbl = XferCompLabelForm('desc_folder')
+            lbl.set_location(2, 2, 2)
+            lbl.set_value(self.curren_item.description)
+            self.add_component(lbl)
             self.filter = Q(parent=self.curren_item)
             if notfree_mode_connect() and not self.request.user.is_superuser:
                 filter_folder = Q(foldercontainer__isnull=False) & Q(foldercontainer__viewer__in=self.request.user.groups.all())

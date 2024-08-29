@@ -66,9 +66,6 @@ class AbstractContainer(LucteriosModel):
     def get_default_fields(cls):
         return ['image', "name", "description", "modif", "date_modif"]
 
-    def get_indentification(self):
-        return self.name if self.description == '' else self.description.replace('{[br/]}', " ").replace('{[newline/]}', " ").strip()
-
     def get_image(self):
         if isinstance(self.get_final_child(), FolderContainer):
             return "mdi:mdi-folder-outline"
@@ -81,21 +78,11 @@ class AbstractContainer(LucteriosModel):
             return final_container.modifier
         return None
 
+    def get_indentification(self):
+        return self.name
+
     def get_info(self):
-        return """<b>%(title_name)s</b> %(name)s<br/>
-<b>%(title_description)s</b> %(description)s<br/>
-<b>%(title_modif)s</b> %(modif)s<br/>
-<b>%(title_date_modif)s</b> %(date_modif)s<br/>
-""" % {
-            'title_name': _('name'),
-            'title_description': _('description'),
-            'title_modif': _('modifier'),
-            'title_date_modif': _('date modification'),
-            'name': self.name,
-            'description': toHtml(self.description),
-            'modif': self.modif if self.modif is not None else '---',
-            'date_modif': get_date_formating(self.date_modif) if self.date_modif is not None else '---'
-        }
+        return ""
 
     def get_group(self):
         return self.__class__.__name__
@@ -123,6 +110,19 @@ class FolderContainer(AbstractContainer):
 
     BAD_RECURSIVE = " !! "
     MAX_RECURSIVE = 10
+
+    def get_indentification(self):
+        return self.name
+
+    def get_info(self):
+        return """<b>%(title_name)s</b> %(name)s<br/>
+<b>%(title_description)s</b> %(description)s<br/>
+""" % {
+            'title_name': _('name'),
+            'title_description': _('description'),
+            'name': self.name,
+            'description': toHtml(self.description)
+        }
 
     @classmethod
     def get_show_fields(cls):
@@ -266,6 +266,31 @@ class DocumentContainer(AbstractContainer):
     date_creation = models.DateTimeField(verbose_name=_('date creation'), null=False)
     sharekey = models.CharField('sharekey', max_length=100, null=True)
     metadata = models.CharField('metadata', max_length=200, null=True)
+
+    def get_indentification(self):
+        if self.description == '':
+            return self.name
+        else:
+            value = self.description
+            for item in ('br', 'br/', 'newline', 'newline/'):
+                value = value.replace('{[%s]}' % item, '\n')
+            return value.split('\n')[0].strip()
+
+    def get_info(self):
+        return """<b>%(title_name)s</b> %(name)s<br/>
+<b>%(title_description)s</b> %(description)s<br/>
+<b>%(title_modif)s</b> %(modif)s<br/>
+<b>%(title_date_modif)s</b> %(date_modif)s<br/>
+""" % {
+            'title_name': _('name'),
+            'title_description': _('description'),
+            'title_modif': _('modifier'),
+            'title_date_modif': _('date modification'),
+            'name': self.name,
+            'description': toHtml(self.description),
+            'modif': self.modif if self.modif is not None else '---',
+            'date_modif': get_date_formating(self.date_modif) if self.date_modif is not None else '---'
+        }
 
     @classmethod
     def get_show_fields(cls):
