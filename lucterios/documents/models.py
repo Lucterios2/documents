@@ -353,6 +353,7 @@ class DocumentContainer(AbstractContainer):
         return isfile(self.miniature_path)
 
     def _create_miniature_file_pdf_box(self):
+        # Download "pdfinfo" : https://www.xpdfreader.com/download.html (Xpdf command line tools)
         from pdf2image import convert_from_bytes
         images_list = convert_from_bytes(self.content.read(), first_page=0, last_page=1)
         self._resize_miniature(images_list[0])

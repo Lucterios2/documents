@@ -452,6 +452,7 @@ class DocumentMosaic(XferListEditor):
         return items
 
     def fill_grid(self, row, model, field_id, items):
+        root_document = self.getparam('root', 0)
         mosaic = XferCompMosaic(field_id)
         mosaic.adding_fiedsorder.append(('datemodif', _('date modification')))
         mosaic.set_model(items, self, "image", "indentification", "html_info", "group")
@@ -465,7 +466,8 @@ class DocumentMosaic(XferListEditor):
         mosaic.add_action(self.request, DocumentDel.get_action(TITLE_DELETE, short_icon='mdi:mdi-file-remove-outline'), modal=FORMTYPE_MODAL, close=CLOSE_NO, unique=SELECT_MULTI)
         if self.curren_item.id is not None:
             mosaic.add_action(self.request, FolderAddModify.get_action(TITLE_MODIFY, short_icon='mdi:mdi-folder-edit'), modal=FORMTYPE_MODAL, close=CLOSE_NO, unique=SELECT_NONE, params={'folder': self.curren_item.id, 'parent': self.curren_item.parent_id})
-            mosaic.add_action(self.request, self.return_action(_('Back'), short_icon='mdi:mdi-folder-arrow-left'), modal=FORMTYPE_REFRESH, close=CLOSE_NO, unique=SELECT_NONE, params={'document': self.curren_item.parent_id if self.curren_item.parent_id is not None else 0})
+            if self.curren_item.id != root_document:
+                mosaic.add_action(self.request, self.return_action(_('Back'), short_icon='mdi:mdi-folder-arrow-left'), modal=FORMTYPE_REFRESH, close=CLOSE_NO, unique=SELECT_NONE, params={'document': self.curren_item.parent_id if self.curren_item.parent_id is not None else 0})
         mosaic.add_action(self.request, self.return_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO, unique=SELECT_SINGLE, group=FolderContainer().get_group())
         mosaic.add_action(self.request, DocumentShow.get_action(TITLE_EDIT, short_icon='mdi:mdi-text-box-outline'), modal=FORMTYPE_MODAL, close=CLOSE_NO, unique=SELECT_SINGLE, group=DocumentContainer().get_group())
         self.add_component(mosaic)
