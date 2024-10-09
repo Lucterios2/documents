@@ -37,8 +37,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from lucterios.framework.models import LucteriosModel, LucteriosVirtualField, PrintFieldsPlugIn, LucteriosQuerySet
-from lucterios.framework.filetools import get_user_path, remove_accent, BASE64_PREFIX,\
-    readimage_to_base64, get_image_size, open_image_resize
+from lucterios.framework.filetools import get_user_path, remove_accent, BASE64_PREFIX, readimage_to_base64
 from lucterios.framework.signal_and_lock import Signal
 from lucterios.framework.auditlog import auditlog
 from lucterios.framework.tools import get_binay, get_url_from_request, get_date_formating, toHtml
