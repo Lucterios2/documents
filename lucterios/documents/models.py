@@ -24,12 +24,13 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 from os import unlink, listdir, makedirs
-from os.path import isfile, isdir, join
+from os.path import isfile, isdir, join, dirname
 from zipfile import ZipFile
 from lucterios.CORE.parameters import notfree_mode_connect, Params
 from datetime import datetime
 from zipfile import BadZipFile
 from logging import getLogger
+import sys
 
 from django.db import models
 from django.db.models.aggregates import Count
@@ -266,6 +267,14 @@ class DocumentContainer(AbstractContainer):
     sharekey = models.CharField('sharekey', max_length=100, null=True)
     metadata = models.CharField('metadata', max_length=200, null=True)
 
+    @classmethod
+    def get_popper_path(cls):
+        if not hasattr(cls, "poppler_path"):
+            cls.poppler_path = join(dirname(sys.executable), 'popper')
+            if not isdir(cls.poppler_path):
+                cls.poppler_path = None
+        return cls.poppler_path
+
     def get_indentification(self):
         if self.description == '':
             return self.name
@@ -354,7 +363,7 @@ class DocumentContainer(AbstractContainer):
     def _create_miniature_file_pdf_box(self):
         # Download "pdfinfo" : https://www.xpdfreader.com/download.html (Xpdf command line tools)
         from pdf2image import convert_from_bytes
-        images_list = convert_from_bytes(self.content.read(), first_page=0, last_page=1)
+        images_list = convert_from_bytes(self.content.read(), first_page=0, last_page=1, poppler_path=self.get_popper_path())
         self._resize_miniature(images_list[0])
         return isfile(self.miniature_path)
 
