@@ -22,7 +22,6 @@ You should have received a copy of the GNU General Public License
 along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-
 from setuptools import setup
 from lucterios.documents import __version__
 
@@ -61,5 +60,5 @@ setup(
         "lucterios.documents.migrations": ['*'],
         "lucterios.documents": ['build', 'images/*', 'locale/*/*/*', 'help/*'],
     },
-    install_requires=["lucterios ~=2.7", "etherpad-lite ~=0.5", "requests", "mimetypes-magic ~=0.4", "pdf2image ~=1.17"],
+    install_requires=["lucterios ~=2.7", "etherpad-lite ~=0.5", "requests", "mimetypes-magic ~=0.4", "python-magic-bin ~=0.4", "pdf2image ~=1.17"],
 )

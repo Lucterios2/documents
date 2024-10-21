@@ -269,11 +269,11 @@ class DocumentContainer(AbstractContainer):
 
     @classmethod
     def get_popper_path(cls):
-        if not hasattr(cls, "poppler_path"):
-            cls.poppler_path = join(dirname(sys.executable), 'popper')
-            if not isdir(cls.poppler_path):
-                cls.poppler_path = None
-        return cls.poppler_path
+        if not hasattr(cls, "popper_path"):
+            cls.popper_path = join(dirname(sys.executable), 'popper')
+            if not isdir(cls.popper_path):
+                cls.popper_path = None
+        return cls.popper_path
 
     def get_indentification(self):
         if self.description == '':
@@ -364,7 +364,8 @@ class DocumentContainer(AbstractContainer):
         # Download "pdfinfo" : https://www.xpdfreader.com/download.html (Xpdf command line tools)
         from pdf2image import convert_from_bytes
         images_list = convert_from_bytes(self.content.read(), first_page=0, last_page=1, poppler_path=self.get_popper_path())
-        self._resize_miniature(images_list[0])
+        if len(images_list) > 0:
+            self._resize_miniature(images_list[0])
         return isfile(self.miniature_path)
 
     def get_image(self):
