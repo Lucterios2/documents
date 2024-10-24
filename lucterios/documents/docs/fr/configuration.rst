@@ -8,6 +8,8 @@ Pour votre gestion documentaire, vous disposez d'un ensemble d'outils.
 A l'écran la liste des dossiers existants s'affiche. Vous avez la possibilité d'en créer de nouveaux et de modifier les paramètres des dossiers déjà présents.
 
 .. image:: configuration.png
+   :height: 400px
+   :align: center
 
 En définissant judicieusement un dossier comme sous-dossier d'un dossier-parent, vous pouvez  mettre en place une arborescence de dossiers respectueuse de votre plan de classement.
 

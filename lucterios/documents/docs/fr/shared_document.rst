@@ -9,23 +9,27 @@ Chaque dossier est assorti d'une description et d'informations relatives à la d
 
      Menu *Bureautique/Gestion de fichiers et de documents/Documents*
  
-Le retour au dossier-parent est possible grâce au bouton '<'.
+Le retour au dossier-parent est possible grâce au bouton 'Retour'.
 Si vous disposez des droits, le bouton d'édition situé à coté permet d'éditer les propriétés du dossier actif et de les modifier.
 
 .. image:: listdoc.png
-
-Suivant vos permissions, la zone de gauche vous permet de gérer vos dossiers.
-En utilisant le bouton '+', il est possible de créer un nouveau dossier.
-Après l'avoir sélectionné, vous pouvez aussi en supprimer un et son contenu, à l'aide du bouton '-'.
-Affichez le contenu d'un dossier après l'avoir sélectionné et avoir cliqué sur le bouton '>' ou faites un double-clic sur la ligne correspondante au dossier.
+   :height: 400px
+   :align: center
+   
+Suivant vos permissions, vous pouvez de gérer vos dossiers (modifier ses propriétés ou en ajouter un de plus).
+La suppression d'un dossier ne se fait qu'exclusivement depuis l'écran d'administration (cf chapitre "Configurer les dossiers")
+Affichez le contenu d'un dossier après en faisant un double-clic sur l'élement correspondante au dossier.
 
 Depuis la zone centrale, vous pouvez visualiser les documents contenus dans le dossier courant.
+Suivant la nature des fichiers, une miniature peux s'afficher pour vous présenter un apperçu de celui-ci.
 Suivant vos permissions, vous pouvez ajouter ou supprimer un document.
 *Diacamma* mémorise l'utilisateur et la date de création de tout document ainsi que les informations relatives à la dernière modification.
 
 Affichez la fiche d'un document à l'aide d'un double-clic sur son nom.
 
 .. image:: showdoc.png
+   :height: 400px
+   :align: center
 
 Depuis cette fiche, il vous est possible :
  * de le modifier en l'important de nouveau

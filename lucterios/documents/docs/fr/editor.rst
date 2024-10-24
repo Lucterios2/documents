@@ -39,6 +39,8 @@ Usage
 	 - Un bouton "Editeur" pour ouvrir l'éditeur Etherpad depuis la fiche du document.
 	 
 .. image:: etherpad.png	  
+   :height: 400px
+   :align: center
 
 	
 Ethercalc
@@ -49,10 +51,11 @@ Ethercalc
 Site Web
 
 	https://ethercalc.net/
+	https://github.com/audreyt/ethercalc
 
 Installation
 
-	Sur le site de l'éditeur, une petit explication indique comment l'installer.
+	Sur le wiki des sources, une petit explication indique comment l'installer.
 	
 Configurer
 
@@ -72,6 +75,8 @@ Usage
 	 - Un bouton "Editeur" pour ouvrir l'éditeur Ethercalc depuis la fiche du document.
 	 
 .. image:: ethercalc.png	  
+   :height: 400px
+   :align: center
 
 OnlyOffice Docs Community Edition
 ---------------------------------
@@ -106,3 +111,5 @@ Usage
 	 - A noter que vous avez également la possibilité de visualiser, en lecture seule, les documents xls, doc, ppt ou pdf 
 	 
 .. image:: onlyoffice.png	  
+   :height: 400px
+   :align: center
