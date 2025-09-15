@@ -27,7 +27,6 @@ from os.path import join, dirname
 from zipfile import ZipFile
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from threading import Thread
-from cgi import parse_header, parse_multipart
 from urllib.parse import parse_qs
 
 from django.utils import timezone
@@ -127,6 +126,7 @@ class TestMoke(BaseHTTPRequestHandler):
         self.response()
 
     def get_request_fields(self):
+        from cgi import parse_header, parse_multipart
         ctype, pdict = parse_header(self.headers['content-type'])
         if ctype == 'multipart/form-data':
             requestvars = parse_multipart(self.rfile, pdict)
